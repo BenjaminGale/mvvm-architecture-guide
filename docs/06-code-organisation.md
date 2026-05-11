@@ -15,12 +15,12 @@ com.example/
 ├── customerdetail/
 ├── settings/
 ├── shell/
-└── navigation/
+└── core/
 ```
 
 - **Screen packages** contain the ViewModel, View, use cases, and any sub-ViewModels and sub-views for that screen.
 - **`shell`** — The application shell: the main window, sidebar, and dialog manager. Treated as a screen like any other.
-- **`navigation`** — Cross-cutting infrastructure: `ViewFactory`, `ViewRouter`, `Action`, and `AsyncAction`. Shared by all screens and not specific to any one of them.
+- **`core`** — Reusable infrastructure types shared across all screens, organised by layer.
 
 `App.java` sits at the root as the single composition root.
 
@@ -83,14 +83,14 @@ shell/
 
 ### 6.3 Cross-cutting infrastructure
 
-`ViewFactory`, `ViewRouter`, `Action`, and `AsyncAction` are not specific to any screen. They live in `navigation/` and may be imported by any screen package:
-
 ```
-navigation/
-├── Action.java
-├── AsyncAction.java
-├── ViewFactory.java
-└── ViewRouter.java
+core/
+├── viewmodel/
+│   ├── Action.java
+│   └── AsyncAction.java
+└── view/
+    ├── ViewFactory.java
+    └── ViewRouter.java
 ```
 
 ### 6.4 Complete package layout
@@ -143,9 +143,11 @@ com.example/
 │   ├── SidebarView.java
 │   └── DialogManagerView.java
 │
-└── navigation/
-    ├── Action.java
-    ├── AsyncAction.java
-    ├── ViewFactory.java
-    └── ViewRouter.java
+└── core/
+    ├── view/
+    │   ├── ViewFactory.java
+    │   └── ViewRouter.java
+    └── viewmodel/
+        ├── Action.java
+        └── AsyncAction.java
 ```
