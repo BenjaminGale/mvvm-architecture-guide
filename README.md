@@ -1,5 +1,7 @@
 # MVVM Architecture Guide
 
+This repository contains a guide to implementing the Model-View-ViewModel (MVVM) architectural pattern.
+
 ## Contents
 
 - [1. Introduction](docs/01-introduction.md)
