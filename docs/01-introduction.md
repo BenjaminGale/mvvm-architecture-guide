@@ -4,6 +4,19 @@ This document describes a practical approach to implementing the Model-View-View
 
 The sample code is written in Java with JavaFX as the chosen view technology however the patterns can be applied to any technology that provides a property binding system suitable for use with the MVVM pattern.
 
+## Contents
+
+- [1.1 What is MVVM](#11-what-is-mvvm)
+- [1.2 Why use MVVM](#12-why-use-mvvm)
+- [1.3 Common MVVM problems](#13-common-mvvm-problems)
+  - [1.3.1 ViewModels with too many responsibilities](#131-viewmodels-with-too-many-responsibilities)
+  - [1.3.2 Services injected directly into ViewModels](#132-services-injected-directly-into-viewmodels)
+  - [1.3.3 Navigation coupled to presentation](#133-navigation-coupled-to-presentation)
+  - [1.3.4 Inheritance used to share logic](#134-inheritance-used-to-share-logic)
+  - [1.3.5 Fat ViewModels from delegate commands](#135-fat-viewmodels-from-delegate-commands)
+  - [1.3.6 Testability claimed but not demonstrated](#136-testability-claimed-but-not-demonstrated)
+- [1.4 Design goals](#14-design-goals)
+
 ## 1.1 What is MVVM
 
 The MVVM pattern divides an application into four layers with distinct, non-overlapping responsibilities:

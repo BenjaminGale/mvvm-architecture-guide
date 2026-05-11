@@ -1,6 +1,19 @@
 
 ## 8. Architecture review
 
+This section revisits the design goals and common problems identified in the introduction, mapping each directly to the structural decisions made throughout this document.
+
+## Contents
+
+- [8.1 How design goals are met](#81-how-design-goals-are-met)
+- [8.2 How common problems are addressed](#82-how-common-problems-are-addressed)
+  - [8.2.1 ViewModels with too many responsibilities](#821-viewmodels-with-too-many-responsibilities)
+  - [8.2.2 Services injected directly into ViewModels](#822-services-injected-directly-into-viewmodels)
+  - [8.2.3 Navigation coupled to presentation](#823-navigation-coupled-to-presentation)
+  - [8.2.4 Inheritance used to share logic](#824-inheritance-used-to-share-logic)
+  - [8.2.5 Fat ViewModels from delegate commands](#825-fat-viewmodels-from-delegate-commands)
+  - [8.2.6 Testability claimed but not demonstrated](#826-testability-claimed-but-not-demonstrated)
+
 ### 8.1 How design goals are met
 
 Section 1.4 defined six design goals for this architecture. Each is addressed directly by a structural decision described in this document:

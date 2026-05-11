@@ -2,6 +2,22 @@
 
 This section demonstrates how to practically unit test the components introduced throughout this document.
 
+## Contents
+
+- [7.1 Testing ViewModels](#71-testing-viewmodels)
+  - [7.1.1 Property updates](#711-property-updates)
+  - [7.1.2 Navigation callbacks](#712-navigation-callbacks)
+  - [7.1.3 Sub-ViewModel validity](#713-sub-viewmodel-validity)
+  - [7.1.4 Composed validity (canSave)](#714-composed-validity-cansave)
+  - [7.1.5 AsyncAction](#715-asyncaction)
+- [7.2 Testing use cases](#72-testing-use-cases)
+- [7.3 Testing inter-ViewModel communication](#73-testing-inter-viewmodel-communication)
+- [7.4 Stub implementations](#74-stub-implementations)
+- [7.5 Testing Action and ViewFactory directly](#75-testing-action-and-viewfactory-directly)
+  - [7.5.1 Action](#751-action)
+  - [7.5.2 AsyncAction](#752-asyncaction)
+  - [7.5.3 ViewFactory](#753-viewfactory)
+
 ### 7.1 Testing ViewModels
 
 #### 7.1.1 Property updates

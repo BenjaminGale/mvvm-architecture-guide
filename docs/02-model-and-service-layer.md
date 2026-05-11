@@ -2,6 +2,12 @@
 
 The Model and Service layers sit below the ViewModel layer. They have no knowledge of the UI and no UI framework imports. Understanding them clearly is a prerequisite for understanding how ViewModels are kept focused and testable.
 
+## Contents
+
+- [2.1 Model objects](#21-model-objects)
+- [2.2 Services](#22-services)
+- [2.3 Use cases](#23-use-cases)
+
 ## 2.1 Model objects
 
 Models are plain objects representing the application's core domain concepts — things like `Order`, `Customer`, and `LineItem`. They carry state and may encapsulate domain behaviour, but have no knowledge of the UI, no observable properties, and no dependency on external frameworks.

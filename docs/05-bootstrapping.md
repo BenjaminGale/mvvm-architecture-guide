@@ -1,5 +1,18 @@
 ## 5. Application bootstrapping
 
+This section covers the composition root — the single place in the codebase where services, use cases, ViewModels, and navigation callbacks are constructed and wired together. It shows how to structure the application startup class and how to scale it as the application grows using Flow classes.
+
+## Contents
+
+- [5.1 The role of App](#51-the-role-of-app)
+- [5.2 Infrastructure and registration](#52-infrastructure-and-registration)
+- [5.3 Composing the application](#53-composing-the-application)
+  - [5.3.1 Sidebar](#531-sidebar)
+  - [5.3.2 Orders flow](#532-orders-flow)
+  - [5.3.3 Customers flow](#533-customers-flow)
+  - [5.3.4 Settings](#534-settings)
+- [5.4 Scaling App with Flow classes](#54-scaling-app-with-flow-classes)
+
 ### 5.1 The role of App
 
 `App` is the single composition root. It is the only place in the codebase where dependencies are constructed and wired across layer boundaries. Reading it top to bottom gives a complete picture of every screen and every possible navigation transition.

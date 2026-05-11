@@ -1,5 +1,26 @@
 ## 3. ViewModels
 
+This section describes the ViewModel layer in detail. ViewModels hold observable state, coordinate use cases, and express navigation through injected callbacks. It covers the core ViewModel structure, strategies for managing complexity as ViewModels grow, patterns for inter-ViewModel communication, and the Action utilities that reduce view-layer boilerplate.
+
+## Contents
+
+- [3.1 The ViewModel class](#31-the-viewmodel-class)
+  - [3.1.1 Observable properties](#311-observable-properties)
+  - [3.1.2 Navigation via injected callbacks](#312-navigation-via-injected-callbacks)
+  - [3.1.3 Why ViewModels should not create or host views](#313-why-viewmodels-should-not-create-or-host-views)
+- [3.2 Organising complex ViewModels](#32-organising-complex-viewmodels)
+  - [3.2.1 Use cases as injectable objects](#321-use-cases-as-injectable-objects)
+  - [Managing constructor length with a use case record](#managing-constructor-length-with-a-use-case-record)
+  - [3.2.2 Sub-ViewModels for distinct UI sections](#322-sub-viewmodels-for-distinct-ui-sections)
+  - [3.2.3 Composing sub-ViewModels in the parent](#323-composing-sub-viewmodels-in-the-parent)
+  - [3.2.4 The result of combining all three strategies](#324-the-result-of-combining-all-three-strategies)
+- [3.3 ViewModel communication patterns](#33-viewmodel-communication-patterns)
+- [3.4 Action classes](#34-action-classes)
+  - [3.4.1 The problem they solve](#341-the-problem-they-solve)
+  - [3.4.2 Action — synchronous operations](#342-action--synchronous-operations)
+- [3.5 AsyncAction — long-running operations](#35-asyncaction--long-running-operations)
+  - [3.5.1 How they fit into the architecture](#351-how-they-fit-into-the-architecture)
+
 > This section introduces complexity progressively. Section 3.1 covers the core ViewModel structure. Section 3.2 adds strategies for managing complexity as ViewModels grow. Section 3.4 introduces Action classes, and section 3.5 extends them to asynchronous operations. Later examples for the same classes — particularly `OrderEditorViewModel` and `SaveOrderUseCase` — supersede earlier ones; each revision reflects the addition of a new strategy.
 
 ### 3.1 The ViewModel class

@@ -2,6 +2,13 @@
 
 This section describes how to arrange the classes introduced throughout this guide into packages. Classes are grouped by screen — everything needed to implement one screen lives in the same package.
 
+## Contents
+
+- [6.1 Top-level packages](#61-top-level-packages)
+- [6.2 Screen packages](#62-screen-packages)
+- [6.3 Cross-cutting infrastructure](#63-cross-cutting-infrastructure)
+- [6.4 Complete package layout](#64-complete-package-layout)
+
 ### 6.1 Top-level packages
 
 Each top-level package corresponds to one screen. Two packages sit outside this structure because they are shared across screens:

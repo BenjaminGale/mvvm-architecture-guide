@@ -1,5 +1,20 @@
 ## 4. Views
 
+This section covers the view layer — how views are structured, constructed, and connected to their ViewModels. It describes the `ViewFactory` and `ViewRouter` infrastructure that supports navigation, and explains how presentation decisions are made without coupling ViewModels to specific UI contexts.
+
+## Contents
+
+- [4.1 View types](#41-view-types)
+  - [Construction patterns for Views](#construction-patterns-for-views)
+- [4.2 View classes](#42-view-classes)
+- [4.3 The ViewFactory](#43-the-viewfactory)
+- [4.4 Navigation](#44-navigation)
+  - [The ViewRouter class](#the-viewrouter-class)
+  - [Navigation from the ViewModel perspective](#navigation-from-the-viewmodel-perspective)
+  - [Navigation from the View perspective](#navigation-from-the-view-perspective)
+- [4.5 Presentation decisions belong to the View](#45-presentation-decisions-belong-to-the-view)
+- [4.6 Adding a new screen](#46-adding-a-new-screen)
+
 ### 4.1 View types
 
 The architecture uses two kinds of view.
