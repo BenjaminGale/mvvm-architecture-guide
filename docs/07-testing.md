@@ -1,10 +1,10 @@
-## 6. Testing
+## 7. Testing
 
 This section demonstrates how to practically unit test the components introduced throughout this document.
 
-### 6.1 Testing ViewModels
+### 7.1 Testing ViewModels
 
-#### 6.1.1 Property updates
+#### 7.1.1 Property updates
 
 Construct the ViewModel, invoke a method, and assert the resulting property value. The navigation callback is a no-op lambda; navigation is not under test:
 
@@ -36,7 +36,7 @@ void refresh_setsLoadingDuringExecution() {
 }
 ```
 
-#### 6.1.2 Navigation callbacks
+#### 7.1.2 Navigation callbacks
 
 Where the test concerns navigation, the callback captures what it receives. No ViewRouter or `ViewFactory` is involved:
 
@@ -53,7 +53,7 @@ void openOrder_firesNavigationCallbackWithCorrectOrder() {
 }
 ```
 
-#### 6.1.3 Sub-ViewModel validity
+#### 7.1.3 Sub-ViewModel validity
 
 Sub-ViewModels are tested in isolation without the parent ViewModel. These tests verify the validity rules defined within the sub-ViewModel:
 
@@ -84,7 +84,7 @@ void validity_updatesWhenFieldChanges() {
 }
 ```
 
-#### 6.1.4 Composed validity (canSave)
+#### 7.1.4 Composed validity (canSave)
 
 The parent ViewModel's `canSave` property is derived from its sub-ViewModels. These tests construct `OrderEditorViewModel` with no-op use cases — they are not under test here — and verify the composition:
 
@@ -131,7 +131,7 @@ void canSave_reactsToHeaderChange() {
 }
 ```
 
-#### 6.1.5 AsyncAction
+#### 7.1.5 AsyncAction
 
 Because `AsyncAction` accepts a `viewExecutor`, tests pass a synchronous executor that runs tasks immediately on the calling thread. This means the full async flow — start, execute, complete — happens synchronously in the test with no thread coordination required:
 
@@ -181,7 +181,7 @@ void save_disabledWhileExecuting() {
 }
 ```
 
-### 6.2 Testing use cases
+### 7.2 Testing use cases
 
 A use case test verifies that the service received the correct data and that the completion callback was invoked. The service is an in-memory stub:
 
@@ -213,7 +213,7 @@ void deleteOrderUseCase_callsServiceAndFiresCallback() {
 }
 ```
 
-### 6.3 Testing inter-ViewModel communication
+### 7.3 Testing inter-ViewModel communication
 
 These tests verify that a consuming ViewModel's property reflects context changes, and that a producing ViewModel updates the context on refresh:
 
@@ -242,7 +242,7 @@ void ordersViewModel_updatesContextOnRefresh() {
 }
 ```
 
-### 6.4 Stub implementations
+### 7.4 Stub implementations
 
 Services are replaced with in-memory stubs rather than framework-generated mocks. A stub is a concrete implementation providing only what the test requires:
 
@@ -290,9 +290,9 @@ public class StubOrderService implements OrderService {
 
 Stubs are preferable to mocks for two reasons. First, the test setup describes what the service does rather than which methods must be called, making intent explicit. Second, stubs are resilient to refactoring that does not change behaviour: a mock asserting `orderService.save()` was called fails if the method is renamed; a stub recording the saved entity does not.
 
-### 6.5 Testing Action and ViewFactory directly
+### 7.5 Testing Action and ViewFactory directly
 
-#### 6.5.1 Action
+#### 7.5.1 Action
 
 `Action` is a small but load-bearing class. Tests verify the guard, the binding, and that the `canExecute` wrapper correctly reflects the bound value:
 
@@ -331,7 +331,7 @@ void action_canExecuteTracksBinding() {
 }
 ```
 
-#### 6.5.2 AsyncAction
+#### 7.5.2 AsyncAction
 
 ```java
 @Test
@@ -372,7 +372,7 @@ void asyncAction_doesNotExecuteWhenBindingIsFalse() {
 }
 ```
 
-#### 6.5.3 ViewFactory
+#### 7.5.3 ViewFactory
 
 ```java
 @Test
