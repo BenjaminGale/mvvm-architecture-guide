@@ -5,19 +5,15 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import mvvm.example.core.view.CurrencyTableCell;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 public class LineItemsView extends BorderPane {
-
-    private static final NumberFormat CURRENCY = NumberFormat.getCurrencyInstance(Locale.UK);
 
     public LineItemsView(LineItemsViewModel viewModel) {
         var table = new TableView<LineItemRow>();
@@ -64,13 +60,7 @@ public class LineItemsView extends BorderPane {
     private TableColumn<LineItemRow, BigDecimal> unitPriceColumn() {
         var col = new TableColumn<LineItemRow, BigDecimal>("Unit Price");
         col.setCellValueFactory(cell -> cell.getValue().unitPriceProperty());
-        col.setCellFactory(c -> new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                setText(empty || value == null ? null : CURRENCY.format(value));
-            }
-        });
+        col.setCellFactory(CurrencyTableCell.forTableColumn());
         return col;
     }
 
@@ -87,13 +77,7 @@ public class LineItemsView extends BorderPane {
                 row.unitPriceProperty(), row.quantityProperty()
             );
         });
-        col.setCellFactory(c -> new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                setText(empty || value == null ? null : CURRENCY.format(value));
-            }
-        });
+        col.setCellFactory(CurrencyTableCell.forTableColumn());
         return col;
     }
 }

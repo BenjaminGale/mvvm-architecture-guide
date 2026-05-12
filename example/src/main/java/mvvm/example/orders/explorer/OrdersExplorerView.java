@@ -6,18 +6,16 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import mvvm.example.core.view.CurrencyTableCell;
 import mvvm.example.orders.domain.Order;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 public class OrdersExplorerView extends BorderPane {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy");
-    private static final NumberFormat CURRENCY = NumberFormat.getCurrencyInstance(Locale.UK);
 
     public OrdersExplorerView(OrdersViewModel viewModel) {
         var table = new TableView<Order>();
@@ -73,13 +71,7 @@ public class OrdersExplorerView extends BorderPane {
     private TableColumn<Order, BigDecimal> totalColumn() {
         var col = new TableColumn<Order, BigDecimal>("Total");
         col.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().total()));
-        col.setCellFactory(c -> new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal total, boolean empty) {
-                super.updateItem(total, empty);
-                setText(empty || total == null ? null : CURRENCY.format(total));
-            }
-        });
+        col.setCellFactory(CurrencyTableCell.forTableColumn());
         return col;
     }
 
