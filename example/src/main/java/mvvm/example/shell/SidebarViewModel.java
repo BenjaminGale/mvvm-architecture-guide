@@ -3,7 +3,7 @@ package mvvm.example.shell;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import mvvm.example.orders.PendingOrderCount;
+import mvvm.example.orders.context.PendingOrderCount;
 
 public class SidebarViewModel {
 

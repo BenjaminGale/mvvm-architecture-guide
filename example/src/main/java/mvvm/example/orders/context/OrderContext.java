@@ -1,4 +1,4 @@
-package mvvm.example.orders;
+package mvvm.example.orders.context;
 
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;

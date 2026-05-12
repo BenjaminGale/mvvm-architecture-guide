@@ -6,7 +6,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.PendingOrderCounter;
+import mvvm.example.orders.context.PendingOrderCounter;
 
 import java.util.Comparator;
 import java.util.function.Consumer;
