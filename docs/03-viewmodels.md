@@ -665,7 +665,7 @@ Context objects should be scoped to a specific domain concern. An `OrderContext`
 > Context classes should implement separate `Reader` and `Writer` interfaces to enforce encapsulation boundaries. This ensures each ViewModel can only interact with the context in the way that was intended — the `SidebarViewModel` receives a `Reader` and cannot mutate state; the `OrdersViewModel` receives a `Writer` and cannot observe it:
 
 ```java
-public class OrderContext implements OrderContext.Reader, OrderContext.Writer {
+public class OrderContext implements OrderContext.PendingOrderCount, OrderContext.PendingOrderCounter {
 
     private final IntegerProperty pendingCount = new SimpleIntegerProperty(0);
 
@@ -675,30 +675,38 @@ public class OrderContext implements OrderContext.Reader, OrderContext.Writer {
     @Override
     public ReadOnlyIntegerProperty pendingCountProperty() { return pendingCount; }
 
-    public interface Reader {
+    public interface PendingOrderCount {
         ReadOnlyIntegerProperty pendingCountProperty();
     }
 
-    public interface Writer {
+    public interface PendingOrderCounter {
         void setPendingCount(int count);
     }
 }
 ```
 
 ```java
-// SidebarViewModel receives only the read side
-public SidebarViewModel(OrderContext.Reader orderContext, ...) {
+// SidebarViewModel receives only the count — it cannot mutate state
+public SidebarViewModel(OrderContext.PendingOrderCount orderContext, ...) {
     pendingOrderCount.bind(orderContext.pendingCountProperty());
 }
 
-// OrdersViewModel receives only the write side
-public OrdersViewModel(LoadOrdersUseCase loadOrders, OrderContext.Writer orderContext, ...) {
+// OrdersViewModel receives only the counter — it cannot observe state
+public OrdersViewModel(LoadOrdersUseCase loadOrders, OrderContext.PendingOrderCounter orderContext, ...) {
     this.loadOrders   = loadOrders;
     this.orderContext = orderContext;
 }
 ```
 
 In the composition root the single `OrderContext` instance satisfies both interfaces:
+
+```java
+var orderContext = new OrderContext();
+
+// The same instance satisfies both interfaces
+var sidebarVm = new SidebarViewModel(orderContext, ...);
+var ordersVm  = new OrdersViewModel(new LoadOrdersUseCase(orderService), orderContext, ...);
+```
 
 ### 3.4 Action classes
 
