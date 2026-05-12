@@ -1,83 +1,129 @@
 ## 6. Code organisation
 
-This section describes how to arrange the classes introduced throughout this guide into packages. Classes are grouped by screen — everything needed to implement one screen lives in the same package.
+This section describes how to arrange the classes introduced throughout this guide into packages. Classes are grouped by feature, with sub-packages separating concerns within each feature.
 
 ## Contents
 
 - [6.1 Top-level packages](#61-top-level-packages)
-- [6.2 Screen packages](#62-screen-packages)
+- [6.2 Feature sub-packages](#62-feature-sub-packages)
 - [6.3 Cross-cutting infrastructure](#63-cross-cutting-infrastructure)
 - [6.4 Complete package layout](#64-complete-package-layout)
 
 ### 6.1 Top-level packages
 
-Each top-level package corresponds to one screen. Two packages sit outside this structure because they are shared across screens:
+Each top-level package corresponds to one feature. Two packages sit outside this structure because they are shared across all features:
 
 ```
 com.example/
 ├── App.java
 ├── orders/
-├── ordereditor/
 ├── customers/
-├── customerdetail/
 ├── settings/
 ├── shell/
 └── core/
 ```
 
-- **Screen packages** contain the ViewModel, View, use cases, and any sub-ViewModels and sub-views for that screen.
-- **`shell`** — The application shell: the main window, sidebar, and dialog manager. Treated as a screen like any other.
-- **`core`** — Reusable infrastructure types shared across all screens, organised by layer.
+- **Feature packages** (`orders`, `customers`, `settings`) contain everything needed to implement that feature, organised into sub-packages.
+- **`shell`** — The application shell: the main window, sidebar, and dialog manager. Treated as a feature like any other.
+- **`core`** — Reusable infrastructure types shared across all features, organised by layer.
 
 `App.java` sits at the root as the single composition root.
 
-### 6.2 Screen packages
+### 6.2 Feature sub-packages
 
-Each screen package is flat. All classes needed to render and operate a single screen are co-located:
+Each feature package is divided into sub-packages by concern. Using the `orders` feature as an example:
 
 ```
 orders/
+├── domain/
+├── context/
+├── explorer/
+├── editor/
+│   ├── header/
+│   ├── lineitems/
+│   └── edititem/
+└── adapters/
+```
+
+**`domain`** contains the domain types, repository interface, and service. It has no dependency on JavaFX or any other UI framework:
+
+```
+orders/domain/
 ├── Order.java
 ├── LineItem.java
-├── OrderService.java
+├── OrderRepository.java
+└── OrderService.java
+```
+
+**`context`** contains shared observable state that is written by one screen and read by another. These types depend on JavaFX properties and belong in a separate package from the pure domain:
+
+```
+orders/context/
 ├── OrderContext.java
+├── PendingOrderCount.java
+└── PendingOrderCounter.java
+```
+
+**Screen sub-packages** each contain a ViewModel, View, and any use cases for that screen. Each independently navigable screen gets its own sub-package:
+
+```
+orders/explorer/
 ├── LoadOrdersUseCase.java
 ├── OrdersViewModel.java
-└── OrdersView.java
+└── OrdersExplorerView.java
 ```
 
-Sub-ViewModels and sub-views belong in the same package as the screen they form part of — they are an internal implementation detail of that screen and are not navigated to independently:
+Sub-ViewModels and sub-views that are part of a larger screen are nested under that screen's sub-package:
 
 ```
-ordereditor/
+orders/editor/
 ├── CopyOrderUseCase.java
 ├── DeleteOrderUseCase.java
 ├── OrderEditorUseCases.java
 ├── SaveOrderUseCase.java
-├── LineItemRow.java
-├── LineItemsViewModel.java
 ├── OrderEditorViewModel.java
-├── OrderHeaderViewModel.java
-├── LineItemsView.java
 ├── OrderEditorView.java
-└── OrderHeaderView.java
+├── header/
+│   ├── OrderHeaderViewModel.java
+│   └── OrderHeaderView.java
+├── lineitems/
+│   ├── LineItemRow.java
+│   ├── LineItemsViewModel.java
+│   └── LineItemsView.java
+└── edititem/
+    ├── EditItemSession.java
+    ├── EditItemViewModel.java
+    └── EditItemView.java
 ```
 
-Domain objects and services that are shared between screens live in the package of the screen that owns them. The `ordereditor` screen imports `Order` and `OrderService` from `orders` — the orders list is the natural owner of those types.
+**`adapters`** contains concrete implementations of repository interfaces and the module that wires the feature together. This is the only place that knows about specific infrastructure choices (e.g. in-memory vs database):
+
+```
+orders/adapters/
+├── InMemoryOrderRepository.java
+└── OrderModule.java
+```
+
+The `customers` feature follows the same structure, omitting `context` since it has no shared observable state:
 
 ```
 customers/
-├── Customer.java
-├── CustomerService.java
-├── CustomersViewModel.java
-└── CustomersView.java
-
-customerdetail/
-├── CustomerDetailViewModel.java
-└── CustomerDetailView.java
+├── domain/
+│   ├── Customer.java
+│   ├── CustomerRepository.java
+│   └── CustomerService.java
+├── explorer/
+│   ├── CustomersViewModel.java
+│   └── CustomersExplorerView.java
+├── detail/
+│   ├── CustomerDetailViewModel.java
+│   └── CustomerDetailView.java
+└── adapters/
+    ├── InMemoryCustomerRepository.java
+    └── CustomerModule.java
 ```
 
-The shell package follows the same flat convention:
+The shell package remains flat, as all its classes form a single cohesive unit:
 
 ```
 shell/
@@ -108,36 +154,55 @@ com.example/
 ├── App.java
 │
 ├── orders/
-│   ├── Order.java
-│   ├── LineItem.java
-│   ├── OrderContext.java
-│   ├── OrderService.java
-│   ├── LoadOrdersUseCase.java
-│   ├── OrdersViewModel.java
-│   └── OrdersView.java
-│
-├── ordereditor/
-│   ├── CopyOrderUseCase.java
-│   ├── DeleteOrderUseCase.java
-│   ├── OrderEditorUseCases.java
-│   ├── SaveOrderUseCase.java
-│   ├── LineItemRow.java
-│   ├── LineItemsViewModel.java
-│   ├── OrderEditorViewModel.java
-│   ├── OrderHeaderViewModel.java
-│   ├── LineItemsView.java
-│   ├── OrderEditorView.java
-│   └── OrderHeaderView.java
+│   ├── domain/
+│   │   ├── Order.java
+│   │   ├── LineItem.java
+│   │   ├── OrderRepository.java
+│   │   └── OrderService.java
+│   ├── context/
+│   │   ├── OrderContext.java
+│   │   ├── PendingOrderCount.java
+│   │   └── PendingOrderCounter.java
+│   ├── explorer/
+│   │   ├── LoadOrdersUseCase.java
+│   │   ├── OrdersViewModel.java
+│   │   └── OrdersExplorerView.java
+│   ├── editor/
+│   │   ├── CopyOrderUseCase.java
+│   │   ├── DeleteOrderUseCase.java
+│   │   ├── OrderEditorUseCases.java
+│   │   ├── SaveOrderUseCase.java
+│   │   ├── OrderEditorViewModel.java
+│   │   ├── OrderEditorView.java
+│   │   ├── header/
+│   │   │   ├── OrderHeaderViewModel.java
+│   │   │   └── OrderHeaderView.java
+│   │   ├── lineitems/
+│   │   │   ├── LineItemRow.java
+│   │   │   ├── LineItemsViewModel.java
+│   │   │   └── LineItemsView.java
+│   │   └── edititem/
+│   │       ├── EditItemSession.java
+│   │       ├── EditItemViewModel.java
+│   │       └── EditItemView.java
+│   └── adapters/
+│       ├── InMemoryOrderRepository.java
+│       └── OrderModule.java
 │
 ├── customers/
-│   ├── Customer.java
-│   ├── CustomerService.java
-│   ├── CustomersViewModel.java
-│   └── CustomersView.java
-│
-├── customerdetail/
-│   ├── CustomerDetailViewModel.java
-│   └── CustomerDetailView.java
+│   ├── domain/
+│   │   ├── Customer.java
+│   │   ├── CustomerRepository.java
+│   │   └── CustomerService.java
+│   ├── explorer/
+│   │   ├── CustomersViewModel.java
+│   │   └── CustomersExplorerView.java
+│   ├── detail/
+│   │   ├── CustomerDetailViewModel.java
+│   │   └── CustomerDetailView.java
+│   └── adapters/
+│       ├── InMemoryCustomerRepository.java
+│       └── CustomerModule.java
 │
 ├── settings/
 │   ├── SettingsViewModel.java
