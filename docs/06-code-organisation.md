@@ -142,7 +142,7 @@ core/
 │   ├── Action.java
 │   └── AsyncAction.java
 └── view/
-    ├── ViewFactory.java
+    ├── ViewLocator.java
     └── ViewRouter.java
 ```
 
@@ -217,7 +217,7 @@ com.example/
 │
 └── core/
     ├── view/
-    │   ├── ViewFactory.java
+    │   ├── ViewLocator.java
     │   └── ViewRouter.java
     └── viewmodel/
         ├── Action.java

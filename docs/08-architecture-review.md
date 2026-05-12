@@ -18,8 +18,8 @@ This section revisits the design goals and common problems identified in the int
 
 Section 1.4 defined six design goals for this architecture. Each is addressed directly by a structural decision described in this document:
 
-- **Every View is constructed with exactly one ViewModel** — enforced by the View interface and the ViewFactory, both of which accept a single typed ViewModel.
-- **ViewModels have no knowledge of views or how they are constructed** — the ViewFactory mapping lives entirely in the view layer; ViewModels hold only callbacks.
+- **Every View is constructed with exactly one ViewModel** — enforced by the View interface and the ViewLocator, both of which accept a single typed ViewModel.
+- **ViewModels have no knowledge of views or how they are constructed** — the ViewLocator mapping lives entirely in the view layer; ViewModels hold only callbacks.
 - **Each ViewModel holds only dependencies it directly uses** — navigation callbacks remove the need to pass dependencies through to child ViewModels. The composition root handles all construction.
 - **Nothing creates its own dependencies** — services, context objects, use cases, and navigation callbacks are all injected via constructors. There is no `new` inside a ViewModel.
 - **Navigation callbacks are injected at construction time** — ViewModels call callbacks and know nothing about what follows. The ViewRouter is never referenced in the ViewModel layer.

@@ -1,13 +1,13 @@
 ## 4. Views
 
-This section covers the view layer — how views are structured, constructed, and connected to their ViewModels. It describes the `ViewFactory` and `ViewRouter` infrastructure that supports navigation, and explains how presentation decisions are made without coupling ViewModels to specific UI contexts.
+This section covers the view layer — how views are structured, constructed, and connected to their ViewModels. It describes the `ViewLocator` and `ViewRouter` infrastructure that supports navigation, and explains how presentation decisions are made without coupling ViewModels to specific UI contexts.
 
 ## Contents
 
 - [4.1 View types](#41-view-types)
   - [Construction patterns for Views](#construction-patterns-for-views)
 - [4.2 View classes](#42-view-classes)
-- [4.3 The ViewFactory](#43-the-viewfactory)
+- [4.3 The ViewLocator](#43-the-viewlocator)
 - [4.4 Navigation](#44-navigation)
   - [The ViewRouter class](#the-viewrouter-class)
   - [Navigation from the ViewModel perspective](#navigation-from-the-viewmodel-perspective)
@@ -27,7 +27,7 @@ The architecture uses two kinds of view.
 
 Though all Views share the same structure, they are wired in two different ways depending on how their ViewModel is provided.
 
-**Directly instantiated** views have their ViewModel provided by a parent view, which receives it from a parent ViewModel (see section 3.2.2). The parent view constructs them inline, passing the sub-ViewModel directly. These views are never registered with the `ViewFactory`.
+**Directly instantiated** views have their ViewModel provided by a parent view, which receives it from a parent ViewModel (see section 3.2.2). The parent view constructs them inline, passing the sub-ViewModel directly. These views are never registered with the `ViewLocator`.
 
 ```java
 // Inside OrderEditorView — sub-views are constructed directly
@@ -35,20 +35,20 @@ var headerView    = new OrderHeaderView(viewModel.getHeader());
 var lineItemsView = new LineItemsView(viewModel.getLineItems());
 ```
 
-**ViewFactory-registered** views have their ViewModel constructed in the composition root, which wires all services, use cases, and navigation callbacks. These views are registered with the `ViewFactory` and presented via the `ViewRouter`.
+**ViewLocator-registered** views have their ViewModel constructed in the composition root, which wires all services, use cases, and navigation callbacks. These views are registered with the `ViewLocator` and presented via the `ViewRouter`.
 
 ```java
-viewFactory.register(OrderEditorViewModel.class, OrderEditorView::new);
-viewFactory.register(OrdersViewModel.class,      OrdersView::new);
+viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
+viewLocator.register(OrdersViewModel.class,      OrdersView::new);
 ```
 
-The invariants from section 3.1.3 determine which pattern applies. If a view's ViewModel requires external dependencies or the view could appear in a context outside the parent's layout, it must be registered with the `ViewFactory`. If the ViewModel is provided by a parent ViewModel with no external dependencies and the view always renders within the parent's layout, it is instantiated directly.
+The invariants from section 3.1.3 determine which pattern applies. If a view's ViewModel requires external dependencies or the view could appear in a context outside the parent's layout, it must be registered with the `ViewLocator`. If the ViewModel is provided by a parent ViewModel with no external dependencies and the view always renders within the parent's layout, it is instantiated directly.
 
-| | Directly instantiated | ViewFactory-registered |
+| | Directly instantiated | ViewLocator-registered |
 |---|---|---|
 | **ViewModel source** | Provided by a parent ViewModel as a sub-ViewModel | Constructed in the composition root |
 | **Use when** | ViewModel has no external dependencies and the view always renders inside the parent's layout | ViewModel requires services or use cases, or the view may appear outside the parent's layout |
-| **ViewFactory registration** | Never registered | Always registered — `viewFactory.register(MyViewModel.class, MyView::new)` |
+| **ViewLocator registration** | Never registered | Always registered — `viewLocator.register(MyViewModel.class, MyView::new)` |
 | **Presented via** | Constructed inline in the parent view | `ViewRouter.navigateTo` |
 | **Typical examples** | Header, line items, summary panel within an editor screen | Full screens, dialogs, any view the router presents |
 
@@ -59,7 +59,7 @@ View classes follow two conventions:
 - The constructor accepts a single typed ViewModel and fully initialises the view — building the component tree and binding controls to ViewModel properties.
 - Controls are bound to ViewModel properties in the constructor, delegating user interactions back to the ViewModel.
 
-There is no shared base class or interface. The `ViewFactory` constructs views via registered constructor references, which is sufficient.
+There is no shared base class or interface. The `ViewLocator` constructs views via registered constructor references, which is sufficient.
 
 ```java
 public class OrdersView extends StackPane {
@@ -89,21 +89,21 @@ public class OrdersView extends StackPane {
 
 > The view is responsible for presentation only. It never calls a service directly, never constructs another ViewModel, and never decides what screen to show next. All of that belongs in the ViewModel or in the composition root.
 
-### 4.3 The ViewFactory
+### 4.3 The ViewLocator
 
-The `ViewFactory` is a type-keyed registry that maps ViewModel types to their corresponding View constructors. It is owned by the ViewRouter, which calls `create` when `navigateTo` is invoked. The mapping must exist somewhere outside the ViewModel layer — `ViewFactory` is that place.
+The `ViewLocator` is a type-keyed registry that maps ViewModel types to their corresponding view factory functions. The mapping must exist somewhere outside the ViewModel layer — `ViewLocator` is that place.
 
-The ViewFactory is a type-keyed registry. At startup, each ViewModel type is associated with a constructor reference for its View. The ViewRouter calls `viewFactory.create(viewModel)` to resolve and construct the correct view.
+At startup, each ViewModel type is associated with a constructor reference for its View. The ViewRouter calls `viewLocator.resolve(viewModel)` to resolve and construct the correct view.
 
 ```java
-public class ViewFactory {
+public class ViewLocator {
     private final Map<Class<?>, Function<Object, Region>> registry = new HashMap<>();
 
     public <VM> void register(Class<VM> vmClass, Function<VM, Region> factory) {
         registry.put(vmClass, vm -> factory.apply(vmClass.cast(vm)));
     }
 
-    public Region create(Object viewModel) {
+    public Region resolve(Object viewModel) {
         var factory = registry.get(viewModel.getClass());
 
         if (factory == null) {
@@ -118,28 +118,38 @@ public class ViewFactory {
 Registrations use constructor references. `OrdersView::new` is shorthand for `viewModel -> new OrdersView(viewModel)`. Each registration states the mapping directly:
 
 ```java
-viewFactory.register(OrdersViewModel.class, OrdersView::new);
-viewFactory.register(OrderDetailViewModel.class, OrderDetailView::new);
-viewFactory.register(EditItemViewModel.class, EditItemView::new);
-viewFactory.register(CustomersViewModel.class, CustomersView::new);
-viewFactory.register(SettingsViewModel.class, SettingsView::new);
+viewLocator.register(OrdersViewModel.class, OrdersView::new);
+viewLocator.register(OrderDetailViewModel.class, OrderDetailView::new);
+viewLocator.register(EditItemViewModel.class, EditItemView::new);
+viewLocator.register(CustomersViewModel.class, CustomersView::new);
+viewLocator.register(SettingsViewModel.class, SettingsView::new);
 ```
 
-The `ViewFactory` is the sole location that defines the ViewModel-to-View mapping. Adding a screen requires one new registration line; nothing else in the factory changes.
+The `ViewLocator` is the sole location that defines the ViewModel-to-View mapping. Adding a screen requires one new registration line; nothing else changes.
+
+`ViewLocator` and `ViewRouter` have distinct, complementary roles:
+
+| | **ViewLocator** | **ViewRouter** |
+|---|---|---|
+| **Stores** | Map of VM type → view factory function | Map of view type → display listener |
+| **Accepts** | `register(vmClass, factory)` | `addListener(viewClass, listener)` |
+| **Produces** | A `Region` given a view model instance | Nothing — triggers a side effect (display) |
+| **Knows about** | How to build views | Where to send them |
+| **Navigation aware** | No | Yes |
 
 ### 4.4 Navigation
 
 #### The ViewRouter class
 
-The ViewRouter is the conduit for navigation events. It owns the `ViewFactory` and resolves the corresponding view when `navigateTo` is called. Listeners register for a specific view type and are only notified when a view of that type is created — removing the need for type switching in the receiving view.
+The ViewRouter is the conduit for navigation events. It uses the `ViewLocator` to resolve the correct view and then dispatches it to whichever listener is registered for that view type — removing the need for type switching in the receiving view.
 
 ```java
 public class ViewRouter {
-    private final ViewFactory viewFactory;
+    private final ViewLocator viewLocator;
     private final Map<Class<?>, Consumer<Region>> listeners = new HashMap<>();
 
-    public ViewRouter(ViewFactory viewFactory) {
-        this.viewFactory = viewFactory;
+    public ViewRouter(ViewLocator viewLocator) {
+        this.viewLocator = viewLocator;
     }
 
     public <V extends Region> void addListener(Class<V> viewClass, Consumer<V> listener) {
@@ -147,7 +157,7 @@ public class ViewRouter {
     }
 
     public void navigateTo(Object viewModel) {
-        var view = viewFactory.create(viewModel);
+        var view = viewLocator.resolve(viewModel);
         var listener = listeners.get(view.getClass());
         if (listener != null) listener.accept(view);
     }
@@ -174,18 +184,18 @@ The ViewRouter is created once in the composition root and injected into views t
 
 > It might seem natural to add methods like `showDialog` or `openInNewTab` to the ViewRouter to express how different ViewModels should be presented. Adding such methods is a mistake. The moment the ViewRouter carries presentation intent, it couples the ViewModel layer to specific UI concepts. A ViewModel that calls `viewRouter.showDialog` is making a presentation decision — which is not its responsibility. The next section explains how presentation decisions are made correctly.
 
-Views that require the ViewRouter receive it through their constructor. Where a view needs additional view-layer dependencies alongside its ViewModel, a lambda is used in the `ViewFactory` registration rather than a plain constructor reference:
+Views that require the ViewRouter receive it through their constructor. Where a view needs additional view-layer dependencies alongside its ViewModel, a lambda is used in the `ViewLocator` registration rather than a plain constructor reference:
 
 ```java
-viewFactory.register(MainViewModel.class,
+viewLocator.register(MainViewModel.class,
     vm -> new MainView(vm, viewRouter));
 ```
 
-The `ViewFactory` is passed to the `ViewRouter` at construction time in the composition root:
+The `ViewLocator` is passed to the `ViewRouter` at construction time in the composition root:
 
 ```java
-var viewFactory = new ViewFactory();
-var viewRouter   = new ViewRouter(viewFactory);
+var viewLocator = new ViewLocator();
+var viewRouter  = new ViewRouter(viewLocator);
 ```
 
 ### 4.5 Presentation decisions belong to the View
@@ -236,9 +246,9 @@ The architecture is designed so that adding a new screen is a mechanical, low-ri
 
 - **Write the ViewModel** — it takes only the services and context objects it directly uses, plus one callback per navigation action it can trigger.
 - **Write the View** — extend the appropriate UI component. Accept the ViewModel as the sole constructor argument, build the component tree, and bind controls to ViewModel properties, all in the constructor.
-- **Register the ViewModel-to-View mapping** — `viewFactory.register(MyViewModel.class, MyView::new)`.
+- **Register the ViewModel-to-View mapping** — `viewLocator.register(MyViewModel.class, MyView::new)`.
 - **Add a factory method in the composition root** that constructs the ViewModel with its dependencies and navigation callbacks wired as lambdas.
 - **Wire the navigation callback** — in the factory method of whichever ViewModel navigates to the new screen, add a callback lambda that calls `viewRouter.navigateTo(myNewScreen())`.
 - **Register a listener** — in whichever view is responsible for presenting the new screen, call `viewRouter.addListener(MyView.class, view -> ...)` with the appropriate presentation logic.
 
-Nothing else changes. The ViewRouter stays minimal. The ViewFactory stays mechanical. ViewModels stay ignorant of views. Existing ViewModels are not modified unless they need to navigate to the new screen. Each piece retains its single responsibility, and the architecture remains flat and uniform regardless of how many screens are added.
+Nothing else changes. The ViewRouter stays minimal. The ViewLocator stays mechanical. ViewModels stay ignorant of views. Existing ViewModels are not modified unless they need to navigate to the new screen. Each piece retains its single responsibility, and the architecture remains flat and uniform regardless of how many screens are added.

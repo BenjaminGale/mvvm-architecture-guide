@@ -396,7 +396,7 @@ The total number of dependencies is unchanged — all three use cases still exis
 
 #### 3.2.3 Sub-ViewModels for distinct UI sections
 
-Sub-ViewModels satisfy both invariants from section 3.1.3 by construction: they are created from data the parent ViewModel already holds, with no external service dependencies, and their corresponding sub-views are always rendered within the parent view's own layout. This is what makes the pattern architecturally sound — a child ViewModel that required services from the composition root, or whose view might appear outside the parent's layout, would need to be registered with the `ViewFactory` and presented via the `ViewRouter`, not constructed directly by the parent.
+Sub-ViewModels satisfy both invariants from section 3.1.3 by construction: they are created from data the parent ViewModel already holds, with no external service dependencies, and their corresponding sub-views are always rendered within the parent view's own layout. This is what makes the pattern architecturally sound — a child ViewModel that required services from the composition root, or whose view might appear outside the parent's layout, would need to be registered with the `ViewLocator` and presented via the `ViewRouter`, not constructed directly by the parent.
 
 If a screen has meaningfully distinct sections — an order header, a line items table, a notes panel — each section can have its own ViewModel. The parent ViewModel composes them and reads from them when it needs to build the final result. Each sub-ViewModel owns its own state, its own validation logic and its own observable properties.
 

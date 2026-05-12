@@ -21,7 +21,7 @@ This section covers the composition root — the single place in the codebase wh
 
 ### 5.2 Infrastructure and registration
 
-Services, shared context objects, the ViewRouter, and the `ViewFactory` are all created at startup. Every ViewModel-to-View mapping is registered in one block:
+Services, shared context objects, the ViewRouter, and the `ViewLocator` are all created at startup. Every ViewModel-to-View mapping is registered in one block:
 
 ```java
 public class App extends Application {
@@ -40,15 +40,15 @@ public class App extends Application {
         // Shared observable state
         orderContext = new OrderContext();
 
-        // Navigation bus
-        var viewFactory = new ViewFactory();
-        viewFactory.register(SidebarViewModel.class, SidebarView::new);
-        viewFactory.register(OrdersViewModel.class, OrdersView::new);
-        viewFactory.register(OrderEditorViewModel.class, OrderEditorView::new);
-        viewFactory.register(CustomersViewModel.class, CustomersView::new);
-        viewFactory.register(SettingsViewModel.class, SettingsView::new);
+        // Navigation infrastructure
+        var viewLocator = new ViewLocator();
+        viewLocator.register(SidebarViewModel.class, SidebarView::new);
+        viewLocator.register(OrdersViewModel.class, OrdersView::new);
+        viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
+        viewLocator.register(CustomersViewModel.class, CustomersView::new);
+        viewLocator.register(SettingsViewModel.class, SettingsView::new);
 
-        viewRouter = new ViewRouter(viewFactory);
+        viewRouter = new ViewRouter(viewLocator);
 
         // Build the application shell
         var rootVm = new MainViewModel(sidebar());
@@ -219,18 +219,18 @@ public void start(Stage stage) {
     var orderService    = new OrderService();
     var customerService = new CustomerService();
     var orderContext    = new OrderContext();
-    var viewRouter       = new ViewRouter();
+    var viewLocator = new ViewLocator();
+    viewLocator.register(SidebarViewModel.class,      SidebarView::new);
+    viewLocator.register(OrdersViewModel.class,        OrdersView::new);
+    viewLocator.register(OrderEditorViewModel.class,   OrderEditorView::new);
+    viewLocator.register(CustomersViewModel.class,     CustomersView::new);
+    viewLocator.register(CustomerDetailViewModel.class, CustomerDetailView::new);
+    viewLocator.register(SettingsViewModel.class,      SettingsView::new);
+
+    var viewRouter = new ViewRouter(viewLocator);
 
     var orderModule    = new OrderModule(orderService, orderContext, viewRouter);
     var customerModule = new CustomerModule(customerService, viewRouter);
-
-    var viewFactory = new ViewFactory();
-    viewFactory.register(SidebarViewModel.class,      SidebarView::new);
-    viewFactory.register(OrdersViewModel.class,        OrdersView::new);
-    viewFactory.register(OrderEditorViewModel.class,   OrderEditorView::new);
-    viewFactory.register(CustomersViewModel.class,     CustomersView::new);
-    viewFactory.register(CustomerDetailViewModel.class, CustomerDetailView::new);
-    viewFactory.register(SettingsViewModel.class,      SettingsView::new);
 
     var sidebarVm = new SidebarViewModel(
         orderContext,
@@ -240,7 +240,7 @@ public void start(Stage stage) {
     );
 
     var rootVm   = new MainViewModel(sidebarVm);
-    var rootView = new MainView(rootVm, viewRouter, viewFactory);
+    var rootView = new MainView(rootVm, viewRouter);
 
     stage.setScene(new Scene(rootView, 1024, 768));
     stage.show();

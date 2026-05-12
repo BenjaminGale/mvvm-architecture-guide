@@ -8,11 +8,11 @@ import java.util.function.Consumer;
 
 public class ViewRouter {
 
-    private final ViewFactory viewFactory;
+    private final ViewLocator viewLocator;
     private final Map<Class<?>, Consumer<Region>> listeners = new HashMap<>();
 
-    public ViewRouter(ViewFactory viewFactory) {
-        this.viewFactory = viewFactory;
+    public ViewRouter(ViewLocator viewLocator) {
+        this.viewLocator = viewLocator;
     }
 
     public <V extends Region> void addListener(Class<V> viewClass, Consumer<V> listener) {
@@ -20,7 +20,7 @@ public class ViewRouter {
     }
 
     public void navigateTo(Object viewModel) {
-        var view = viewFactory.create(viewModel);
+        var view = viewLocator.resolve(viewModel);
         var listener = listeners.get(view.getClass());
         if (listener != null) listener.accept(view);
     }

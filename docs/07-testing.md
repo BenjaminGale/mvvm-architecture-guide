@@ -13,10 +13,10 @@ This section demonstrates how to practically unit test the components introduced
 - [7.2 Testing use cases](#72-testing-use-cases)
 - [7.3 Testing inter-ViewModel communication](#73-testing-inter-viewmodel-communication)
 - [7.4 Stub implementations](#74-stub-implementations)
-- [7.5 Testing Action and ViewFactory directly](#75-testing-action-and-viewfactory-directly)
+- [7.5 Testing Action and ViewLocator directly](#75-testing-action-and-viewlocator-directly)
   - [7.5.1 Action](#751-action)
   - [7.5.2 AsyncAction](#752-asyncaction)
-  - [7.5.3 ViewFactory](#753-viewfactory)
+  - [7.5.3 ViewLocator](#753-viewlocator)
 
 ### 7.1 Testing ViewModels
 
@@ -54,7 +54,7 @@ void refresh_setsLoadingDuringExecution() {
 
 #### 7.1.2 Navigation callbacks
 
-Where the test concerns navigation, the callback captures what it receives. No ViewRouter or `ViewFactory` is involved:
+Where the test concerns navigation, the callback captures what it receives. No ViewRouter or `ViewLocator` is involved:
 
 ```java
 @Test
@@ -306,7 +306,7 @@ public class StubOrderService implements OrderService {
 
 Stubs are preferable to mocks for two reasons. First, the test setup describes what the service does rather than which methods must be called, making intent explicit. Second, stubs are resilient to refactoring that does not change behaviour: a mock asserting `orderService.save()` was called fails if the method is renamed; a stub recording the saved entity does not.
 
-### 7.5 Testing Action and ViewFactory directly
+### 7.5 Testing Action and ViewLocator directly
 
 #### 7.5.1 Action
 
@@ -388,26 +388,26 @@ void asyncAction_doesNotExecuteWhenBindingIsFalse() {
 }
 ```
 
-#### 7.5.3 ViewFactory
+#### 7.5.3 ViewLocator
 
 ```java
 @Test
-void viewFactory_createsCorrectViewForRegisteredViewModel() {
-    var factory = new ViewFactory();
-    factory.register(OrdersViewModel.class, OrdersView::new);
+void viewLocator_resolvesCorrectViewForRegisteredViewModel() {
+    var locator = new ViewLocator();
+    locator.register(OrdersViewModel.class, OrdersView::new);
 
     LoadOrdersUseCase loadOrders = List::of;
     var vm   = new OrdersViewModel(loadOrders, order -> {});
-    var view = factory.create(vm);
+    var view = locator.resolve(vm);
 
     assertInstanceOf(OrdersView.class, view);
 }
 
 @Test
-void viewFactory_throwsForUnregisteredViewModel() {
-    var factory = new ViewFactory();
+void viewLocator_throwsForUnregisteredViewModel() {
+    var locator = new ViewLocator();
 
     assertThrows(IllegalStateException.class,
-        () -> factory.create(new OrdersViewModel(List::of, order -> {})));
+        () -> locator.resolve(new OrdersViewModel(List::of, order -> {})));
 }
 ```

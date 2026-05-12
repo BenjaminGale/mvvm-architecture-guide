@@ -3,7 +3,7 @@ package mvvm.example;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import mvvm.example.core.view.ViewFactory;
+import mvvm.example.core.view.ViewLocator;
 import mvvm.example.core.view.ViewRouter;
 import mvvm.example.customers.adapters.CustomerModule;
 import mvvm.example.customers.adapters.InMemoryCustomerRepository;
@@ -40,20 +40,20 @@ public class App extends Application {
         var orderContext = new OrderContext();
 
         // Navigation infrastructure
-        var viewFactory = new ViewFactory();
-        var viewRouter  = new ViewRouter(viewFactory);
+        var viewLocator = new ViewLocator();
+        var viewRouter  = new ViewRouter(viewLocator);
 
         // Modules
         var orderModule    = new OrderModule(orderService, orderContext, viewRouter);
         var customerModule = new CustomerModule(customerService, viewRouter);
 
         // View registrations
-        viewFactory.register(OrdersViewModel.class,        OrdersExplorerView::new);
-        viewFactory.register(OrderEditorViewModel.class,   OrderEditorView::new);
-        viewFactory.register(EditItemViewModel.class,      EditItemView::new);
-        viewFactory.register(CustomersViewModel.class,     CustomersExplorerView::new);
-        viewFactory.register(CustomerDetailViewModel.class, CustomerDetailView::new);
-        viewFactory.register(SettingsViewModel.class,      SettingsView::new);
+        viewLocator.register(OrdersViewModel.class,        OrdersExplorerView::new);
+        viewLocator.register(OrderEditorViewModel.class,   OrderEditorView::new);
+        viewLocator.register(EditItemViewModel.class,      EditItemView::new);
+        viewLocator.register(CustomersViewModel.class,     CustomersExplorerView::new);
+        viewLocator.register(CustomerDetailViewModel.class, CustomerDetailView::new);
+        viewLocator.register(SettingsViewModel.class,      SettingsView::new);
 
         // Shell
         var sidebarVm = new SidebarViewModel(

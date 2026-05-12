@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class ViewFactory {
+public class ViewLocator {
 
     private final Map<Class<?>, Function<Object, Region>> registry = new HashMap<>();
 
@@ -14,7 +14,7 @@ public class ViewFactory {
         registry.put(vmClass, vm -> factory.apply(vmClass.cast(vm)));
     }
 
-    public Region create(Object viewModel) {
+    public Region resolve(Object viewModel) {
         var factory = registry.get(viewModel.getClass());
 
         if (factory == null) {
