@@ -129,6 +129,8 @@ public class OrderDetailViewModel {
 
 The view layer is responsible for performing the actual navigation — resolving the appropriate view and deciding how it is presented. The composition root is responsible for wiring the callbacks that connect ViewModel intent to that behaviour. Both are covered in sections 4.4 and 5.
 
+When the newly opened view must return a result — as is common with modal interactions — the callback argument can carry a session object that provides both input data and an output channel. Sessions are covered in section 3.3.
+
 #### 3.1.3 Why ViewModels should not create or host views
 
 Two invariants govern how a ViewModel should relate to views it may cause to appear:
@@ -709,6 +711,88 @@ var orderContext = new OrderContext();
 var sidebarVm = new SidebarViewModel(orderContext, ...);
 var ordersVm  = new OrdersViewModel(new LoadOrdersUseCase(orderService), orderContext, ...);
 ```
+
+Context objects address long-lived shared state — state that persists for the lifetime of the application or a major feature area. A separate problem arises when a ViewModel opens a view that needs to return a result to the ViewModel that triggered it. This is common with modals: an `EditItemView` opened from `OrderEditorViewModel` needs to communicate the edited item back when the user confirms.
+
+A session object addresses this. It is short-lived — scoped to a single interaction — and carries both the input data the new ViewModel needs and an output channel it uses to return its result. Unlike a context object, it is created at the moment of invocation and discarded once the interaction completes.
+
+```java
+public class EditItemSession {
+    private final LineItem item;
+    private final Consumer<LineItem> onConfirmed;
+
+    public EditItemSession(LineItem item, Consumer<LineItem> onConfirmed) {
+        this.item = item;
+        this.onConfirmed = onConfirmed;
+    }
+
+    public LineItem getItem() { return item; }
+    public void confirm(LineItem updated) { onConfirmed.accept(updated); }
+}
+```
+
+The initiating ViewModel creates the session inline, closing over its own state to handle the result:
+
+```java
+public class OrderEditorViewModel {
+    private final Consumer<EditItemSession> onEditItem;
+
+    public void editItem(LineItem item) {
+        onEditItem.accept(new EditItemSession(item, this::applyEdit));
+    }
+
+    private void applyEdit(LineItem updated) {
+        lineItems.updateItem(updated);
+    }
+}
+```
+
+The `EditItemViewModel` receives only what it needs: the item to edit and a way to signal completion. It has no knowledge of where its result goes:
+
+```java
+public class EditItemViewModel {
+    private final EditItemSession session;
+    private final StringProperty description = new SimpleStringProperty();
+    private final IntegerProperty quantity = new SimpleIntegerProperty();
+
+    public EditItemViewModel(EditItemSession session) {
+        this.session = session;
+        description.set(session.getItem().description());
+        quantity.set(session.getItem().quantity());
+    }
+
+    public void confirm() {
+        session.confirm(new LineItem(description.get(), quantity.get(), session.getItem().unitPrice()));
+    }
+
+    public StringProperty descriptionProperty() { return description; }
+    public IntegerProperty quantityProperty()   { return quantity; }
+}
+```
+
+The composition root unpacks the session when constructing the target ViewModel, using the same factory method pattern as any other screen:
+
+```java
+private EditItemViewModel editItem(EditItemSession session) {
+    return new EditItemViewModel(session);
+}
+```
+
+In the factory method for `OrderEditorViewModel`, the navigation callback is wired to invoke this method:
+
+```java
+private OrderEditorViewModel orderEditor(Order order) {
+    return new OrderEditorViewModel(
+        order,
+        ...,
+        session -> viewRouter.navigateTo(editItem(session))
+    );
+}
+```
+
+The session is created once per interaction, carries the exchange between the two ViewModels, and becomes eligible for garbage collection once the modal closes and neither ViewModel holds a reference to it.
+
+> If the target view needs to communicate incremental updates rather than a single final result — a live preview, for instance — the session can carry an observable property instead of a callback. The initiating ViewModel observes it in the same way it would any other observable.
 
 ### 3.4 Action classes
 
