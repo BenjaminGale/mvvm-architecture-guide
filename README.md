@@ -8,6 +8,16 @@ The content in this guide was structured and curated with the assistance of AI t
 
 The underlying knowledge, including code samples, architectural decisions, and accumulated notes, originates from my own experience using and exploring the MVVM pattern. AI was used to organise, structure, articulate and improve the material that has been collected.
 
+## Example Application
+
+This repository includes a JavaFX order management application that demonstrates the patterns described in the guide.
+
+**Requirements:** Java 21 or later.
+
+```bash
+cd example && ./gradlew run
+```
+
 ## Contents
 
 - [1. Introduction](docs/01-introduction.md)
