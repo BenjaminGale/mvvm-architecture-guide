@@ -1,6 +1,6 @@
 ## 5. Views
 
-This section covers the view layer — how views are structured, constructed, and connected to their ViewModels. It describes the `ViewLocator` and `ViewRouter` infrastructure that supports navigation, and explains how presentation decisions are made without coupling ViewModels to specific UI contexts.
+This section covers the view layer describing how views should be constructed and connected to their ViewModels. It describes the `ViewLocator` and `ViewRouter` infrastructure that provide support for opening dialogs and navigation between views. This section also explains how presentation decisions are made without coupling ViewModels to specific UI contexts.
 
 ## Contents
 
@@ -17,7 +17,11 @@ This section covers the view layer — how views are structured, constructed, an
 
 ### 5.1 View types
 
-The architecture uses two kinds of view.
+A view is what the user sees and interacts with.
+
+Views are responsible for displaying data provided by viewModels via data binding and translating user input actions into viewModel method calls to affect changes in the application.
+
+This architecture makes a distinction between two kinds of view classes.
 
 **View** — A class bound to a single ViewModel. The view binds its controls to the ViewModel's observable properties and delegates user interactions back to it. All views follow the construction conventions described in section 5.2.
 
@@ -54,12 +58,13 @@ The invariants from section 4.1.3 determine which pattern applies. If a view's V
 
 ### 5.2 View classes
 
-View classes follow two conventions:
+View classes follow these conventions:
 
 - The constructor accepts a single typed ViewModel and fully initialises the view — building the component tree and binding controls to ViewModel properties.
+- The constructor may accept other view layer dependencies such as dialog managers or the `ViewRouter`.
 - Controls are bound to ViewModel properties in the constructor, delegating user interactions back to the ViewModel.
 
-There is no shared base class or interface. The `ViewLocator` constructs views via registered constructor references, which is sufficient.
+There is no shared base class or interface. The `ViewLocator` constructs views via registered factory functions.
 
 ```java
 public class OrdersView extends StackPane {
@@ -87,13 +92,11 @@ public class OrdersView extends StackPane {
 }
 ```
 
-> The view is responsible for presentation only. It never calls a service directly, never constructs another ViewModel, and never decides what screen to show next. All of that belongs in the ViewModel or in the composition root.
-
 ### 5.3 The ViewLocator
 
-The `ViewLocator` is a type-keyed registry that maps ViewModel types to their corresponding view factory functions. The mapping must exist somewhere outside the ViewModel layer — `ViewLocator` is that place.
+The `ViewLocator` is a registry that maps ViewModel types to their corresponding view factory functions. These mappings must exist somewhere outside the ViewModel layer — `ViewLocator` is that place.
 
-At startup, each ViewModel type is associated with a constructor reference for its View. The ViewRouter calls `viewLocator.resolve(viewModel)` to resolve and construct the correct view.
+The view factory functions are registered at startup and are responsible for constructing a view from a supplied viewModel. The factory also needs to resolve other view dependencies which is why they need to be registered at startup.
 
 ```java
 public class ViewLocator {
@@ -115,14 +118,16 @@ public class ViewLocator {
 }
 ```
 
-Registrations use constructor references. `OrdersView::new` is shorthand for `viewModel -> new OrdersView(viewModel)`. Each registration states the mapping directly:
+Registrations can use constructor references when a view only depends on a viewModel as shown below.
 
 ```java
 viewLocator.register(OrdersViewModel.class, OrdersView::new);
-viewLocator.register(OrderDetailViewModel.class, OrderDetailView::new);
-viewLocator.register(EditItemViewModel.class, EditItemView::new);
-viewLocator.register(CustomersViewModel.class, CustomersView::new);
-viewLocator.register(SettingsViewModel.class, SettingsView::new);
+```
+
+If a view depends on other services you can supply a custom factory function i.e.
+
+```
+viewLocator.register(SettingsViewModel.class, vm -> new SettingsView(vm, viewRouter));
 ```
 
 The `ViewLocator` is the sole location that defines the ViewModel-to-View mapping. Adding a screen requires one new registration line; nothing else changes.
@@ -206,15 +211,15 @@ This is how different presentation styles coexist without central coordination. 
 
 ```java
 // Inside MainView constructor
-viewRouter.addListener(OrdersView.class,     view -> workspace.getChildren().setAll(view));
+viewRouter.addListener(OrdersView.class, view -> workspace.getChildren().setAll(view));
 viewRouter.addListener(OrderDetailView.class, view -> workspace.getChildren().setAll(view));
-viewRouter.addListener(CustomersView.class,  view -> workspace.getChildren().setAll(view));
+viewRouter.addListener(CustomersView.class, view -> workspace.getChildren().setAll(view));
 ```
 
-A separate `DialogManagerView` — also part of the shell, registering against the same `ViewRouter` — handles views that should appear as modal dialogs. It is responsible for all dialog lifecycle management: opening, closing, and owner configuration:
+A separate `DialogManager` — also part of the shell, registering against the same `ViewRouter` — handles views that should appear as modal dialogs. It is responsible for all dialog lifecycle management: opening, closing, and owner configuration:
 
 ```java
-// Inside DialogManagerView constructor
+// Inside DialogManager constructor
 viewRouter.addListener(EditItemView.class, this::openAsDialog);
 
 private Stage currentDialog;
