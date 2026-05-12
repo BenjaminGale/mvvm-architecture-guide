@@ -851,12 +851,12 @@ public class AsyncAction {
 
 #### 3.5.1 How they fit into the architecture
 
-Actions are exposed as public fields on the ViewModel. The use case implements the appropriate Listener interface, keeping execution logic out of the ViewModel. The ViewModel and its `SaveOrderUseCase` are wired at construction time in the composition root as shown above.
+Actions are exposed as public fields on the ViewModel. Use cases remain plain objects with an `execute` method — they have no knowledge of `Action` or `AsyncAction`. The ViewModel wires them via method references or lambdas, keeping the Listener interface as an anonymous concern at the call site.
 
-The use case implements `AsyncAction.Listener`. Rather than accepting the `Order` at construction time — which would capture a stale snapshot — it receives a `Supplier<Order>` that the ViewModel satisfies with `buildUpdatedOrder()`. This ensures the use case always operates on the current state of the header and line items sub-ViewModels at the moment the user clicks save:
+`SaveOrderUseCase` receives a `Supplier<Order>` rather than the order directly. Rather than accepting the `Order` at construction time — which would capture a stale snapshot — the supplier is evaluated at execution time. This ensures the use case always operates on the current state of the header and line items sub-ViewModels at the moment the user clicks save:
 
 ```java
-public class SaveOrderUseCase implements AsyncAction.Listener {
+public class SaveOrderUseCase {
 
     private final OrderService orderService;
     private final Supplier<Order> orderSupplier;
@@ -871,8 +871,7 @@ public class SaveOrderUseCase implements AsyncAction.Listener {
         this.onSaved        = onSaved;
     }
 
-    @Override
-    public CompletableFuture<Runnable> actionExecutedAsync() {
+    public CompletableFuture<Runnable> execute() {
         return CompletableFuture
             .supplyAsync(() -> {
                 orderService.save(orderSupplier.get());
@@ -882,7 +881,7 @@ public class SaveOrderUseCase implements AsyncAction.Listener {
 }
 ```
 
-The ViewModel wires the supplier at construction time, passing `buildUpdatedOrder` as a method reference:
+The ViewModel stores the original order and wires each use case via a method reference or lambda. `saveUseCase::execute` is already parameterless — the supplier captures `buildUpdatedOrder`. For delete and copy, the original order is passed at invocation time via a lambda:
 
 ```java
 public class OrderEditorViewModel {
@@ -891,6 +890,7 @@ public class OrderEditorViewModel {
     public final Action delete;
     public final Action copy;
 
+    private final Order order;
     private final OrderHeaderViewModel header;
     private final LineItemsViewModel lineItems;
     private final BooleanProperty canSave = new SimpleBooleanProperty(false);
@@ -901,6 +901,7 @@ public class OrderEditorViewModel {
         DeleteOrderUseCase deleteUseCase,
         CopyOrderUseCase copyUseCase
     ) {
+        this.order  = order;
         this.header    = new OrderHeaderViewModel(order);
         this.lineItems = new LineItemsViewModel(order.lineItems());
 
@@ -910,9 +911,9 @@ public class OrderEditorViewModel {
                 .and(lineItems.validProperty())
         );
 
-        this.save   = new AsyncAction(saveUseCase, canSave);
-        this.delete = new Action(deleteUseCase::execute);
-        this.copy   = new Action(copyUseCase::execute);
+        this.save   = new AsyncAction(saveUseCase::execute, canSave);
+        this.delete = new Action(() -> deleteUseCase.execute(order));
+        this.copy   = new Action(() -> copyUseCase.execute(order));
     }
 
     public OrderHeaderViewModel getHeader()   { return header; }
