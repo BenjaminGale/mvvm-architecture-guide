@@ -1,4 +1,4 @@
-package mvvm.example.customers;
+package mvvm.example.customers.adapters;
 
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;

@@ -1,4 +1,4 @@
-package mvvm.example.orders;
+package mvvm.example.orders.adapters;
 
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;

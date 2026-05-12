@@ -1,17 +1,17 @@
-package mvvm.example.orders;
+package mvvm.example.orders.adapters;
 
 import mvvm.example.core.view.ViewRouter;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
 import mvvm.example.orders.editor.CopyOrderUseCase;
-import mvvm.example.orders.explorer.OrdersViewModel;
 import mvvm.example.orders.editor.DeleteOrderUseCase;
 import mvvm.example.orders.editor.OrderEditorUseCases;
 import mvvm.example.orders.editor.OrderEditorViewModel;
 import mvvm.example.orders.editor.SaveOrderUseCase;
 import mvvm.example.orders.editor.edititem.EditItemSession;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
+import mvvm.example.orders.explorer.OrdersViewModel;
 
 public class OrderModule {
 

@@ -1,4 +1,4 @@
-package mvvm.example.customers;
+package mvvm.example.customers.adapters;
 
 import mvvm.example.core.view.ViewRouter;
 import mvvm.example.customers.detail.CustomerDetailViewModel;
