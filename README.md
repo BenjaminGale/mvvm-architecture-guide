@@ -2,7 +2,7 @@
 
 This repository contains a guide to implementing the Model-View-ViewModel (MVVM) architectural pattern.
 
-> ## AI Disclosure
+## AI Disclosure
 
 The content in this guide was structured and curated with the assistance of AI tools.
 
