@@ -1,25 +1,25 @@
-## 5. Application bootstrapping
+## 6. Application bootstrapping
 
 This section covers the composition root — the single place in the codebase where services, use cases, ViewModels, and navigation callbacks are constructed and wired together. It shows how to structure the application startup class and how to scale it as the application grows using Flow classes.
 
 ## Contents
 
-- [5.1 The role of App](#51-the-role-of-app)
-- [5.2 Infrastructure and registration](#52-infrastructure-and-registration)
-- [5.3 Composing the application](#53-composing-the-application)
-  - [5.3.1 Sidebar](#531-sidebar)
-  - [5.3.2 Orders flow](#532-orders-flow)
-  - [5.3.3 Customers flow](#533-customers-flow)
-  - [5.3.4 Settings](#534-settings)
-- [5.4 Scaling App with Modules](#54-scaling-app-with-modules)
+- [6.1 The role of App](#61-the-role-of-app)
+- [6.2 Infrastructure and registration](#62-infrastructure-and-registration)
+- [6.3 Composing the application](#63-composing-the-application)
+  - [6.3.1 Sidebar](#631-sidebar)
+  - [6.3.2 Orders flow](#632-orders-flow)
+  - [6.3.3 Customers flow](#633-customers-flow)
+  - [6.3.4 Settings](#634-settings)
+- [6.4 Scaling App with Modules](#64-scaling-app-with-modules)
 
-### 5.1 The role of App
+### 6.1 The role of App
 
 `App` is the single composition root. It is the only place in the codebase where dependencies are constructed and wired across layer boundaries. Reading it top to bottom gives a complete picture of every screen and every possible navigation transition.
 
 > Here we show how to wire up the dependencies manually but this can easily be done with a dependency injection framework if you wish.
 
-### 5.2 Infrastructure and registration
+### 6.2 Infrastructure and registration
 
 Services, shared context objects, the ViewRouter, and the `ViewLocator` are all created at startup. Every ViewModel-to-View mapping is registered in one block:
 
@@ -62,7 +62,7 @@ public class App extends Application {
     }
 ```
 
-### 5.3 Composing the application
+### 6.3 Composing the application
 
 #### 5.3.1 Sidebar
 
@@ -139,7 +139,7 @@ private SettingsViewModel settings() {
 
 > Each factory method produces a fresh ViewModel instance. Navigating to the same screen twice yields two independent instances; no state persists between visits unless held in a context object or service. As the application grows, related factory methods can be grouped into dedicated Module classes — an `OrderModule`, a `CustomerModule`. The method structure is unchanged; only the organisation differs.
 
-### 5.4 Scaling App with Modules
+### 6.4 Scaling App with Modules
 
 As the application grows, `App` acquires more factory methods. They remain individually simple — one method per screen — but their number grows. Modules are the natural way to organise them. Each Module owns its own infrastructure — creating its own services, repositories, and shared state — and registers its own ViewModel-to-View mappings. It exposes factory methods for the screens in its domain and nothing else.
 

@@ -1,20 +1,20 @@
 
-## 8. Architecture review
+## 9. Architecture review
 
 This section revisits the design goals and common problems identified in the introduction, mapping each directly to the structural decisions made throughout this document.
 
 ## Contents
 
-- [8.1 How design goals are met](#81-how-design-goals-are-met)
-- [8.2 How common problems are addressed](#82-how-common-problems-are-addressed)
-  - [8.2.1 ViewModels with too many responsibilities](#821-viewmodels-with-too-many-responsibilities)
-  - [8.2.2 Services injected directly into ViewModels](#822-services-injected-directly-into-viewmodels)
-  - [8.2.3 Navigation coupled to presentation](#823-navigation-coupled-to-presentation)
-  - [8.2.4 Inheritance used to share logic](#824-inheritance-used-to-share-logic)
-  - [8.2.5 Fat ViewModels from delegate commands](#825-fat-viewmodels-from-delegate-commands)
-  - [8.2.6 Testability claimed but not demonstrated](#826-testability-claimed-but-not-demonstrated)
+- [9.1 How design goals are met](#91-how-design-goals-are-met)
+- [9.2 How common problems are addressed](#92-how-common-problems-are-addressed)
+  - [9.2.1 ViewModels with too many responsibilities](#921-viewmodels-with-too-many-responsibilities)
+  - [9.2.2 Services injected directly into ViewModels](#922-services-injected-directly-into-viewmodels)
+  - [9.2.3 Navigation coupled to presentation](#923-navigation-coupled-to-presentation)
+  - [9.2.4 Inheritance used to share logic](#924-inheritance-used-to-share-logic)
+  - [9.2.5 Fat ViewModels from delegate commands](#925-fat-viewmodels-from-delegate-commands)
+  - [9.2.6 Testability claimed but not demonstrated](#926-testability-claimed-but-not-demonstrated)
 
-### 8.1 How design goals are met
+### 9.1 How design goals are met
 
 Section 1.4 defined six design goals for this architecture. Each is addressed directly by a structural decision described in this document:
 
@@ -25,7 +25,7 @@ Section 1.4 defined six design goals for this architecture. Each is addressed di
 - **Navigation callbacks are injected at construction time** — ViewModels call callbacks and know nothing about what follows. The ViewRouter is never referenced in the ViewModel layer.
 - **All construction and wiring lives in the composition root** — factory methods in `App` are the sole place where services, use cases, and callbacks are assembled. Reading it gives a complete map of every screen and transition.
 
-### 8.2 How common problems are addressed
+### 9.2 How common problems are addressed
 
 Section 1.3 described the problems that recur in MVVM implementations. This section maps each to the design decision that addresses it.
 
@@ -51,4 +51,4 @@ Use cases replace delegate commands. Each is a discrete class with its own depen
 
 #### 8.2.6 Testability claimed but not demonstrated
 
-A ViewModel in this architecture requires minimal test setup. Use case objects and callbacks can be supplied as lambdas. A test constructs the ViewModel, invokes a method, and asserts the resulting property state. No service interfaces require mocking; no UI runtime needs to be launched. The testing examples in section 6 illustrate this concretely.
+A ViewModel in this architecture requires minimal test setup. Use case objects and callbacks can be supplied as lambdas. A test constructs the ViewModel, invokes a method, and asserts the resulting property state. No service interfaces require mocking; no UI runtime needs to be launched. The testing examples in section 8 illustrate this concretely.

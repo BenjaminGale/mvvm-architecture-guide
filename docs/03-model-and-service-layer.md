@@ -1,14 +1,14 @@
-# 2. The Model and Service layers
+# 3. The Model and Service layers
 
 The Model and Service layers sit below the ViewModel layer. They have no knowledge of the UI and no UI framework imports. Understanding them clearly is a prerequisite for understanding how ViewModels are kept focused and testable.
 
 ## Contents
 
-- [2.1 Model objects](#21-model-objects)
-- [2.2 Services](#22-services)
-- [2.3 Use cases](#23-use-cases)
+- [3.1 Model objects](#31-model-objects)
+- [3.2 Services](#32-services)
+- [3.3 Use cases](#33-use-cases)
 
-## 2.1 Model objects
+## 3.1 Model objects
 
 Models are plain objects representing the application's core domain concepts — things like `Order`, `Customer`, and `LineItem`. They carry state and may encapsulate domain behaviour, but have no knowledge of the UI, no observable properties, and no dependency on external frameworks.
 
@@ -71,7 +71,7 @@ public class Order {
 
 > A Model that starts acquiring observable properties is a sign that ViewModel responsibilities are leaking downward. Models are never observed directly by Views — the ViewModel's job is to receive plain Model data and expose it as observable properties that the View can bind to.
 
-## 2.2 Services
+## 3.2 Services
 
 Services form the application layer between Models and ViewModels. They are responsible for retrieving and persisting Models — database access, remote API calls, file I/O, and similar infrastructure concerns. Like Models, they have no UI imports and no knowledge of how the data they return will be presented.
 
@@ -137,8 +137,8 @@ public class OrderService {
 
 Services are not injected directly into ViewModels. This is a deliberate invariant. A ViewModel that calls `orderService.save()` is making an assumption about the shape of a save operation that does not belong in the presentation layer. Instead, services are consumed by use cases, which are then injected into ViewModels.
 
-## 2.3 Use cases
+## 3.3 Use cases
 
 Use cases are the mechanism by which ViewModels interact with services without depending on them directly. Each use case is a plain Java class encapsulating a single operation: saving an order, deleting a customer, copying a line item. A use case receives the service it requires and a callback to invoke on completion. They also serve as the natural place to house ViewModel-adjacent logic — such as updating observable state during a long-running operation — keeping that coordination out of the ViewModel itself.
 
-See section [3.2.1](03-viewmodels.md#321-use-cases-as-injectable-objects) for use case examples and how they are wired in the composition root.
+See section [4.2.1](04-viewmodels.md#421-use-cases-as-injectable-objects) for use case examples and how they are wired in the composition root.

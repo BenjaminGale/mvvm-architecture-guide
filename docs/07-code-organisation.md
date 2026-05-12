@@ -1,15 +1,15 @@
-## 6. Code organisation
+## 7. Code organisation
 
 This section describes how to arrange the classes introduced throughout this guide into packages. Classes are grouped by feature, with sub-packages separating concerns within each feature.
 
 ## Contents
 
-- [6.1 Top-level packages](#61-top-level-packages)
-- [6.2 Feature sub-packages](#62-feature-sub-packages)
-- [6.3 Cross-cutting infrastructure](#63-cross-cutting-infrastructure)
-- [6.4 Complete package layout](#64-complete-package-layout)
+- [7.1 Top-level packages](#71-top-level-packages)
+- [7.2 Feature sub-packages](#72-feature-sub-packages)
+- [7.3 Cross-cutting infrastructure](#73-cross-cutting-infrastructure)
+- [7.4 Complete package layout](#74-complete-package-layout)
 
-### 6.1 Top-level packages
+### 7.1 Top-level packages
 
 Each top-level package corresponds to one feature. Two packages sit outside this structure because they are shared across all features:
 
@@ -29,7 +29,7 @@ com.example/
 
 `App.java` sits at the root as the single composition root.
 
-### 6.2 Feature sub-packages
+### 7.2 Feature sub-packages
 
 Each feature package is divided into sub-packages by concern. Using the `orders` feature as an example:
 
@@ -134,7 +134,7 @@ shell/
 └── DialogManagerView.java
 ```
 
-### 6.3 Cross-cutting infrastructure
+### 7.3 Cross-cutting infrastructure
 
 ```
 core/
@@ -146,7 +146,7 @@ core/
     └── ViewRouter.java
 ```
 
-### 6.4 Complete package layout
+### 7.4 Complete package layout
 
 ```
 com.example/

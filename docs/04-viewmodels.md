@@ -1,39 +1,39 @@
-## 3. ViewModels
+## 4. ViewModels
 
 This section describes the ViewModel layer in detail. ViewModels hold observable state, coordinate use cases, and express navigation through injected callbacks. It covers the core ViewModel structure, strategies for managing complexity as ViewModels grow, patterns for inter-ViewModel communication, and the Action utilities that reduce view-layer boilerplate.
 
 ## Contents
 
-- [3.1 The ViewModel class](#31-the-viewmodel-class)
-  - [3.1.1 Observable properties](#311-observable-properties)
-  - [3.1.2 Navigation via injected callbacks](#312-navigation-via-injected-callbacks)
-  - [3.1.3 Why ViewModels should not create or host views](#313-why-viewmodels-should-not-create-or-host-views)
-- [3.2 Organising complex ViewModels](#32-organising-complex-viewmodels)
-  - [3.2.1 Use cases as injectable objects](#321-use-cases-as-injectable-objects)
-  - [3.2.2 Managing constructor length with a use case record](#322-managing-constructor-length-with-a-use-case-record)
-  - [3.2.3 Sub-ViewModels for distinct UI sections](#323-sub-viewmodels-for-distinct-ui-sections)
-  - [3.2.4 Composing sub-ViewModels in the parent](#324-composing-sub-viewmodels-in-the-parent)
-  - [3.2.5 The result of combining all three strategies](#325-the-result-of-combining-all-three-strategies)
-- [3.3 ViewModel communication patterns](#33-viewmodel-communication-patterns)
-- [3.4 Action classes](#34-action-classes)
-  - [3.4.1 The problem they solve](#341-the-problem-they-solve)
-  - [3.4.2 Action — synchronous operations](#342-action--synchronous-operations)
-  - [3.4.3 AsyncAction — long-running operations](#343-asyncaction--long-running-operations)
-  - [3.4.4 How they fit into the architecture](#344-how-they-fit-into-the-architecture)
+- [4.1 The ViewModel class](#41-the-viewmodel-class)
+  - [4.1.1 Observable properties](#411-observable-properties)
+  - [4.1.2 Navigation via injected callbacks](#412-navigation-via-injected-callbacks)
+  - [4.1.3 Why ViewModels should not create or host views](#413-why-viewmodels-should-not-create-or-host-views)
+- [4.2 Organising complex ViewModels](#42-organising-complex-viewmodels)
+  - [4.2.1 Use cases as injectable objects](#421-use-cases-as-injectable-objects)
+  - [4.2.2 Managing constructor length with a use case record](#422-managing-constructor-length-with-a-use-case-record)
+  - [4.2.3 Sub-ViewModels for distinct UI sections](#423-sub-viewmodels-for-distinct-ui-sections)
+  - [4.2.4 Composing sub-ViewModels in the parent](#424-composing-sub-viewmodels-in-the-parent)
+  - [4.2.5 The result of combining all three strategies](#425-the-result-of-combining-all-three-strategies)
+- [4.3 ViewModel communication patterns](#43-viewmodel-communication-patterns)
+- [4.4 Action classes](#44-action-classes)
+  - [4.4.1 The problem they solve](#441-the-problem-they-solve)
+  - [4.4.2 Action — synchronous operations](#442-action--synchronous-operations)
+  - [4.4.3 AsyncAction — long-running operations](#443-asyncaction--long-running-operations)
+  - [4.4.4 How they fit into the architecture](#444-how-they-fit-into-the-architecture)
 
-> This section introduces complexity progressively. Section 3.1 covers the core ViewModel structure. Section 3.2 adds strategies for managing complexity as ViewModels grow. Section 3.4 introduces Action classes, covering both synchronous and asynchronous variants. Later examples for the same classes — particularly `OrderEditorViewModel` and `SaveOrderUseCase` — supersede earlier ones; each revision reflects the addition of a new strategy.
+> This section introduces complexity progressively. section 4.1 covers the core ViewModel structure. section 4.2 adds strategies for managing complexity as ViewModels grow. section 4.4 introduces Action classes, covering both synchronous and asynchronous variants. Later examples for the same classes — particularly `OrderEditorViewModel` and `SaveOrderUseCase` — supersede earlier ones; each revision reflects the addition of a new strategy.
 
-### 3.1 The ViewModel class
+### 4.1 The ViewModel class
 
 A ViewModel represents the state and behaviour of a single screen or area. It exposes observable properties for the view to bind to and methods the view calls in response to user input.
 
-#### 3.1.1 Observable properties
+#### 4.1.1 Observable properties
 
 The ViewModel exposes state as observable properties; the view binds its controls to those properties. When a property value changes, all bound controls update automatically with no explicit refresh required.
 
 > The sample code uses JavaFX's property system as the concrete observable mechanism. Other UI frameworks provide equivalent systems — WPF has `INotifyPropertyChanged`, Android has `LiveData` — and the same ViewModel patterns apply.
 
-The example below introduces a `LoadOrdersUseCase` as a collaborator — a single-operation object that wraps data retrieval. Use cases are covered fully in section 3.2.1; for now, treat it as a simple object that fetches orders when asked.
+The example below introduces a `LoadOrdersUseCase` as a collaborator — a single-operation object that wraps data retrieval. Use cases are covered fully in section 4.2.1; for now, treat it as a simple object that fetches orders when asked.
 
 ```java
 public class LoadOrdersUseCase {
@@ -74,7 +74,7 @@ public class OrdersViewModel {
 }
 ```
 
-#### 3.1.2 Navigation via injected callbacks
+#### 4.1.2 Navigation via injected callbacks
 
 A recurring question in MVVM is how a ViewModel triggers navigation to another screen. It cannot construct a view directly — that breaches the layer separation. It cannot hold a reference to a system with knowledge of view construction — that leaks view-layer concerns into the ViewModel. And it should not accumulate service dependencies solely to pass them on when constructing a child ViewModel.
 
@@ -127,18 +127,18 @@ public class OrderDetailViewModel {
 
 > Notice that `OrderDetailViewModel` does not receive `CustomerService`, even though navigating back eventually leads to a screen that uses it. Those dependencies are handled when the back callback is constructed in the composition root, where all services are already available.
 
-The view layer is responsible for performing the actual navigation — resolving the appropriate view and deciding how it is presented. The composition root is responsible for wiring the callbacks that connect ViewModel intent to that behaviour. Both are covered in sections 4.4 and 5.
+The view layer is responsible for performing the actual navigation — resolving the appropriate view and deciding how it is presented. The composition root is responsible for wiring the callbacks that connect ViewModel intent to that behaviour. Both are covered in sections 5.4 and 6.
 
-When the newly opened view must return a result — as is common with modal interactions — the callback argument can carry a session object that provides both input data and an output channel. Sessions are covered in section 3.3.
+When the newly opened view must return a result — as is common with modal interactions — the callback argument can carry a session object that provides both input data and an output channel. Sessions are covered in section 4.3.
 
-#### 3.1.3 Why ViewModels should not create or host views
+#### 4.1.3 Why ViewModels should not create or host views
 
 Two invariants govern how a ViewModel should relate to views it may cause to appear:
 
 - **It should not acquire dependencies solely to construct something else.** If a ViewModel holds a service or use case it does not itself use, that dependency exists only to be passed on — a sign that construction responsibility has leaked into the wrong place.
 - **It should not produce views that appear outside its own presentation scope.** A ViewModel has no knowledge of the shell, the layout, or how the application is structured. Deciding where a new view appears — workspace, sidebar, modal dialog — is a view-layer concern.
 
-These invariants are easy to satisfy when decomposing a single screen. The sub-ViewModels described in section 3.2 (`OrderHeaderViewModel`, `LineItemsViewModel`) are constructed from data the parent already holds, and their corresponding sub-views are placed directly within the parent view's own layout. No new dependencies are introduced; no question of presentation context arises.
+These invariants are easy to satisfy when decomposing a single screen. The sub-ViewModels described in section 4.2 (`OrderHeaderViewModel`, `LineItemsViewModel`) are constructed from data the parent already holds, and their corresponding sub-views are placed directly within the parent view's own layout. No new dependencies are introduced; no question of presentation context arises.
 
 The invariants are violated when a ViewModel tries to produce a view that crosses these boundaries. Three common patterns each break one or both.
 
@@ -160,7 +160,7 @@ public class OrdersViewModel {
 
 This violates both invariants. Constructing `OrderDetailViewModel` requires whatever dependencies it needs — `OrdersViewModel` must hold them even if it never uses them directly. And the bound view can only present the result in the context it occupies — it cannot place it in a different area of the shell or open it as a modal dialog.
 
-> This is distinct from the sub-ViewModel pattern described in section 3.2.2, where child ViewModels represent fixed sections of the same screen. Those are constructed from data the parent already holds, with no external dependencies, and their views are always rendered within the parent's own layout — both invariants are satisfied by construction.
+> This is distinct from the sub-ViewModel pattern described in section 4.2.2, where child ViewModels represent fixed sections of the same screen. Those are constructed from data the parent already holds, with no external dependencies, and their views are always rendered within the parent's own layout — both invariants are satisfied by construction.
 
 **A shared ViewRouter injected into the ViewModel**
 
@@ -184,15 +184,15 @@ public class OrdersViewModel {
 }
 ```
 
-The ViewModel acquires no dependencies it does not otherwise need and makes no claim about presentation. The callback is wired in the composition root, where all dependencies are already available and where the next ViewModel — with all its services and callbacks — is constructed. Whether the resulting view replaces the workspace, opens as a dialog, or appears in a sidebar is decided by whichever view registers for that view type. Sections 4.4 and 4.5 demonstrate this concretely.
+The ViewModel acquires no dependencies it does not otherwise need and makes no claim about presentation. The callback is wired in the composition root, where all dependencies are already available and where the next ViewModel — with all its services and callbacks — is constructed. Whether the resulting view replaces the workspace, opens as a dialog, or appears in a sidebar is decided by whichever view registers for that view type. Sections 5.4 and 5.5 demonstrate this concretely.
 
-### 3.2 Organising complex ViewModels
+### 4.2 Organising complex ViewModels
 
 A ViewModel supporting multiple operations and multi-step flows accumulates complexity rapidly if all logic resides within it directly. An order editor handling edit, copy, and delete — where the edit operation spans confirmation and commit steps — becomes difficult to read or modify when these concerns are not separated.
 
 Three complementary strategies address this. They may be applied independently or together.
 
-#### 3.2.1 Use cases as injectable objects
+#### 4.2.1 Use cases as injectable objects
 
 Each operation is extracted into its own use case class rather than implemented as a method on the ViewModel. The ViewModel holds use case instances and delegates to them, becoming a coordinator. Each use case is independently testable without the ViewModel being involved.
 
@@ -342,7 +342,7 @@ private OrderEditorViewModel orderEditor(Order order) {
 }
 ```
 
-#### 3.2.2 Managing constructor length with a use case record
+#### 4.2.2 Managing constructor length with a use case record
 
 As a ViewModel grows to coordinate more operations, its constructor accumulates one argument per use case. This is an accurate reflection of its dependencies, but the signature becomes long. A use case record bundles the related use cases into a single named parameter object:
 
@@ -394,9 +394,9 @@ private OrderEditorViewModel orderEditor(Order order) {
 
 The total number of dependencies is unchanged — all three use cases still exist and are still constructed in the composition root. What changes is that the ViewModel constructor expresses a single coherent concept rather than a list of individual arguments. Adding a new use case means adding one field to the record; the ViewModel constructor signature does not change.
 
-#### 3.2.3 Sub-ViewModels for distinct UI sections
+#### 4.2.3 Sub-ViewModels for distinct UI sections
 
-Sub-ViewModels satisfy both invariants from section 3.1.3 by construction: they are created from data the parent ViewModel already holds, with no external service dependencies, and their corresponding sub-views are always rendered within the parent view's own layout. This is what makes the pattern architecturally sound — a child ViewModel that required services from the composition root, or whose view might appear outside the parent's layout, would need to be registered with the `ViewLocator` and presented via the `ViewRouter`, not constructed directly by the parent.
+Sub-ViewModels satisfy both invariants from section 4.1.3 by construction: they are created from data the parent ViewModel already holds, with no external service dependencies, and their corresponding sub-views are always rendered within the parent view's own layout. This is what makes the pattern architecturally sound — a child ViewModel that required services from the composition root, or whose view might appear outside the parent's layout, would need to be registered with the `ViewLocator` and presented via the `ViewRouter`, not constructed directly by the parent.
 
 If a screen has meaningfully distinct sections — an order header, a line items table, a notes panel — each section can have its own ViewModel. The parent ViewModel composes them and reads from them when it needs to build the final result. Each sub-ViewModel owns its own state, its own validation logic and its own observable properties.
 
@@ -516,7 +516,7 @@ public class LineItemRow {
 }
 ```
 
-#### 3.2.4 Composing sub-ViewModels in the parent
+#### 4.2.4 Composing sub-ViewModels in the parent
 
 The parent ViewModel constructs its sub-ViewModels, exposes them via getters, and derives its own validity by composing the sub-ViewModels' valid properties. Crucially, the parent does not duplicate or re-implement the validity rules of its children — it observes their `validProperty` and combines the results. Each child owns its own invariant:
 
@@ -592,13 +592,13 @@ getChildren().add(layout);
 
 > Sub-ViewModels are an internal implementation detail of the parent ViewModel. The composition root does not construct them and does not know they exist. It only wires the boundaries — services and navigation callbacks that cross layers. Everything internal to the editor is the editor's own concern.
 
-#### 3.2.5 The result of combining all three strategies
+#### 4.2.5 The result of combining all three strategies
 
 A ViewModel that uses all three strategies is a pure coordinator. It holds no service logic — that lives in use cases. It contains no per-field validation for its subsections — that is owned by sub-ViewModels. Each piece is independently readable, independently changeable, and independently testable.
 
 Adding a new operation means writing a new use case class and adding one argument to the ViewModel constructor. Adding a new section to the screen means writing a new sub-ViewModel and sub-view, then composing them in. In each case, the change is localised and the rest of the codebase is unaffected.
 
-### 3.3 ViewModel communication patterns
+### 4.3 ViewModel communication patterns
 
 Navigation callbacks address the case where one ViewModel triggers the appearance of another. A separate problem arises when two concurrently active ViewModels must share state. A sidebar displaying a pending order count must reflect updates made by the orders screen, yet direct coupling between the two ViewModels would undermine the architecture.
 
@@ -794,11 +794,11 @@ The session is created once per interaction, carries the exchange between the tw
 
 > If the target view needs to communicate incremental updates rather than a single final result — a live preview, for instance — the session can carry an observable property instead of a callback. The initiating ViewModel observes it in the same way it would any other observable.
 
-### 3.4 Action classes
+### 4.4 Action classes
 
 The Action classes are optional utilities between ViewModels and the view layer. They eliminate a category of boilerplate: wiring a control's disabled state to a ViewModel property and its activation handler to a ViewModel method are related operations that are better expressed as a single object.
 
-#### 3.4.1 The problem they solve
+#### 4.4.1 The problem they solve
 
 Without `Action` a view that binds a save button must wire two separate things:
 
@@ -810,7 +810,7 @@ saveButton.setOnAction(e -> viewModel.save());
 
 For a single control the overhead is modest, but the pattern repeats across every actionable control in every view. If the ViewModel changes a guard condition, the view must be updated accordingly. Centralising this in the ViewModel via Action is the more appropriate location.
 
-#### 3.4.2 Action — synchronous operations
+#### 4.4.2 Action — synchronous operations
 
 Action holds a Listener and an optional `ObservableValue` that governs whether the action can be executed. The execute method is self-guarding: invocation when `canExecute` is false has no effect. An operation cannot be triggered through the view regardless of how bindings are arranged.
 
@@ -856,7 +856,7 @@ public class Action {
 }
 ```
 
-#### 3.4.3 AsyncAction — long-running operations
+#### 4.4.3 AsyncAction — long-running operations
 
 `AsyncAction` extends the concept to asynchronous operations, providing two behaviours that would otherwise require explicit implementation in every async ViewModel method:
 
@@ -933,7 +933,7 @@ public class AsyncAction {
 
 > **Error handling in production.** The `whenCompleteAsync` block above resets `isExecuting` but silently discards any exception. In a real application the `Listener` contract should return a result type that distinguishes success from failure (e.g. `CompletableFuture<Result<Runnable, Throwable>>`), and `AsyncAction` should expose a `ReadOnlyObjectProperty<Throwable> lastErrorProperty()` that the ViewModel can observe and surface to the user. The simplified form shown here is sufficient for illustrating the threading and guard mechanics.
 
-#### 3.4.4 How they fit into the architecture
+#### 4.4.4 How they fit into the architecture
 
 Actions are exposed as public fields on the ViewModel. Use cases remain plain objects with an `execute` method — they have no knowledge of `Action` or `AsyncAction`. The ViewModel wires them via method references or lambdas, keeping the Listener interface as an anonymous concern at the call site.
 

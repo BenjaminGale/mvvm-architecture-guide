@@ -1,25 +1,25 @@
-## 4. Views
+## 5. Views
 
 This section covers the view layer — how views are structured, constructed, and connected to their ViewModels. It describes the `ViewLocator` and `ViewRouter` infrastructure that supports navigation, and explains how presentation decisions are made without coupling ViewModels to specific UI contexts.
 
 ## Contents
 
-- [4.1 View types](#41-view-types)
+- [5.1 View types](#51-view-types)
   - [Construction patterns for Views](#construction-patterns-for-views)
-- [4.2 View classes](#42-view-classes)
-- [4.3 The ViewLocator](#43-the-viewlocator)
-- [4.4 Navigation](#44-navigation)
+- [5.2 View classes](#52-view-classes)
+- [5.3 The ViewLocator](#53-the-viewlocator)
+- [5.4 Navigation](#54-navigation)
   - [The ViewRouter class](#the-viewrouter-class)
   - [Navigation from the ViewModel perspective](#navigation-from-the-viewmodel-perspective)
   - [Navigation from the View perspective](#navigation-from-the-view-perspective)
-- [4.5 Presentation decisions belong to the View](#45-presentation-decisions-belong-to-the-view)
-- [4.6 Adding a new screen](#46-adding-a-new-screen)
+- [5.5 Presentation decisions belong to the View](#55-presentation-decisions-belong-to-the-view)
+- [5.6 Adding a new screen](#56-adding-a-new-screen)
 
-### 4.1 View types
+### 5.1 View types
 
 The architecture uses two kinds of view.
 
-**View** — A class bound to a single ViewModel. The view binds its controls to the ViewModel's observable properties and delegates user interactions back to it. All views follow the construction conventions described in section 4.2.
+**View** — A class bound to a single ViewModel. The view binds its controls to the ViewModel's observable properties and delegates user interactions back to it. All views follow the construction conventions described in section 5.2.
 
 **Component** — A reusable chunk of UI with no ViewModel. Components accept plain data or observable values and contain no application logic. They are instantiated directly at the point of use. A status badge, a loading indicator, or a formatted label are typical examples.
 
@@ -27,7 +27,7 @@ The architecture uses two kinds of view.
 
 Though all Views share the same structure, they are wired in two different ways depending on how their ViewModel is provided.
 
-**Directly instantiated** views have their ViewModel provided by a parent view, which receives it from a parent ViewModel (see section 3.2.2). The parent view constructs them inline, passing the sub-ViewModel directly. These views are never registered with the `ViewLocator`.
+**Directly instantiated** views have their ViewModel provided by a parent view, which receives it from a parent ViewModel (see section 4.2.2). The parent view constructs them inline, passing the sub-ViewModel directly. These views are never registered with the `ViewLocator`.
 
 ```java
 // Inside OrderEditorView — sub-views are constructed directly
@@ -42,7 +42,7 @@ viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
 viewLocator.register(OrdersViewModel.class,      OrdersView::new);
 ```
 
-The invariants from section 3.1.3 determine which pattern applies. If a view's ViewModel requires external dependencies or the view could appear in a context outside the parent's layout, it must be registered with the `ViewLocator`. If the ViewModel is provided by a parent ViewModel with no external dependencies and the view always renders within the parent's layout, it is instantiated directly.
+The invariants from section 4.1.3 determine which pattern applies. If a view's ViewModel requires external dependencies or the view could appear in a context outside the parent's layout, it must be registered with the `ViewLocator`. If the ViewModel is provided by a parent ViewModel with no external dependencies and the view always renders within the parent's layout, it is instantiated directly.
 
 | | Directly instantiated | ViewLocator-registered |
 |---|---|---|
@@ -52,7 +52,7 @@ The invariants from section 3.1.3 determine which pattern applies. If a view's V
 | **Presented via** | Constructed inline in the parent view | `ViewRouter.route` |
 | **Typical examples** | Header, line items, summary panel within an editor screen | Full screens, dialogs, any view the router presents |
 
-### 4.2 View classes
+### 5.2 View classes
 
 View classes follow two conventions:
 
@@ -89,7 +89,7 @@ public class OrdersView extends StackPane {
 
 > The view is responsible for presentation only. It never calls a service directly, never constructs another ViewModel, and never decides what screen to show next. All of that belongs in the ViewModel or in the composition root.
 
-### 4.3 The ViewLocator
+### 5.3 The ViewLocator
 
 The `ViewLocator` is a type-keyed registry that maps ViewModel types to their corresponding view factory functions. The mapping must exist somewhere outside the ViewModel layer — `ViewLocator` is that place.
 
@@ -137,7 +137,7 @@ The `ViewLocator` is the sole location that defines the ViewModel-to-View mappin
 | **Knows about** | How to build views | Where to send them |
 | **Navigation aware** | No | Yes |
 
-### 4.4 Navigation
+### 5.4 Navigation
 
 #### The ViewRouter class
 
@@ -198,7 +198,7 @@ var viewLocator = new ViewLocator();
 var viewRouter  = new ViewRouter(viewLocator);
 ```
 
-### 4.5 Presentation decisions belong to the View
+### 5.5 Presentation decisions belong to the View
 
 When the ViewRouter creates a view, it makes no claim about presentation. Each listening view registers only for the view types it is responsible for and is not notified of others.
 
@@ -240,7 +240,7 @@ Neither the originating ViewModel nor the ViewRouter was involved in the present
 
 Introducing a new presentation style — a slide-in panel, a notification, an additional tab — requires writing a new view component that subscribes to the ViewRouter and handles the relevant ViewModel types. No existing code is modified; the ViewRouter acquires no new methods; ViewModels are unchanged.
 
-### 4.6 Adding a new screen
+### 5.6 Adding a new screen
 
 The architecture is designed so that adding a new screen is a mechanical, low-risk operation that touches only new files and the composition root. If any step requires modifying existing classes other than the composition root, something has drifted from the invariants.
 

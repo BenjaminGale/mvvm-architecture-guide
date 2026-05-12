@@ -1,24 +1,24 @@
-## 7. Testing
+## 8. Testing
 
 This section demonstrates how to practically unit test the components introduced throughout this document.
 
 ## Contents
 
-- [7.1 Testing ViewModels](#71-testing-viewmodels)
-  - [7.1.1 Property updates](#711-property-updates)
-  - [7.1.2 Navigation callbacks](#712-navigation-callbacks)
-  - [7.1.3 Sub-ViewModel validity](#713-sub-viewmodel-validity)
-  - [7.1.4 Composed validity (canSave)](#714-composed-validity-cansave)
-  - [7.1.5 AsyncAction](#715-asyncaction)
-- [7.2 Testing use cases](#72-testing-use-cases)
-- [7.3 Testing inter-ViewModel communication](#73-testing-inter-viewmodel-communication)
-- [7.4 Stub implementations](#74-stub-implementations)
-- [7.5 Testing Action and ViewLocator directly](#75-testing-action-and-viewlocator-directly)
-  - [7.5.1 Action](#751-action)
-  - [7.5.2 AsyncAction](#752-asyncaction)
-  - [7.5.3 ViewLocator](#753-viewlocator)
+- [8.1 Testing ViewModels](#81-testing-viewmodels)
+  - [8.1.1 Property updates](#811-property-updates)
+  - [8.1.2 Navigation callbacks](#812-navigation-callbacks)
+  - [8.1.3 Sub-ViewModel validity](#813-sub-viewmodel-validity)
+  - [8.1.4 Composed validity (canSave)](#814-composed-validity-cansave)
+  - [8.1.5 AsyncAction](#815-asyncaction)
+- [8.2 Testing use cases](#82-testing-use-cases)
+- [8.3 Testing inter-ViewModel communication](#83-testing-inter-viewmodel-communication)
+- [8.4 Stub implementations](#84-stub-implementations)
+- [8.5 Testing Action and ViewLocator directly](#85-testing-action-and-viewlocator-directly)
+  - [8.5.1 Action](#851-action)
+  - [8.5.2 AsyncAction](#852-asyncaction)
+  - [8.5.3 ViewLocator](#853-viewlocator)
 
-### 7.1 Testing ViewModels
+### 8.1 Testing ViewModels
 
 #### 7.1.1 Property updates
 
@@ -197,7 +197,7 @@ void save_disabledWhileExecuting() {
 }
 ```
 
-### 7.2 Testing use cases
+### 8.2 Testing use cases
 
 A use case test verifies that the service received the correct data and that the completion callback was invoked. The service is an in-memory stub:
 
@@ -229,7 +229,7 @@ void deleteOrderUseCase_callsServiceAndFiresCallback() {
 }
 ```
 
-### 7.3 Testing inter-ViewModel communication
+### 8.3 Testing inter-ViewModel communication
 
 These tests verify that a consuming ViewModel's property reflects context changes, and that a producing ViewModel updates the context on refresh:
 
@@ -258,7 +258,7 @@ void ordersViewModel_updatesContextOnRefresh() {
 }
 ```
 
-### 7.4 Stub implementations
+### 8.4 Stub implementations
 
 Services are replaced with in-memory stubs rather than framework-generated mocks. A stub is a concrete implementation providing only what the test requires:
 
@@ -306,7 +306,7 @@ public class StubOrderService implements OrderService {
 
 Stubs are preferable to mocks for two reasons. First, the test setup describes what the service does rather than which methods must be called, making intent explicit. Second, stubs are resilient to refactoring that does not change behaviour: a mock asserting `orderService.save()` was called fails if the method is renamed; a stub recording the saved entity does not.
 
-### 7.5 Testing Action and ViewLocator directly
+### 8.5 Testing Action and ViewLocator directly
 
 #### 7.5.1 Action
 
