@@ -1,5 +1,6 @@
 package mvvm.example.orders.adapters;
 
+import mvvm.example.core.view.ViewLocator;
 import mvvm.example.core.view.ViewRouter;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
@@ -7,10 +8,13 @@ import mvvm.example.orders.domain.OrderService;
 import mvvm.example.orders.editor.CopyOrderUseCase;
 import mvvm.example.orders.editor.DeleteOrderUseCase;
 import mvvm.example.orders.editor.OrderEditorUseCases;
+import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.editor.OrderEditorViewModel;
 import mvvm.example.orders.editor.SaveOrderUseCase;
 import mvvm.example.orders.editor.edititem.EditItemSession;
+import mvvm.example.orders.editor.edititem.EditItemView;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
+import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersViewModel;
 
 public class OrderModule {
@@ -19,10 +23,18 @@ public class OrderModule {
     private final OrderContext orderContext;
     private final ViewRouter viewRouter;
 
-    public OrderModule(OrderService orderService, OrderContext orderContext, ViewRouter viewRouter) {
-        this.orderService = orderService;
-        this.orderContext = orderContext;
-        this.viewRouter = viewRouter;
+    public OrderModule(ViewLocator viewLocator, ViewRouter viewRouter) {
+        this.orderService = new OrderService(new InMemoryOrderRepository());
+        this.orderContext  = new OrderContext();
+        this.viewRouter    = viewRouter;
+
+        viewLocator.register(OrdersViewModel.class,      OrdersExplorerView::new);
+        viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
+        viewLocator.register(EditItemViewModel.class,    EditItemView::new);
+    }
+
+    public OrderContext orderContext() {
+        return orderContext;
     }
 
     public OrdersViewModel orders() {

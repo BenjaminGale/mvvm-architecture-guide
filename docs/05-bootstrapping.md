@@ -137,49 +137,42 @@ private SettingsViewModel settings() {
 }
 ```
 
-> Each factory method produces a fresh ViewModel instance. Navigating to the same screen twice yields two independent instances; no state persists between visits unless held in a context object or service. As the application grows, related factory methods can be grouped into dedicated classes — an `OrderModule`, a `CustomerModule` — each accepting only the services it requires. The method structure is unchanged; only the organisation differs.
+> Each factory method produces a fresh ViewModel instance. Navigating to the same screen twice yields two independent instances; no state persists between visits unless held in a context object or service. As the application grows, related factory methods can be grouped into dedicated Module classes — an `OrderModule`, a `CustomerModule`. The method structure is unchanged; only the organisation differs.
 
 ### 5.4 Scaling App with Modules
 
-As the application grows, `App` acquires more factory methods. They remain individually simple — one method per screen — but their number grows. Modules are the natural way to organise them. Each Module is a plain class that receives only the services and shared state it requires, and exposes factory methods for the screens in its domain.
+As the application grows, `App` acquires more factory methods. They remain individually simple — one method per screen — but their number grows. Modules are the natural way to organise them. Each Module owns its own infrastructure — creating its own services, repositories, and shared state — and registers its own ViewModel-to-View mappings. It exposes factory methods for the screens in its domain and nothing else.
 
 ```java
 public class OrderModule {
 
-    private final OrderService  orderService;
-    private final OrderContext  orderContext;
-    private final ViewRouter     viewRouter;
+    private final OrderService orderService;
+    private final OrderContext orderContext;
+    private final ViewRouter   viewRouter;
 
-    public OrderModule(
-        OrderService orderService,
-        OrderContext orderContext,
-        ViewRouter    viewRouter) {
-        this.orderService = orderService;
-        this.orderContext = orderContext;
+    public OrderModule(ViewLocator viewLocator, ViewRouter viewRouter) {
+        this.orderService = new OrderService(new InMemoryOrderRepository());
+        this.orderContext  = new OrderContext();
         this.viewRouter    = viewRouter;
+
+        viewLocator.register(OrdersViewModel.class,      OrdersExplorerView::new);
+        viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
+        viewLocator.register(EditItemViewModel.class,    EditItemView::new);
+    }
+
+    public OrderContext orderContext() {
+        return orderContext;
     }
 
     public OrdersViewModel orders() {
         return new OrdersViewModel(
-            new LoadOrdersUseCase(orderService),
+            orderService::fetchAll,
             orderContext,
             order -> viewRouter.route(orderEditor(order))
         );
     }
 
-    private OrderEditorViewModel orderEditor(Order order) {
-        var vm = new OrderEditorViewModel(
-            order,
-            new SaveOrderUseCase(orderService,
-                vm::buildUpdatedOrder,
-                () -> viewRouter.route(orders())),
-            new DeleteOrderUseCase(orderService,
-                () -> viewRouter.route(orders())),
-            new CopyOrderUseCase(orderService,
-                copy -> viewRouter.route(orderEditor(copy)))
-        );
-        return vm;
-    }
+    private OrderEditorViewModel orderEditor(Order order) { ... }
 }
 ```
 
@@ -189,9 +182,12 @@ public class CustomerModule {
     private final CustomerService customerService;
     private final ViewRouter       viewRouter;
 
-    public CustomerModule(CustomerService customerService, ViewRouter viewRouter) {
-        this.customerService = customerService;
+    public CustomerModule(ViewLocator viewLocator, ViewRouter viewRouter) {
+        this.customerService = new CustomerService(new InMemoryCustomerRepository());
         this.viewRouter       = viewRouter;
+
+        viewLocator.register(CustomersViewModel.class,      CustomersExplorerView::new);
+        viewLocator.register(CustomerDetailViewModel.class, CustomerDetailView::new);
     }
 
     public CustomersViewModel customers() {
@@ -201,46 +197,31 @@ public class CustomerModule {
         );
     }
 
-    private CustomerDetailViewModel customerDetail(Customer customer) {
-        return new CustomerDetailViewModel(
-            customerService,
-            customer,
-            () -> viewRouter.route(customers())
-        );
-    }
+    private CustomerDetailViewModel customerDetail(Customer customer) { ... }
 }
 ```
 
-`App.start` becomes a wiring site only. It constructs services, creates modules, registers view mappings, and calls `viewRouter.route` to set the initial screen:
+`App.start` is reduced to navigation infrastructure, creating modules, and registering views that belong to no specific module:
 
 ```java
 @Override
 public void start(Stage stage) {
-    var orderService    = new OrderService();
-    var customerService = new CustomerService();
-    var orderContext    = new OrderContext();
     var viewLocator = new ViewLocator();
-    viewLocator.register(SidebarViewModel.class,      SidebarView::new);
-    viewLocator.register(OrdersViewModel.class,        OrdersView::new);
-    viewLocator.register(OrderEditorViewModel.class,   OrderEditorView::new);
-    viewLocator.register(CustomersViewModel.class,     CustomersView::new);
-    viewLocator.register(CustomerDetailViewModel.class, CustomerDetailView::new);
-    viewLocator.register(SettingsViewModel.class,      SettingsView::new);
+    var viewRouter  = new ViewRouter(viewLocator);
 
-    var viewRouter = new ViewRouter(viewLocator);
+    var orderModule    = new OrderModule(viewLocator, viewRouter);
+    var customerModule = new CustomerModule(viewLocator, viewRouter);
 
-    var orderModule    = new OrderModule(orderService, orderContext, viewRouter);
-    var customerModule = new CustomerModule(customerService, viewRouter);
+    viewLocator.register(SettingsViewModel.class, SettingsView::new);
 
     var sidebarVm = new SidebarViewModel(
-        orderContext,
+        orderModule.orderContext(),
         () -> viewRouter.route(orderModule.orders()),
         () -> viewRouter.route(customerModule.customers()),
         () -> viewRouter.route(new SettingsViewModel(() -> viewRouter.route(orderModule.orders())))
     );
 
-    var rootVm   = new MainViewModel(sidebarVm);
-    var rootView = new MainView(rootVm, viewRouter);
+    var rootView = new MainView(new MainViewModel(sidebarVm), viewRouter);
 
     stage.setScene(new Scene(rootView, 1024, 768));
     stage.show();
@@ -249,4 +230,4 @@ public void start(Stage stage) {
 }
 ```
 
-Each Module accepts only what it needs. `CustomerModule` has no knowledge of `OrderService`; `OrderModule` has no knowledge of `CustomerService`. Adding a new domain area means writing a new Module and registering its views — the composition root itself requires only a new field and a registration block.
+Each Module is fully self-contained: `CustomerModule` has no knowledge of `OrderService` or `OrderContext`; `OrderModule` has no knowledge of `CustomerService`. Adding a new domain area means writing a new Module — `App` itself requires only one new line to create it.
