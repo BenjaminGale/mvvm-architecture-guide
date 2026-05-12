@@ -37,6 +37,10 @@ public class OrderModule {
         return orderContext;
     }
 
+    public void routeToOrders() {
+        viewRouter.route(orders());
+    }
+
     public OrdersViewModel orders() {
         return new OrdersViewModel(
             orderService::fetchAll,

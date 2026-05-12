@@ -22,7 +22,11 @@ public class CustomerModule {
         viewLocator.register(CustomerDetailViewModel.class, CustomerDetailView::new);
     }
 
-    public CustomersViewModel customers() {
+    public void routeToCustomers() {
+        viewRouter.route(customers());
+    }
+
+    private CustomersViewModel customers() {
         return new CustomersViewModel(
             customerService,
             customer -> viewRouter.route(customerDetail(customer))
