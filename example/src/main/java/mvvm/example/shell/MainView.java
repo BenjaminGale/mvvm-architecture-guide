@@ -7,6 +7,7 @@ import mvvm.example.customers.CustomersExplorerView;
 import mvvm.example.customers.detail.CustomerDetailView;
 import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.OrdersExplorerView;
+import mvvm.example.settings.SettingsView;
 
 public class MainView extends StackPane {
 
@@ -25,6 +26,6 @@ public class MainView extends StackPane {
         viewRouter.addListener(OrderEditorView.class,       view -> workspace.getChildren().setAll(view));
         viewRouter.addListener(CustomersExplorerView.class, view -> workspace.getChildren().setAll(view));
         viewRouter.addListener(CustomerDetailView.class,    view -> workspace.getChildren().setAll(view));
-        // Further workspace listener registrations added as screens are built
+        viewRouter.addListener(SettingsView.class,          view -> workspace.getChildren().setAll(view));
     }
 }
