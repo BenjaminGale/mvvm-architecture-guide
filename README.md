@@ -28,3 +28,4 @@ cd example && ./gradlew run
 - [6. Code organisation](docs/06-code-organisation.md)
 - [7. Testing](docs/07-testing.md)
 - [8. Architecture review](docs/08-architecture-review.md)
+- [9. Glossary](docs/09-glossary.md)
