@@ -11,7 +11,7 @@ This section covers the composition root — the single place in the codebase wh
   - [5.3.2 Orders flow](#532-orders-flow)
   - [5.3.3 Customers flow](#533-customers-flow)
   - [5.3.4 Settings](#534-settings)
-- [5.4 Scaling App with Flow classes](#54-scaling-app-with-flow-classes)
+- [5.4 Scaling App with Modules](#54-scaling-app-with-modules)
 
 ### 5.1 The role of App
 
@@ -137,20 +137,20 @@ private SettingsViewModel settings() {
 }
 ```
 
-> Each factory method produces a fresh ViewModel instance. Navigating to the same screen twice yields two independent instances; no state persists between visits unless held in a context object or service. As the application grows, related factory methods can be grouped into dedicated classes — an `OrderFlow`, a `CustomerFlow` — each accepting only the services it requires. The method structure is unchanged; only the organisation differs.
+> Each factory method produces a fresh ViewModel instance. Navigating to the same screen twice yields two independent instances; no state persists between visits unless held in a context object or service. As the application grows, related factory methods can be grouped into dedicated classes — an `OrderModule`, a `CustomerModule` — each accepting only the services it requires. The method structure is unchanged; only the organisation differs.
 
-### 5.4 Scaling App with Flow classes
+### 5.4 Scaling App with Modules
 
-As the application grows, `App` acquires more factory methods. They remain individually simple — one method per screen — but their number grows. Flow classes are the natural way to organise them. Each Flow is a plain class that receives only the services and shared state it requires, and exposes factory methods for the screens in its domain.
+As the application grows, `App` acquires more factory methods. They remain individually simple — one method per screen — but their number grows. Modules are the natural way to organise them. Each Module is a plain class that receives only the services and shared state it requires, and exposes factory methods for the screens in its domain.
 
 ```java
-public class OrderFlow {
+public class OrderModule {
 
     private final OrderService  orderService;
     private final OrderContext  orderContext;
     private final ViewRouter     viewRouter;
 
-    public OrderFlow(
+    public OrderModule(
         OrderService orderService,
         OrderContext orderContext,
         ViewRouter    viewRouter) {
@@ -184,12 +184,12 @@ public class OrderFlow {
 ```
 
 ```java
-public class CustomerFlow {
+public class CustomerModule {
 
     private final CustomerService customerService;
     private final ViewRouter       viewRouter;
 
-    public CustomerFlow(CustomerService customerService, ViewRouter viewRouter) {
+    public CustomerModule(CustomerService customerService, ViewRouter viewRouter) {
         this.customerService = customerService;
         this.viewRouter       = viewRouter;
     }
@@ -211,7 +211,7 @@ public class CustomerFlow {
 }
 ```
 
-`App.start` becomes a wiring site only. It constructs services, creates flows, registers view mappings, and calls `viewRouter.navigateTo` to set the initial screen:
+`App.start` becomes a wiring site only. It constructs services, creates modules, registers view mappings, and calls `viewRouter.navigateTo` to set the initial screen:
 
 ```java
 @Override
@@ -221,8 +221,8 @@ public void start(Stage stage) {
     var orderContext    = new OrderContext();
     var viewRouter       = new ViewRouter();
 
-    var orderFlow    = new OrderFlow(orderService, orderContext, viewRouter);
-    var customerFlow = new CustomerFlow(customerService, viewRouter);
+    var orderModule    = new OrderModule(orderService, orderContext, viewRouter);
+    var customerModule = new CustomerModule(customerService, viewRouter);
 
     var viewFactory = new ViewFactory();
     viewFactory.register(SidebarViewModel.class,      SidebarView::new);
@@ -234,9 +234,9 @@ public void start(Stage stage) {
 
     var sidebarVm = new SidebarViewModel(
         orderContext,
-        () -> viewRouter.navigateTo(orderFlow.orders()),
-        () -> viewRouter.navigateTo(customerFlow.customers()),
-        () -> viewRouter.navigateTo(new SettingsViewModel(() -> viewRouter.navigateTo(orderFlow.orders())))
+        () -> viewRouter.navigateTo(orderModule.orders()),
+        () -> viewRouter.navigateTo(customerModule.customers()),
+        () -> viewRouter.navigateTo(new SettingsViewModel(() -> viewRouter.navigateTo(orderModule.orders())))
     );
 
     var rootVm   = new MainViewModel(sidebarVm);
@@ -245,8 +245,8 @@ public void start(Stage stage) {
     stage.setScene(new Scene(rootView, 1024, 768));
     stage.show();
 
-    viewRouter.navigateTo(orderFlow.orders());
+    viewRouter.navigateTo(orderModule.orders());
 }
 ```
 
-Each Flow accepts only what it needs. `CustomerFlow` has no knowledge of `OrderService`; `OrderFlow` has no knowledge of `CustomerService`. Adding a new domain area means writing a new Flow class and registering its views — the composition root itself requires only a new field and a registration block.
+Each Module accepts only what it needs. `CustomerModule` has no knowledge of `OrderService`; `OrderModule` has no knowledge of `CustomerService`. Adding a new domain area means writing a new Module and registering its views — the composition root itself requires only a new field and a registration block.
