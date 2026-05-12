@@ -18,10 +18,10 @@ This section describes the ViewModel layer in detail. ViewModels hold observable
 - [3.4 Action classes](#34-action-classes)
   - [3.4.1 The problem they solve](#341-the-problem-they-solve)
   - [3.4.2 Action — synchronous operations](#342-action--synchronous-operations)
-- [3.5 AsyncAction — long-running operations](#35-asyncaction--long-running-operations)
-  - [3.5.1 How they fit into the architecture](#351-how-they-fit-into-the-architecture)
+  - [3.4.3 AsyncAction — long-running operations](#343-asyncaction--long-running-operations)
+  - [3.4.4 How they fit into the architecture](#344-how-they-fit-into-the-architecture)
 
-> This section introduces complexity progressively. Section 3.1 covers the core ViewModel structure. Section 3.2 adds strategies for managing complexity as ViewModels grow. Section 3.4 introduces Action classes, and section 3.5 extends them to asynchronous operations. Later examples for the same classes — particularly `OrderEditorViewModel` and `SaveOrderUseCase` — supersede earlier ones; each revision reflects the addition of a new strategy.
+> This section introduces complexity progressively. Section 3.1 covers the core ViewModel structure. Section 3.2 adds strategies for managing complexity as ViewModels grow. Section 3.4 introduces Action classes, covering both synchronous and asynchronous variants. Later examples for the same classes — particularly `OrderEditorViewModel` and `SaveOrderUseCase` — supersede earlier ones; each revision reflects the addition of a new strategy.
 
 ### 3.1 The ViewModel class
 
@@ -772,7 +772,7 @@ public class Action {
 }
 ```
 
-### 3.5 AsyncAction — long-running operations
+#### 3.4.3 AsyncAction — long-running operations
 
 `AsyncAction` extends the concept to asynchronous operations, providing two behaviours that would otherwise require explicit implementation in every async ViewModel method:
 
@@ -849,7 +849,7 @@ public class AsyncAction {
 
 > **Error handling in production.** The `whenCompleteAsync` block above resets `isExecuting` but silently discards any exception. In a real application the `Listener` contract should return a result type that distinguishes success from failure (e.g. `CompletableFuture<Result<Runnable, Throwable>>`), and `AsyncAction` should expose a `ReadOnlyObjectProperty<Throwable> lastErrorProperty()` that the ViewModel can observe and surface to the user. The simplified form shown here is sufficient for illustrating the threading and guard mechanics.
 
-#### 3.5.1 How they fit into the architecture
+#### 3.4.4 How they fit into the architecture
 
 Actions are exposed as public fields on the ViewModel. Use cases remain plain objects with an `execute` method — they have no knowledge of `Action` or `AsyncAction`. The ViewModel wires them via method references or lambdas, keeping the Listener interface as an anonymous concern at the call site.
 
