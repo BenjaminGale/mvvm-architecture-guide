@@ -6,6 +6,7 @@ import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import mvvm.example.core.view.ViewRouter;
+import mvvm.example.orders.editor.edititem.EditItemView;
 
 public class DialogManagerView extends Pane {
 
@@ -15,7 +16,7 @@ public class DialogManagerView extends Pane {
         setMouseTransparent(true);
         setPickOnBounds(false);
 
-        // EditItemView listener registered in Phase 7
+        viewRouter.addListener(EditItemView.class, this::openAsDialog);
     }
 
     private void openAsDialog(Region view) {
