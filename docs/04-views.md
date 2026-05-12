@@ -44,6 +44,14 @@ viewFactory.register(OrdersViewModel.class,      OrdersView::new);
 
 The invariants from section 3.1.3 determine which pattern applies. If a view's ViewModel requires external dependencies or the view could appear in a context outside the parent's layout, it must be registered with the `ViewFactory`. If the ViewModel is provided by a parent ViewModel with no external dependencies and the view always renders within the parent's layout, it is instantiated directly.
 
+| | Directly instantiated | ViewFactory-registered |
+|---|---|---|
+| **ViewModel source** | Provided by a parent ViewModel as a sub-ViewModel | Constructed in the composition root |
+| **Use when** | ViewModel has no external dependencies and the view always renders inside the parent's layout | ViewModel requires services or use cases, or the view may appear outside the parent's layout |
+| **ViewFactory registration** | Never registered | Always registered — `viewFactory.register(MyViewModel.class, MyView::new)` |
+| **Presented via** | Constructed inline in the parent view | `ViewRouter.navigateTo` |
+| **Typical examples** | Header, line items, summary panel within an editor screen | Full screens, dialogs, any view the router presents |
+
 ### 4.2 View classes
 
 View classes follow two conventions:
