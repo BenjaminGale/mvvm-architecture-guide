@@ -3,6 +3,7 @@ package mvvm.example.shell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import mvvm.example.core.view.ViewRouter;
+import mvvm.example.orders.OrdersExplorerView;
 
 public class MainView extends StackPane {
 
@@ -17,6 +18,7 @@ public class MainView extends StackPane {
 
         getChildren().addAll(layout, dialogManager);
 
-        // Workspace listener registrations added as screens are built
+        viewRouter.addListener(OrdersExplorerView.class, view -> workspace.getChildren().setAll(view));
+        // Further workspace listener registrations added as screens are built
     }
 }
