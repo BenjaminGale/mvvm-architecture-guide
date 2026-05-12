@@ -1,4 +1,6 @@
-package mvvm.example.orders;
+package mvvm.example.orders.explorer;
+
+import mvvm.example.orders.Order;
 
 import java.util.List;
 

@@ -1,9 +1,10 @@
-package mvvm.example.customers;
+package mvvm.example.customers.explorer;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
+import mvvm.example.customers.Customer;
 
 public class CustomersExplorerView extends StackPane {
 

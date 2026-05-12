@@ -3,10 +3,10 @@ package mvvm.example.shell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import mvvm.example.core.view.ViewRouter;
-import mvvm.example.customers.CustomersExplorerView;
 import mvvm.example.customers.detail.CustomerDetailView;
+import mvvm.example.customers.explorer.CustomersExplorerView;
 import mvvm.example.orders.editor.OrderEditorView;
-import mvvm.example.orders.OrdersExplorerView;
+import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.settings.SettingsView;
 
 public class MainView extends StackPane {

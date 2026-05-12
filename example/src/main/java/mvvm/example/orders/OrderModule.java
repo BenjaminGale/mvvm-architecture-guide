@@ -2,6 +2,7 @@ package mvvm.example.orders;
 
 import mvvm.example.core.view.ViewRouter;
 import mvvm.example.orders.editor.CopyOrderUseCase;
+import mvvm.example.orders.explorer.OrdersViewModel;
 import mvvm.example.orders.editor.DeleteOrderUseCase;
 import mvvm.example.orders.editor.OrderEditorUseCases;
 import mvvm.example.orders.editor.OrderEditorViewModel;

@@ -1,4 +1,4 @@
-package mvvm.example.orders;
+package mvvm.example.orders.explorer;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import mvvm.example.orders.Order;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;

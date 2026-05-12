@@ -1,10 +1,12 @@
-package mvvm.example.orders;
+package mvvm.example.orders.explorer;
 
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import mvvm.example.orders.Order;
+import mvvm.example.orders.PendingOrderCounter;
 
 import java.util.Comparator;
 import java.util.function.Consumer;
