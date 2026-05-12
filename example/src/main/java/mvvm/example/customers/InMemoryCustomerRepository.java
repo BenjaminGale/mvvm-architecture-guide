@@ -1,5 +1,8 @@
 package mvvm.example.customers;
 
+import mvvm.example.customers.domain.Customer;
+import mvvm.example.customers.domain.CustomerRepository;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

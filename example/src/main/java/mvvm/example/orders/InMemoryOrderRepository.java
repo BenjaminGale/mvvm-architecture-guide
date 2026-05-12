@@ -1,5 +1,9 @@
 package mvvm.example.orders;
 
+import mvvm.example.orders.domain.LineItem;
+import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderRepository;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;

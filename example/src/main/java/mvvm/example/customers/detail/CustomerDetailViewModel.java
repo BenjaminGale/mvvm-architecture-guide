@@ -1,6 +1,6 @@
 package mvvm.example.customers.detail;
 
-import mvvm.example.customers.Customer;
+import mvvm.example.customers.domain.Customer;
 
 public class CustomerDetailViewModel {
 

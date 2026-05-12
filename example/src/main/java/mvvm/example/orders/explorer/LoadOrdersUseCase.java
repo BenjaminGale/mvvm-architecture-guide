@@ -1,6 +1,6 @@
 package mvvm.example.orders.explorer;
 
-import mvvm.example.orders.Order;
+import mvvm.example.orders.domain.Order;
 
 import java.util.List;
 

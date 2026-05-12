@@ -2,6 +2,8 @@ package mvvm.example.customers;
 
 import mvvm.example.core.view.ViewRouter;
 import mvvm.example.customers.detail.CustomerDetailViewModel;
+import mvvm.example.customers.domain.Customer;
+import mvvm.example.customers.domain.CustomerService;
 import mvvm.example.customers.explorer.CustomersViewModel;
 
 public class CustomerModule {

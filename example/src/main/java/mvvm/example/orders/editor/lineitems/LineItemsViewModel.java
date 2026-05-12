@@ -9,7 +9,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import mvvm.example.orders.LineItem;
+import mvvm.example.orders.domain.LineItem;
 
 import java.util.List;
 import java.util.function.Consumer;

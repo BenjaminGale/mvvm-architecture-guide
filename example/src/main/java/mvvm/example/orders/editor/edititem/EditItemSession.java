@@ -1,6 +1,6 @@
 package mvvm.example.orders.editor.edititem;
 
-import mvvm.example.orders.LineItem;
+import mvvm.example.orders.domain.LineItem;
 
 import java.util.function.Consumer;
 

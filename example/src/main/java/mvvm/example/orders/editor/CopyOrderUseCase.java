@@ -1,7 +1,7 @@
 package mvvm.example.orders.editor;
 
-import mvvm.example.orders.Order;
-import mvvm.example.orders.OrderService;
+import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderService;
 
 import java.util.function.Consumer;
 

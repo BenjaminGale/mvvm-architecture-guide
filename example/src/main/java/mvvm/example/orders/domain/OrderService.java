@@ -1,4 +1,4 @@
-package mvvm.example.orders;
+package mvvm.example.orders.domain;
 
 import java.time.LocalDate;
 import java.util.List;

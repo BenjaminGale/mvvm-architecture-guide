@@ -6,7 +6,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import mvvm.example.orders.LineItem;
+import mvvm.example.orders.domain.LineItem;
 
 import java.math.BigDecimal;
 

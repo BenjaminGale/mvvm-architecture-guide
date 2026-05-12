@@ -2,8 +2,8 @@ package mvvm.example.customers.explorer;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import mvvm.example.customers.Customer;
-import mvvm.example.customers.CustomerService;
+import mvvm.example.customers.domain.Customer;
+import mvvm.example.customers.domain.CustomerService;
 
 import java.util.Comparator;
 import java.util.function.Consumer;

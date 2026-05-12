@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
-import mvvm.example.customers.Customer;
+import mvvm.example.customers.domain.Customer;
 
 public class CustomersExplorerView extends StackPane {
 
