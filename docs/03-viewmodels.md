@@ -10,10 +10,10 @@ This section describes the ViewModel layer in detail. ViewModels hold observable
   - [3.1.3 Why ViewModels should not create or host views](#313-why-viewmodels-should-not-create-or-host-views)
 - [3.2 Organising complex ViewModels](#32-organising-complex-viewmodels)
   - [3.2.1 Use cases as injectable objects](#321-use-cases-as-injectable-objects)
-  - [Managing constructor length with a use case record](#managing-constructor-length-with-a-use-case-record)
-  - [3.2.2 Sub-ViewModels for distinct UI sections](#322-sub-viewmodels-for-distinct-ui-sections)
-  - [3.2.3 Composing sub-ViewModels in the parent](#323-composing-sub-viewmodels-in-the-parent)
-  - [3.2.4 The result of combining all three strategies](#324-the-result-of-combining-all-three-strategies)
+  - [3.2.2 Managing constructor length with a use case record](#322-managing-constructor-length-with-a-use-case-record)
+  - [3.2.3 Sub-ViewModels for distinct UI sections](#323-sub-viewmodels-for-distinct-ui-sections)
+  - [3.2.4 Composing sub-ViewModels in the parent](#324-composing-sub-viewmodels-in-the-parent)
+  - [3.2.5 The result of combining all three strategies](#325-the-result-of-combining-all-three-strategies)
 - [3.3 ViewModel communication patterns](#33-viewmodel-communication-patterns)
 - [3.4 Action classes](#34-action-classes)
   - [3.4.1 The problem they solve](#341-the-problem-they-solve)
@@ -338,7 +338,7 @@ private OrderEditorViewModel orderEditor(Order order) {
 }
 ```
 
-#### Managing constructor length with a use case record
+#### 3.2.2 Managing constructor length with a use case record
 
 As a ViewModel grows to coordinate more operations, its constructor accumulates one argument per use case. This is an accurate reflection of its dependencies, but the signature becomes long. A use case record bundles the related use cases into a single named parameter object:
 
@@ -390,7 +390,7 @@ private OrderEditorViewModel orderEditor(Order order) {
 
 The total number of dependencies is unchanged — all three use cases still exist and are still constructed in the composition root. What changes is that the ViewModel constructor expresses a single coherent concept rather than a list of individual arguments. Adding a new use case means adding one field to the record; the ViewModel constructor signature does not change.
 
-#### 3.2.2 Sub-ViewModels for distinct UI sections
+#### 3.2.3 Sub-ViewModels for distinct UI sections
 
 Sub-ViewModels satisfy both invariants from section 3.1.3 by construction: they are created from data the parent ViewModel already holds, with no external service dependencies, and their corresponding sub-views are always rendered within the parent view's own layout. This is what makes the pattern architecturally sound — a child ViewModel that required services from the composition root, or whose view might appear outside the parent's layout, would need to be registered with the `ViewFactory` and presented via the `ViewRouter`, not constructed directly by the parent.
 
@@ -512,7 +512,7 @@ public class LineItemRow {
 }
 ```
 
-#### 3.2.3 Composing sub-ViewModels in the parent
+#### 3.2.4 Composing sub-ViewModels in the parent
 
 The parent ViewModel constructs its sub-ViewModels, exposes them via getters, and derives its own validity by composing the sub-ViewModels' valid properties. Crucially, the parent does not duplicate or re-implement the validity rules of its children — it observes their `validProperty` and combines the results. Each child owns its own invariant:
 
@@ -588,7 +588,7 @@ getChildren().add(layout);
 
 > Sub-ViewModels are an internal implementation detail of the parent ViewModel. The composition root does not construct them and does not know they exist. It only wires the boundaries — services and navigation callbacks that cross layers. Everything internal to the editor is the editor's own concern.
 
-#### 3.2.4 The result of combining all three strategies
+#### 3.2.5 The result of combining all three strategies
 
 A ViewModel that uses all three strategies is a pure coordinator. It holds no service logic — that lives in use cases. It contains no per-field validation for its subsections — that is owned by sub-ViewModels. Each piece is independently readable, independently changeable, and independently testable.
 
