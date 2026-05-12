@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor;
+package mvvm.example.orders.editor.usecases;
 
 public record OrderEditorUseCases(
     SaveOrderUseCase save,

@@ -9,6 +9,7 @@ import mvvm.example.orders.editor.edititem.EditItemSession;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemRow;
 import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
+import mvvm.example.orders.editor.usecases.OrderEditorUseCases;
 
 import java.util.function.Consumer;
 

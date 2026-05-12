@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor;
+package mvvm.example.orders.editor.usecases;
 
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
