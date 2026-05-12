@@ -33,6 +33,8 @@ The ViewModel exposes state as observable properties; the view binds its control
 
 > The sample code uses JavaFX's property system as the concrete observable mechanism. Other UI frameworks provide equivalent systems — WPF has `INotifyPropertyChanged`, Android has `LiveData` — and the same ViewModel patterns apply.
 
+The example below introduces a `LoadOrdersUseCase` as a collaborator — a single-operation object that wraps data retrieval. Use cases are covered fully in section 3.2.1; for now, treat it as a simple object that fetches orders when asked.
+
 ```java
 public class LoadOrdersUseCase {
     private final OrderService orderService;
