@@ -1,4 +1,4 @@
-package mvvm.example.shell;
+package mvvm.example.shell.sidebar;
 
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;

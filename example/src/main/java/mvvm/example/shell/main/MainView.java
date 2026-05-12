@@ -1,4 +1,4 @@
-package mvvm.example.shell;
+package mvvm.example.shell.main;
 
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -8,6 +8,7 @@ import mvvm.example.customers.explorer.CustomersExplorerView;
 import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.settings.SettingsView;
+import mvvm.example.shell.sidebar.SidebarView;
 
 public class MainView extends StackPane {
 
@@ -18,9 +19,7 @@ public class MainView extends StackPane {
         layout.setLeft(new SidebarView(viewModel.getSidebar()));
         layout.setCenter(workspace);
 
-        var dialogManager = new DialogManagerView(viewRouter);
-
-        getChildren().addAll(layout, dialogManager);
+        getChildren().add(layout);
 
         viewRouter.addListener(OrdersExplorerView.class, view -> workspace.getChildren().setAll(view));
         viewRouter.addListener(OrderEditorView.class,       view -> workspace.getChildren().setAll(view));

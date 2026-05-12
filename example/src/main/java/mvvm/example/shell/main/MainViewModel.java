@@ -1,4 +1,6 @@
-package mvvm.example.shell;
+package mvvm.example.shell.main;
+
+import mvvm.example.shell.sidebar.SidebarViewModel;
 
 public class MainViewModel {
 
