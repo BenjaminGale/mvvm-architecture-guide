@@ -36,7 +36,7 @@ public class OrderEditorViewModel {
 
         canSave.bind(header.validProperty().and(lineItems.validProperty()));
 
-        this.save   = new AsyncAction(useCases.save()::execute, canSave);
+        this.save   = new AsyncAction(() -> useCases.save().execute(buildUpdatedOrder()), canSave);
         this.delete = new Action(() -> useCases.delete().execute(order));
         this.copy   = new Action(() -> useCases.copy().execute(order));
     }

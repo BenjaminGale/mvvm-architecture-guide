@@ -34,12 +34,9 @@ public class OrderModule {
     }
 
     private OrderEditorViewModel orderEditor(Order order) {
-        var vmHolder = new OrderEditorViewModel[1];
-
         var useCases = new OrderEditorUseCases(
             new SaveOrderUseCase(
                 orderService,
-                () -> vmHolder[0].buildUpdatedOrder(),
                 () -> viewRouter.route(orders())
             ),
             new CopyOrderUseCase(
@@ -52,13 +49,11 @@ public class OrderModule {
             )
         );
 
-        vmHolder[0] = new OrderEditorViewModel(
+        return new OrderEditorViewModel(
             order,
             useCases,
             session -> viewRouter.route(editItem(session))
         );
-
-        return vmHolder[0];
     }
 
     private EditItemViewModel editItem(EditItemSession session) {
