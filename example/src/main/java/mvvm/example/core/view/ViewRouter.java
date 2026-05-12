@@ -19,7 +19,7 @@ public class ViewRouter {
         listeners.put(viewClass, view -> listener.accept(viewClass.cast(view)));
     }
 
-    public void navigateTo(Object viewModel) {
+    public void route(Object viewModel) {
         var view = viewLocator.resolve(viewModel);
         var listener = listeners.get(view.getClass());
         if (listener != null) listener.accept(view);

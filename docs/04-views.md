@@ -49,7 +49,7 @@ The invariants from section 3.1.3 determine which pattern applies. If a view's V
 | **ViewModel source** | Provided by a parent ViewModel as a sub-ViewModel | Constructed in the composition root |
 | **Use when** | ViewModel has no external dependencies and the view always renders inside the parent's layout | ViewModel requires services or use cases, or the view may appear outside the parent's layout |
 | **ViewLocator registration** | Never registered | Always registered — `viewLocator.register(MyViewModel.class, MyView::new)` |
-| **Presented via** | Constructed inline in the parent view | `ViewRouter.navigateTo` |
+| **Presented via** | Constructed inline in the parent view | `ViewRouter.route` |
 | **Typical examples** | Header, line items, summary panel within an editor screen | Full screens, dialogs, any view the router presents |
 
 ### 4.2 View classes
@@ -156,7 +156,7 @@ public class ViewRouter {
         listeners.put(viewClass, view -> listener.accept(viewClass.cast(view)));
     }
 
-    public void navigateTo(Object viewModel) {
+    public void route(Object viewModel) {
         var view = viewLocator.resolve(viewModel);
         var listener = listeners.get(view.getClass());
         if (listener != null) listener.accept(view);
@@ -166,14 +166,14 @@ public class ViewRouter {
 
 #### Navigation from the ViewModel perspective
 
-ViewModels never hold a ViewRouter reference. They receive callbacks injected at construction time; those callbacks invoke `viewRouter.navigateTo` internally, keeping the ViewRouter invisible to the ViewModel layer.
+ViewModels never hold a ViewRouter reference. They receive callbacks injected at construction time; those callbacks invoke `viewRouter.route` internally, keeping the ViewRouter invisible to the ViewModel layer.
 
 ```java
 // In the composition root — the callback wires the ViewRouter without exposing it to the ViewModel
 private OrdersViewModel orders() {
     return new OrdersViewModel(
         orderService,
-        order -> viewRouter.navigateTo(orderDetail(order))
+        order -> viewRouter.route(orderDetail(order))
     );
 }
 ```
@@ -248,7 +248,7 @@ The architecture is designed so that adding a new screen is a mechanical, low-ri
 - **Write the View** — extend the appropriate UI component. Accept the ViewModel as the sole constructor argument, build the component tree, and bind controls to ViewModel properties, all in the constructor.
 - **Register the ViewModel-to-View mapping** — `viewLocator.register(MyViewModel.class, MyView::new)`.
 - **Add a factory method in the composition root** that constructs the ViewModel with its dependencies and navigation callbacks wired as lambdas.
-- **Wire the navigation callback** — in the factory method of whichever ViewModel navigates to the new screen, add a callback lambda that calls `viewRouter.navigateTo(myNewScreen())`.
+- **Wire the navigation callback** — in the factory method of whichever ViewModel navigates to the new screen, add a callback lambda that calls `viewRouter.route(myNewScreen())`.
 - **Register a listener** — in whichever view is responsible for presenting the new screen, call `viewRouter.addListener(MyView.class, view -> ...)` with the appropriate presentation logic.
 
 Nothing else changes. The ViewRouter stays minimal. The ViewLocator stays mechanical. ViewModels stay ignorant of views. Existing ViewModels are not modified unless they need to navigate to the new screen. Each piece retains its single responsibility, and the architecture remains flat and uniform regardless of how many screens are added.

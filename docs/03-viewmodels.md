@@ -164,7 +164,7 @@ This violates both invariants. Constructing `OrderDetailViewModel` requires what
 
 **A shared ViewRouter injected into the ViewModel**
 
-Injecting a `ViewRouter` and calling `viewRouter.navigateTo(...)` moves construction out of the ViewModel but does not fix the dependency problem. To call `navigateTo`, the ViewModel must still construct the next ViewModel — which means it must know its constructor and hold all of its dependencies. ViewModels accumulate services they do not use, solely to pass them to the next screen.
+Injecting a `ViewRouter` and calling `viewRouter.route(...)` moves construction out of the ViewModel but does not fix the dependency problem. To call `route`, the ViewModel must still construct the next ViewModel — which means it must know its constructor and hold all of its dependencies. ViewModels accumulate services they do not use, solely to pass them to the next screen.
 
 **A navigation or dialog service**
 
@@ -331,13 +331,13 @@ private OrderEditorViewModel orderEditor(Order order) {
         order,
         new SaveOrderUseCase(
             orderService,
-            () -> viewRouter.navigateTo(orders())),
+            () -> viewRouter.route(orders())),
         new CopyOrderUseCase(
             orderService,
-            copy -> viewRouter.navigateTo(orderEditor(copy))),
+            copy -> viewRouter.route(orderEditor(copy))),
         new DeleteOrderUseCase(
             orderService,
-            () -> viewRouter.navigateTo(orders()))
+            () -> viewRouter.route(orders()))
     );
 }
 ```
@@ -382,11 +382,11 @@ The composition root constructs the record immediately before the ViewModel, kee
 private OrderEditorViewModel orderEditor(Order order) {
     var useCases = new OrderEditorUseCases(
         new SaveOrderUseCase(orderService,
-            () -> viewRouter.navigateTo(orders())),
+            () -> viewRouter.route(orders())),
         new CopyOrderUseCase(orderService,
-            copy -> viewRouter.navigateTo(orderEditor(copy))),
+            copy -> viewRouter.route(orderEditor(copy))),
         new DeleteOrderUseCase(orderService,
-            () -> viewRouter.navigateTo(orders()))
+            () -> viewRouter.route(orders()))
     );
     return new OrderEditorViewModel(order, useCases);
 }
@@ -785,7 +785,7 @@ private OrderEditorViewModel orderEditor(Order order) {
     return new OrderEditorViewModel(
         order,
         ...,
-        session -> viewRouter.navigateTo(editItem(session))
+        session -> viewRouter.route(editItem(session))
     );
 }
 ```
@@ -1017,11 +1017,11 @@ private OrderEditorViewModel orderEditor(Order order) {
         order,
         new SaveOrderUseCase(orderService,
             vm::buildUpdatedOrder,                         // evaluated at save time
-            () -> viewRouter.navigateTo(orders())),
+            () -> viewRouter.route(orders())),
         new DeleteOrderUseCase(orderService,
-            () -> viewRouter.navigateTo(orders())),
+            () -> viewRouter.route(orders())),
         new CopyOrderUseCase(orderService,
-            copy -> viewRouter.navigateTo(orderEditor(copy)))
+            copy -> viewRouter.route(orderEditor(copy)))
     );
     return vm;
 }

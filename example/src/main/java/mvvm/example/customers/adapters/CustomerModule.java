@@ -19,14 +19,14 @@ public class CustomerModule {
     public CustomersViewModel customers() {
         return new CustomersViewModel(
             customerService,
-            customer -> viewRouter.navigateTo(customerDetail(customer))
+            customer -> viewRouter.route(customerDetail(customer))
         );
     }
 
     private CustomerDetailViewModel customerDetail(Customer customer) {
         return new CustomerDetailViewModel(
             customer,
-            () -> viewRouter.navigateTo(customers())
+            () -> viewRouter.route(customers())
         );
     }
 }

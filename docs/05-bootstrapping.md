@@ -58,7 +58,7 @@ public class App extends Application {
         stage.show();
 
         // Show the initial screen
-        viewRouter.navigateTo(orders());
+        viewRouter.route(orders());
     }
 ```
 
@@ -72,9 +72,9 @@ The sidebar is permanent — created once and held by `MainViewModel`. It receiv
 private SidebarViewModel sidebar() {
         return new SidebarViewModel(
             orderContext,
-            () -> viewRouter.navigateTo(orders()),
-            () -> viewRouter.navigateTo(customers()),
-            () -> viewRouter.navigateTo(settings())
+            () -> viewRouter.route(orders()),
+            () -> viewRouter.route(customers()),
+            () -> viewRouter.route(settings())
         );
     }
 ```
@@ -88,7 +88,7 @@ private OrdersViewModel orders() {
         return new OrdersViewModel(
             new LoadOrdersUseCase(orderService),
             orderContext,
-            order -> viewRouter.navigateTo(orderEditor(order))
+            order -> viewRouter.route(orderEditor(order))
         );
     }
 
@@ -97,11 +97,11 @@ private OrdersViewModel orders() {
             order,
             new SaveOrderUseCase(orderService,
                 vm::buildUpdatedOrder,
-                () -> viewRouter.navigateTo(orders())),
+                () -> viewRouter.route(orders())),
             new DeleteOrderUseCase(orderService,
-                () -> viewRouter.navigateTo(orders())),
+                () -> viewRouter.route(orders())),
             new CopyOrderUseCase(orderService,
-                copy -> viewRouter.navigateTo(orderEditor(copy)))
+                copy -> viewRouter.route(orderEditor(copy)))
         );
         return vm;
     }
@@ -113,7 +113,7 @@ private OrdersViewModel orders() {
 private CustomersViewModel customers() {
         return new CustomersViewModel(
             customerService,
-            customer -> viewRouter.navigateTo(customerDetail(customer))
+            customer -> viewRouter.route(customerDetail(customer))
         );
     }
 
@@ -121,7 +121,7 @@ private CustomersViewModel customers() {
         return new CustomerDetailViewModel(
             customerService,
             customer,
-            () -> viewRouter.navigateTo(customers())
+            () -> viewRouter.route(customers())
         );
     }
 ```
@@ -131,7 +131,7 @@ private CustomersViewModel customers() {
 ```java
 private SettingsViewModel settings() {
         return new SettingsViewModel(
-            () -> viewRouter.navigateTo(orders())
+            () -> viewRouter.route(orders())
         );
     }
 }
@@ -163,7 +163,7 @@ public class OrderModule {
         return new OrdersViewModel(
             new LoadOrdersUseCase(orderService),
             orderContext,
-            order -> viewRouter.navigateTo(orderEditor(order))
+            order -> viewRouter.route(orderEditor(order))
         );
     }
 
@@ -172,11 +172,11 @@ public class OrderModule {
             order,
             new SaveOrderUseCase(orderService,
                 vm::buildUpdatedOrder,
-                () -> viewRouter.navigateTo(orders())),
+                () -> viewRouter.route(orders())),
             new DeleteOrderUseCase(orderService,
-                () -> viewRouter.navigateTo(orders())),
+                () -> viewRouter.route(orders())),
             new CopyOrderUseCase(orderService,
-                copy -> viewRouter.navigateTo(orderEditor(copy)))
+                copy -> viewRouter.route(orderEditor(copy)))
         );
         return vm;
     }
@@ -197,7 +197,7 @@ public class CustomerModule {
     public CustomersViewModel customers() {
         return new CustomersViewModel(
             customerService,
-            customer -> viewRouter.navigateTo(customerDetail(customer))
+            customer -> viewRouter.route(customerDetail(customer))
         );
     }
 
@@ -205,13 +205,13 @@ public class CustomerModule {
         return new CustomerDetailViewModel(
             customerService,
             customer,
-            () -> viewRouter.navigateTo(customers())
+            () -> viewRouter.route(customers())
         );
     }
 }
 ```
 
-`App.start` becomes a wiring site only. It constructs services, creates modules, registers view mappings, and calls `viewRouter.navigateTo` to set the initial screen:
+`App.start` becomes a wiring site only. It constructs services, creates modules, registers view mappings, and calls `viewRouter.route` to set the initial screen:
 
 ```java
 @Override
@@ -234,9 +234,9 @@ public void start(Stage stage) {
 
     var sidebarVm = new SidebarViewModel(
         orderContext,
-        () -> viewRouter.navigateTo(orderModule.orders()),
-        () -> viewRouter.navigateTo(customerModule.customers()),
-        () -> viewRouter.navigateTo(new SettingsViewModel(() -> viewRouter.navigateTo(orderModule.orders())))
+        () -> viewRouter.route(orderModule.orders()),
+        () -> viewRouter.route(customerModule.customers()),
+        () -> viewRouter.route(new SettingsViewModel(() -> viewRouter.route(orderModule.orders())))
     );
 
     var rootVm   = new MainViewModel(sidebarVm);
@@ -245,7 +245,7 @@ public void start(Stage stage) {
     stage.setScene(new Scene(rootView, 1024, 768));
     stage.show();
 
-    viewRouter.navigateTo(orderModule.orders());
+    viewRouter.route(orderModule.orders());
 }
 ```
 

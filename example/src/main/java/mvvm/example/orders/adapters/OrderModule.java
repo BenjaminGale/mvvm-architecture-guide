@@ -29,7 +29,7 @@ public class OrderModule {
         return new OrdersViewModel(
             orderService::fetchAll,
             orderContext,
-            order -> viewRouter.navigateTo(orderEditor(order))
+            order -> viewRouter.route(orderEditor(order))
         );
     }
 
@@ -40,22 +40,22 @@ public class OrderModule {
             new SaveOrderUseCase(
                 orderService,
                 () -> vmHolder[0].buildUpdatedOrder(),
-                () -> viewRouter.navigateTo(orders())
+                () -> viewRouter.route(orders())
             ),
             new CopyOrderUseCase(
                 orderService,
-                copy -> viewRouter.navigateTo(orderEditor(copy))
+                copy -> viewRouter.route(orderEditor(copy))
             ),
             new DeleteOrderUseCase(
                 orderService,
-                () -> viewRouter.navigateTo(orders())
+                () -> viewRouter.route(orders())
             )
         );
 
         vmHolder[0] = new OrderEditorViewModel(
             order,
             useCases,
-            session -> viewRouter.navigateTo(editItem(session))
+            session -> viewRouter.route(editItem(session))
         );
 
         return vmHolder[0];

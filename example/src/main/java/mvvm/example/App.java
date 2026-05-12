@@ -58,9 +58,9 @@ public class App extends Application {
         // Shell
         var sidebarVm = new SidebarViewModel(
             orderContext,
-            () -> viewRouter.navigateTo(orderModule.orders()),
-            () -> viewRouter.navigateTo(customerModule.customers()),
-            () -> viewRouter.navigateTo(new SettingsViewModel(() -> viewRouter.navigateTo(orderModule.orders())))
+            () -> viewRouter.route(orderModule.orders()),
+            () -> viewRouter.route(customerModule.customers()),
+            () -> viewRouter.route(new SettingsViewModel(() -> viewRouter.route(orderModule.orders())))
         );
 
         var rootView = new MainView(new MainViewModel(sidebarVm), viewRouter);
@@ -70,6 +70,6 @@ public class App extends Application {
         stage.show();
 
         // Show initial screen
-        viewRouter.navigateTo(orderModule.orders());
+        viewRouter.route(orderModule.orders());
     }
 }
