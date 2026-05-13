@@ -6,6 +6,7 @@ import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
 import mvvm.example.orders.editor.OrderEditorHost;
+import mvvm.example.orders.editor.OrderEditorService;
 import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.editor.OrderEditorViewModel;
 import mvvm.example.orders.editor.edititem.EditItemSession;
@@ -43,27 +44,25 @@ public class OrdersModule {
         return new OrdersExplorerViewModel(
             orderService::fetchAll,
             new OrdersExplorerHost() {
-                @Override
-                public void showOrderDetails(Order order) {
-                    viewModelRouter.dispatch(orderEditor(order));
-                }
-
-                @Override
-                public void setPendingOrderCount(int count) {
-                    orderContext.setCount(count);
-                }
+                @Override public void showOrderDetails(Order order) { viewModelRouter.dispatch(orderEditor(order)); }
+                @Override public void setPendingOrderCount(int count) { orderContext.setCount(count); }
             }
         );
     }
 
     private OrderEditorViewModel orderEditor(Order order) {
-        var host = new OrderEditorHost() {
-            @Override public void returnToList()                  { viewModelRouter.dispatch(orders()); }
-            @Override public void openOrder(Order copied)         { viewModelRouter.dispatch(orderEditor(copied)); }
-            @Override public void showItemEditor(EditItemSession s){ viewModelRouter.dispatch(editItem(s)); }
-        };
-
-        return new OrderEditorViewModel(order, orderService, host);
+        return new OrderEditorViewModel(
+            order,
+            new OrderEditorService() {
+                @Override public void saveOrder(Order order) { orderService.save(order); }
+                @Override public Order copyOrder(String orderId) { return orderService.copy(orderId); }
+                @Override public void deleteOrder(String orderId) { orderService.delete(orderId); }
+            },
+            new OrderEditorHost() {
+                @Override public void returnToList() { viewModelRouter.dispatch(orders()); }
+                @Override public void openOrder(Order copied) { viewModelRouter.dispatch(orderEditor(copied)); }
+                @Override public void showItemEditor(EditItemSession s) { viewModelRouter.dispatch(editItem(s)); }
+            });
     }
 
     private EditItemViewModel editItem(EditItemSession session) {

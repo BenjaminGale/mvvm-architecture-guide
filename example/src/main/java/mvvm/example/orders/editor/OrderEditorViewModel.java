@@ -4,7 +4,6 @@ import javafx.beans.binding.Bindings;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.domain.OrderService;
 import mvvm.example.orders.editor.edititem.EditItemSession;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemRowViewModel;
@@ -25,7 +24,7 @@ public class OrderEditorViewModel {
 
     public OrderEditorViewModel(
         Order order,
-        OrderService orderService,
+        OrderEditorService service,
         OrderEditorHost host
     ) {
         this.order = order;
@@ -35,17 +34,17 @@ public class OrderEditorViewModel {
 
         this.save = new AsyncAction(() ->
            CompletableFuture.supplyAsync(() -> {
-                orderService.save(buildUpdatedOrder());
+                service.saveOrder(buildUpdatedOrder());
                 return host::returnToList;
            }), Bindings.and(header.validProperty(), lineItems.validProperty()));
 
         this.delete = new Action(() -> {
-            orderService.delete(order.id());
+            service.deleteOrder(order.id());
             host.returnToList();
         });
 
         this.copy = new Action(() -> {
-            var copied = orderService.copy(order.id());
+            var copied = service.copyOrder(order.id());
             host.openOrder(copied);
         });
     }

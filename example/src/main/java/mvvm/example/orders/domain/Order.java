@@ -4,15 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-public class Order {
+public record Order(String id, String customerName, LocalDate date, String reference, List<LineItem> lineItems) {
 
-    public record OrderHeader(String customerName, LocalDate date, String reference) {}
-
-    private final String id;
-    private final String customerName;
-    private final LocalDate date;
-    private final String reference;
-    private final List<LineItem> lineItems;
+    public record OrderHeader(String customerName, LocalDate date, String reference) {
+    }
 
     public Order(String id, String customerName, LocalDate date, String reference, List<LineItem> lineItems) {
         this.id = id;
@@ -22,14 +17,9 @@ public class Order {
         this.lineItems = List.copyOf(lineItems);
     }
 
-    public String id()               { return id; }
-    public String customerName()     { return customerName; }
-    public LocalDate date()          { return date; }
-    public String reference()        { return reference; }
-    public List<LineItem> lineItems() { return lineItems; }
-
     public BigDecimal total() {
-        return lineItems.stream()
+        return lineItems
+            .stream()
             .map(LineItem::total)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
