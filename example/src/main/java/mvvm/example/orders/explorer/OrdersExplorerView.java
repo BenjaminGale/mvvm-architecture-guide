@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import mvvm.example.core.view.CurrencyTableCell;
@@ -39,8 +40,21 @@ public class OrdersExplorerView extends BorderPane {
 
         refreshButton.setOnAction(e -> viewModel.refresh());
 
-        table.getSelectionModel().selectedItemProperty()
-            .addListener((obs, old, selected) -> viewModel.openOrder(selected));
+        table.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER)
+                viewModel.openOrder(table.getSelectionModel().getSelectedItem());
+        });
+
+        table.setRowFactory(tv -> {
+            var row = new TableRow<Order>();
+
+            row.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2 && !row.isEmpty())
+                    viewModel.openOrder(row.getItem());
+            });
+
+            return row;
+        });
     }
 
     private TableColumn<Order, String> referenceColumn() {
