@@ -5,7 +5,7 @@ import mvvm.example.core.view.ViewRouter;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
-import mvvm.example.orders.editor.OrderEditorRequests;
+import mvvm.example.orders.editor.OrderEditorHost;
 import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.editor.OrderEditorViewModel;
 import mvvm.example.orders.editor.edititem.EditItemSession;
@@ -47,18 +47,13 @@ public class OrderModule {
     }
 
     private OrderEditorViewModel orderEditor(Order order) {
-        var requests = new OrderEditorRequests(
-            () -> viewRouter.route(orders()),
-            copy -> viewRouter.route(orderEditor(copy)),
-            () -> viewRouter.route(orders())
-        );
+        var host = new OrderEditorHost() {
+            @Override public void returnToList()                  { viewRouter.route(orders()); }
+            @Override public void openOrder(Order copied)         { viewRouter.route(orderEditor(copied)); }
+            @Override public void showItemEditor(EditItemSession s){ viewRouter.route(editItem(s)); }
+        };
 
-        return new OrderEditorViewModel(
-            order,
-            orderService,
-            requests,
-            session -> viewRouter.route(editItem(session))
-        );
+        return new OrderEditorViewModel(order, orderService, host);
     }
 
     private EditItemViewModel editItem(EditItemSession session) {

@@ -4,6 +4,7 @@ import mvvm.example.orders.StubOrderRepository;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
+import mvvm.example.orders.editor.edititem.EditItemSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,12 +38,16 @@ class OrderEditorViewModelTest {
         return new OrderService(new StubOrderRepository(orders));
     }
 
-    private static OrderEditorRequests noOpRequests() {
-        return new OrderEditorRequests(() -> {}, order -> {}, () -> {});
+    private static OrderEditorHost noOpHost() {
+        return new OrderEditorHost() {
+            @Override public void returnToList()                            {}
+            @Override public void openOrder(Order order)                   {}
+            @Override public void showItemEditor(EditItemSession session)   {}
+        };
     }
 
     private static OrderEditorViewModel vmFor(Order order) {
-        return new OrderEditorViewModel(order, serviceWith(order), noOpRequests(), session -> {});
+        return new OrderEditorViewModel(order, serviceWith(order), noOpHost());
     }
 
     @Nested
@@ -108,12 +113,7 @@ class OrderEditorViewModelTest {
         @DisplayName("the order is persisted via the service")
         void orderIsPersisted() {
             var repo = new StubOrderRepository();
-            var vm = new OrderEditorViewModel(
-                validOrderWithLineItems(),
-                new OrderService(repo),
-                noOpRequests(),
-                session -> {}
-            );
+            var vm = new OrderEditorViewModel(validOrderWithLineItems(), new OrderService(repo), noOpHost());
 
             vm.save.executeAsync(Runnable::run).join();
 
@@ -130,7 +130,7 @@ class OrderEditorViewModelTest {
         void orderIsRemoved() {
             var order = validOrderWithLineItems();
             var repo = new StubOrderRepository(order);
-            var vm = new OrderEditorViewModel(order, new OrderService(repo), noOpRequests(), session -> {});
+            var vm = new OrderEditorViewModel(order, new OrderService(repo), noOpHost());
 
             vm.delete.execute();
 
@@ -143,13 +143,17 @@ class OrderEditorViewModelTest {
     class WhenCopied {
 
         @Test
-        @DisplayName("a copy of the order is passed to the onCopied callback")
-        void copyIsPassedToCallback() {
+        @DisplayName("the copied order is passed to openOrder")
+        void copyIsPassedToOpenOrder() {
             var order = validOrderWithLineItems();
             var copied = new AtomicReference<Order>();
             var repo = new StubOrderRepository(order);
-            var requests = new OrderEditorRequests(() -> {}, copied::set, () -> {});
-            var vm = new OrderEditorViewModel(order, new OrderService(repo), requests, session -> {});
+            var host = new OrderEditorHost() {
+                @Override public void returnToList()                           {}
+                @Override public void openOrder(Order opened)                  { copied.set(opened); }
+                @Override public void showItemEditor(EditItemSession session)   {}
+            };
+            var vm = new OrderEditorViewModel(order, new OrderService(repo), host);
 
             vm.copy.execute();
 

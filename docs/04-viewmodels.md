@@ -1049,3 +1049,7 @@ copyButton.setOnAction(e -> viewModel.copy.execute());
 ```
 
 > This common binding configuration can easily be encapsulated in a helper method e.g. `bindButton(copyButton, viewModel.copy)`.
+
+### TODO
+
+ - Document 'host' interfaces. Used to allow viewModels to communicate with the hosting app without knowing implementation details.
