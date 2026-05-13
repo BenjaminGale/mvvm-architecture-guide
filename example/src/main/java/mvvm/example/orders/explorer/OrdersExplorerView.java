@@ -17,7 +17,7 @@ public class OrdersExplorerView extends BorderPane {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
-    public OrdersExplorerView(OrdersViewModel viewModel) {
+    public OrdersExplorerView(OrdersExplorerViewModel viewModel) {
         var table = new TableView<Order>();
         table.setItems(viewModel.getOrders());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
