@@ -22,12 +22,12 @@ public class OrderModule {
 
     public OrderModule(ViewLocator viewLocator, ViewModelRouter viewModelRouter) {
         this.orderService = new OrderService(new InMemoryOrderRepository());
-        this.orderContext  = new OrderContext();
+        this.orderContext = new OrderContext();
         this.viewModelRouter = viewModelRouter;
 
         viewLocator.register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
         viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
-        viewLocator.register(EditItemViewModel.class, EditItemView::new);
+        viewLocator.registerDialog(EditItemViewModel.class, EditItemView::dialog);
     }
 
     public OrderContext orderContext() {

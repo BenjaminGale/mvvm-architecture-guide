@@ -1,21 +1,24 @@
 package mvvm.example.orders.editor.edititem;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.stage.Stage;
 import javafx.util.converter.BigDecimalStringConverter;
 
 public class EditItemView extends BorderPane {
+
+    public static Dialog<Runnable> dialog(EditItemViewModel viewModel) {
+        var confirmBtn = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
+        var dialog = new Dialog<Runnable>();
+        dialog.setTitle("Edit Item");
+        dialog.getDialogPane().setContent(new EditItemView(viewModel));
+        dialog.getDialogPane().getButtonTypes().addAll(confirmBtn, ButtonType.CANCEL);
+        dialog.setResultConverter(bt -> bt == confirmBtn ? viewModel::confirm : null);
+        return dialog;
+    }
 
     public EditItemView(EditItemViewModel viewModel) {
         var descriptionField = new TextField();
@@ -46,23 +49,10 @@ public class EditItemView extends BorderPane {
         fieldCol.setHgrow(Priority.ALWAYS);
         form.getColumnConstraints().addAll(labelCol, fieldCol);
 
-        var confirmBtn = new Button("Confirm");
-        var cancelBtn  = new Button("Cancel");
-        var buttons = new HBox(8, confirmBtn, cancelBtn);
-        buttons.setPadding(new Insets(0, 16, 16, 16));
-
         setCenter(form);
-        setBottom(buttons);
 
         descriptionField.textProperty().bindBidirectional(viewModel.descriptionProperty());
         quantityFactory.valueProperty().bindBidirectional(viewModel.quantityProperty().asObject());
         priceFormatter.valueProperty().bindBidirectional(viewModel.unitPriceProperty());
-
-        confirmBtn.setOnAction(e -> {
-            viewModel.confirm();
-            ((Stage) getScene().getWindow()).close();
-        });
-
-        cancelBtn.setOnAction(e -> ((Stage) getScene().getWindow()).close());
     }
 }
