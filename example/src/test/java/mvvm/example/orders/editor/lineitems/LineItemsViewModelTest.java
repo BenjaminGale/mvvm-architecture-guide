@@ -168,7 +168,7 @@ class LineItemsViewModelTest {
         @Test
         @DisplayName("the edit callback is invoked with the selected row")
         void editCallbackInvokedWithSelectedRow() {
-            var edited = new AtomicReference<LineItemRow>();
+            var edited = new AtomicReference<LineItemRowViewModel>();
             var vm = new LineItemsViewModel(List.of(namedItem("Widget")), edited::set);
             vm.selectRow(vm.getRows().getFirst());
 
@@ -180,7 +180,7 @@ class LineItemsViewModelTest {
         @Test
         @DisplayName("the edit callback is not invoked when no row is selected")
         void editCallbackNotInvokedWithNoSelection() {
-            var edited = new AtomicReference<LineItemRow>();
+            var edited = new AtomicReference<LineItemRowViewModel>();
             var vm = new LineItemsViewModel(List.of(namedItem("Widget")), edited::set);
 
             vm.editSelected();

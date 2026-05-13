@@ -7,7 +7,7 @@ import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
 import mvvm.example.orders.editor.edititem.EditItemSession;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
-import mvvm.example.orders.editor.lineitems.LineItemRow;
+import mvvm.example.orders.editor.lineitems.LineItemRowViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
 
 import java.util.concurrent.CompletableFuture;
@@ -50,7 +50,7 @@ public class OrderEditorViewModel {
         });
     }
 
-    private void editRow(LineItemRow row) {
+    private void editRow(LineItemRowViewModel row) {
         host.showItemEditor(new EditItemSession(row.toLineItem(), updated -> {
             row.descriptionProperty().set(updated.description());
             row.quantityProperty().set(updated.quantity());

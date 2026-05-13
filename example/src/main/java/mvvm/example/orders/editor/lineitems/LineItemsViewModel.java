@@ -16,19 +16,19 @@ import java.util.function.Consumer;
 
 public class LineItemsViewModel {
 
-    private final ObservableList<LineItemRow> rows = FXCollections.observableArrayList();
-    private final ObjectProperty<LineItemRow> selectedRow = new SimpleObjectProperty<>();
+    private final ObservableList<LineItemRowViewModel> rows = FXCollections.observableArrayList();
+    private final ObjectProperty<LineItemRowViewModel> selectedRow = new SimpleObjectProperty<>();
     private final BooleanProperty canRemove = new SimpleBooleanProperty(false);
     private final BooleanProperty valid = new SimpleBooleanProperty(false);
 
-    private final Consumer<LineItemRow> onEditRow;
+    private final Consumer<LineItemRowViewModel> onEditRow;
 
-    public LineItemsViewModel(List<LineItem> items, Consumer<LineItemRow> onEditRow) {
+    public LineItemsViewModel(List<LineItem> items, Consumer<LineItemRowViewModel> onEditRow) {
         this.onEditRow = onEditRow;
-        rows.setAll(items.stream().map(LineItemRow::new).toList());
+        rows.setAll(items.stream().map(LineItemRowViewModel::new).toList());
 
         selectedRow.addListener(obs -> canRemove.set(selectedRow.get() != null));
-        rows.addListener((ListChangeListener<LineItemRow>) c -> validate());
+        rows.addListener((ListChangeListener<LineItemRowViewModel>) c -> validate());
 
         validate();
     }
@@ -44,7 +44,7 @@ public class LineItemsViewModel {
     }
 
     public void addRow() {
-        rows.add(new LineItemRow(LineItem.empty()));
+        rows.add(new LineItemRowViewModel(LineItem.empty()));
     }
 
     public void removeSelected() {
@@ -57,16 +57,16 @@ public class LineItemsViewModel {
         if (row != null) onEditRow.accept(row);
     }
 
-    public void selectRow(LineItemRow row) {
+    public void selectRow(LineItemRowViewModel row) {
         selectedRow.set(row);
     }
 
-    public ObservableList<LineItemRow> getRows()                      { return rows; }
-    public ReadOnlyBooleanProperty canRemoveProperty()                { return canRemove; }
-    public ReadOnlyBooleanProperty validProperty()                    { return valid; }
-    public ReadOnlyObjectProperty<LineItemRow> selectedRowProperty()  { return selectedRow; }
+    public ObservableList<LineItemRowViewModel> getRows()                      { return rows; }
+    public ReadOnlyBooleanProperty canRemoveProperty()                         { return canRemove; }
+    public ReadOnlyBooleanProperty validProperty()                             { return valid; }
+    public ReadOnlyObjectProperty<LineItemRowViewModel> selectedRowProperty()  { return selectedRow; }
 
     public List<LineItem> buildLineItems() {
-        return rows.stream().map(LineItemRow::toLineItem).toList();
+        return rows.stream().map(LineItemRowViewModel::toLineItem).toList();
     }
 }

@@ -1,8 +1,5 @@
 package mvvm.example.orders.editor.lineitems;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
@@ -16,7 +13,7 @@ import java.math.BigDecimal;
 public class LineItemsView extends BorderPane {
 
     public LineItemsView(LineItemsViewModel viewModel) {
-        var table = new TableView<LineItemRow>();
+        var table = new TableView<LineItemRowViewModel>();
         table.setItems(viewModel.getRows());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.getColumns().add(descriptionColumn());
@@ -45,38 +42,28 @@ public class LineItemsView extends BorderPane {
             .addListener((obs, old, row) -> viewModel.selectRow(row));
     }
 
-    private TableColumn<LineItemRow, String> descriptionColumn() {
-        var col = new TableColumn<LineItemRow, String>("Description");
+    private TableColumn<LineItemRowViewModel, String> descriptionColumn() {
+        var col = new TableColumn<LineItemRowViewModel, String>("Description");
         col.setCellValueFactory(cell -> cell.getValue().descriptionProperty());
         return col;
     }
 
-    private TableColumn<LineItemRow, Number> quantityColumn() {
-        var col = new TableColumn<LineItemRow, Number>("Qty");
+    private TableColumn<LineItemRowViewModel, Number> quantityColumn() {
+        var col = new TableColumn<LineItemRowViewModel, Number>("Qty");
         col.setCellValueFactory(cell -> cell.getValue().quantityProperty());
         return col;
     }
 
-    private TableColumn<LineItemRow, BigDecimal> unitPriceColumn() {
-        var col = new TableColumn<LineItemRow, BigDecimal>("Unit Price");
+    private TableColumn<LineItemRowViewModel, BigDecimal> unitPriceColumn() {
+        var col = new TableColumn<LineItemRowViewModel, BigDecimal>("Unit Price");
         col.setCellValueFactory(cell -> cell.getValue().unitPriceProperty());
         col.setCellFactory(CurrencyTableCell.forTableColumn());
         return col;
     }
 
-    private TableColumn<LineItemRow, BigDecimal> totalColumn() {
-        var col = new TableColumn<LineItemRow, BigDecimal>("Total");
-        col.setCellValueFactory(cell -> {
-            var row = cell.getValue();
-            return Bindings.createObjectBinding(
-                () -> {
-                    var price = row.unitPriceProperty().get();
-                    var qty   = row.quantityProperty().get();
-                    return price == null ? BigDecimal.ZERO : price.multiply(BigDecimal.valueOf(qty));
-                },
-                row.unitPriceProperty(), row.quantityProperty()
-            );
-        });
+    private TableColumn<LineItemRowViewModel, BigDecimal> totalColumn() {
+        var col = new TableColumn<LineItemRowViewModel, BigDecimal>("Total");
+        col.setCellValueFactory(cell -> cell.getValue().totalProperty());
         col.setCellFactory(CurrencyTableCell.forTableColumn());
         return col;
     }
