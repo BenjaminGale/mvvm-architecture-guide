@@ -14,9 +14,3 @@ A guide to implementing the Model-View-ViewModel (MVVM) architectural pattern. I
 - [8. Testing](docs/08-testing.md)
 - [9. Architecture review](docs/09-architecture-review.md)
 - [10. Glossary](docs/10-glossary.md)
-
-## AI Disclosure
-
-The content in this guide was structured and curated with the assistance of AI tools.
-
-The underlying knowledge, including code samples, architectural decisions, and accumulated notes, originates from my own experience using and exploring the MVVM pattern. AI was used to organise, structure, articulate and improve the material that I have collected.
