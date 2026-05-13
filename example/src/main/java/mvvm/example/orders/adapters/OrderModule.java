@@ -1,16 +1,13 @@
 package mvvm.example.orders.adapters;
 
 import mvvm.example.core.view.ViewLocator;
-import mvvm.example.core.view.ViewRouter;
+import mvvm.example.core.viewmodel.ViewModelRouter;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
-import mvvm.example.orders.editor.usecases.CopyOrderUseCase;
-import mvvm.example.orders.editor.usecases.DeleteOrderUseCase;
-import mvvm.example.orders.editor.usecases.OrderEditorUseCases;
+import mvvm.example.orders.editor.OrderEditorHost;
 import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.editor.OrderEditorViewModel;
-import mvvm.example.orders.editor.usecases.SaveOrderUseCase;
 import mvvm.example.orders.editor.edititem.EditItemSession;
 import mvvm.example.orders.editor.edititem.EditItemView;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
@@ -21,16 +18,16 @@ public class OrderModule {
 
     private final OrderService orderService;
     private final OrderContext orderContext;
-    private final ViewRouter viewRouter;
+    private final ViewModelRouter viewModelRouter;
 
-    public OrderModule(ViewLocator viewLocator, ViewRouter viewRouter) {
+    public OrderModule(ViewLocator viewLocator, ViewModelRouter viewModelRouter) {
         this.orderService = new OrderService(new InMemoryOrderRepository());
         this.orderContext  = new OrderContext();
-        this.viewRouter    = viewRouter;
+        this.viewModelRouter = viewModelRouter;
 
-        viewLocator.register(OrdersExplorerViewModel.class,      OrdersExplorerView::new);
+        viewLocator.register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
         viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
-        viewLocator.register(EditItemViewModel.class,    EditItemView::new);
+        viewLocator.register(EditItemViewModel.class, EditItemView::new);
     }
 
     public OrderContext orderContext() {
@@ -38,38 +35,25 @@ public class OrderModule {
     }
 
     public void routeToOrders() {
-        viewRouter.route(orders());
+        viewModelRouter.dispatch(orders());
     }
 
     public OrdersExplorerViewModel orders() {
         return new OrdersExplorerViewModel(
-            orderService::fetchAll,
+            orderService,
             orderContext,
-            order -> viewRouter.route(orderEditor(order))
+            order -> viewModelRouter.dispatch(orderEditor(order))
         );
     }
 
     private OrderEditorViewModel orderEditor(Order order) {
-        var useCases = new OrderEditorUseCases(
-            new SaveOrderUseCase(
-                orderService,
-                () -> viewRouter.route(orders())
-            ),
-            new CopyOrderUseCase(
-                orderService,
-                copy -> viewRouter.route(orderEditor(copy))
-            ),
-            new DeleteOrderUseCase(
-                orderService,
-                () -> viewRouter.route(orders())
-            )
-        );
+        var host = new OrderEditorHost() {
+            @Override public void returnToList()                  { viewModelRouter.dispatch(orders()); }
+            @Override public void openOrder(Order copied)         { viewModelRouter.dispatch(orderEditor(copied)); }
+            @Override public void showItemEditor(EditItemSession s){ viewModelRouter.dispatch(editItem(s)); }
+        };
 
-        return new OrderEditorViewModel(
-            order,
-            useCases,
-            session -> viewRouter.route(editItem(session))
-        );
+        return new OrderEditorViewModel(order, orderService, host);
     }
 
     private EditItemViewModel editItem(EditItemSession session) {

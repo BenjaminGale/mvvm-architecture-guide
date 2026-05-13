@@ -1,17 +1,16 @@
 package mvvm.example.orders.editor;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.binding.Bindings;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderService;
 import mvvm.example.orders.editor.edititem.EditItemSession;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemRow;
 import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
-import mvvm.example.orders.editor.usecases.OrderEditorUseCases;
 
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 public class OrderEditorViewModel {
 
@@ -22,28 +21,37 @@ public class OrderEditorViewModel {
     private final Order order;
     private final OrderHeaderViewModel header;
     private final LineItemsViewModel lineItems;
-    private final BooleanProperty canSave = new SimpleBooleanProperty(false);
-    private final Consumer<EditItemSession> onEditItem;
+    private final OrderEditorHost host;
 
     public OrderEditorViewModel(
         Order order,
-        OrderEditorUseCases useCases,
-        Consumer<EditItemSession> onEditItem
+        OrderService orderService,
+        OrderEditorHost host
     ) {
         this.order = order;
-        this.onEditItem = onEditItem;
+        this.host = host;
         this.header = new OrderHeaderViewModel(order);
         this.lineItems = new LineItemsViewModel(order.lineItems(), this::editRow);
 
-        canSave.bind(header.validProperty().and(lineItems.validProperty()));
+        this.save = new AsyncAction(() ->
+           CompletableFuture.supplyAsync(() -> {
+                orderService.save(buildUpdatedOrder());
+                return host::returnToList;
+           }), Bindings.and(header.validProperty(), lineItems.validProperty()));
 
-        this.save   = new AsyncAction(() -> useCases.save().execute(buildUpdatedOrder()), canSave);
-        this.delete = new Action(() -> useCases.delete().execute(order));
-        this.copy   = new Action(() -> useCases.copy().execute(order));
+        this.delete = new Action(() -> {
+            orderService.delete(order.id());
+            host.returnToList();
+        });
+
+        this.copy = new Action(() -> {
+            var copied = orderService.copy(order.id());
+            host.openOrder(copied);
+        });
     }
 
     private void editRow(LineItemRow row) {
-        onEditItem.accept(new EditItemSession(row.toLineItem(), updated -> {
+        host.showItemEditor(new EditItemSession(row.toLineItem(), updated -> {
             row.descriptionProperty().set(updated.description());
             row.quantityProperty().set(updated.quantity());
             row.unitPriceProperty().set(updated.unitPrice());

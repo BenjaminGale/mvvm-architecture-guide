@@ -139,6 +139,8 @@ Services are not injected directly into ViewModels. This is a deliberate invaria
 
 ## 3.3 Use cases
 
+> **Note: this section is out of date and needs updating.**
+
 Use cases are the mechanism by which ViewModels interact with services without depending on them directly. Each use case is a plain Java class encapsulating a single operation: saving an order, deleting a customer, copying a line item. A use case receives the service it requires and a callback to invoke on completion. They also serve as the natural place to house ViewModel-adjacent logic — such as updating observable state during a long-running operation — keeping that coordination out of the ViewModel itself.
 
 See section [4.2.1](04-viewmodels.md#421-use-cases-as-injectable-objects) for use case examples and how they are wired in the composition root.
