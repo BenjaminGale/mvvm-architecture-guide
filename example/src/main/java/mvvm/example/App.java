@@ -5,10 +5,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewLocator;
-import mvvm.example.core.view.ViewRouter;
+import mvvm.example.core.viewmodel.ViewModelRouter;
 import mvvm.example.customers.adapters.CustomerModule;
 import mvvm.example.orders.adapters.OrderModule;
-import mvvm.example.orders.editor.edititem.EditItemView;
+import mvvm.example.orders.editor.edititem.EditItemViewModel;
 import mvvm.example.settings.SettingsModule;
 import mvvm.example.shell.main.MainView;
 import mvvm.example.shell.main.MainViewModel;
@@ -18,31 +18,34 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Navigation infrastructure
         var viewLocator = new ViewLocator();
-        var viewRouter  = new ViewRouter(viewLocator);
-        viewRouter.addListener(EditItemView.class, v -> new DialogManager(stage).openAsDialog(v));
+        var viewModelRouter = new ViewModelRouter();
 
-        // Modules
-        var orderModule    = new OrderModule(viewLocator, viewRouter);
-        var customerModule = new CustomerModule(viewLocator, viewRouter);
-        var settingsModule = new SettingsModule(viewLocator, viewRouter, orderModule::routeToOrders);
+        viewModelRouter.receive(
+            EditItemViewModel.class,
+            vm -> new DialogManager(stage).openAsDialog(viewLocator.resolve(vm)));
 
-        // Shell
-        var rootView = new MainView(
-            new MainViewModel(
-                new SidebarViewModel(
-                    orderModule.orderContext(),
-                    orderModule::routeToOrders,
-                    customerModule::routeToCustomers,
-                    settingsModule::routeToOrders
-                )), viewRouter);
+        var orderModule = new OrderModule(viewLocator, viewModelRouter);
+        var customerModule = new CustomerModule(viewLocator, viewModelRouter);
+        var settingsModule = new SettingsModule(viewLocator, viewModelRouter, orderModule::routeToOrders);
+
+        var mainViewModel = new MainViewModel(
+            new SidebarViewModel(
+                orderModule.orderContext(),
+                orderModule::routeToOrders,
+                customerModule::routeToCustomers,
+                settingsModule::routeToOrders
+            ),
+            viewModelRouter
+        );
+
+        var rootView = new MainView(mainViewModel, viewLocator);
 
         stage.setTitle("Order Management");
         stage.setScene(new Scene(rootView, 1024, 768));
         stage.show();
 
         // Show initial screen
-        viewRouter.route(orderModule.orders());
+        viewModelRouter.dispatch(orderModule.orders());
     }
 }
