@@ -1,8 +1,10 @@
 package mvvm.example.orders.explorer;
 
+import mvvm.example.orders.StubOrderRepository;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,10 @@ class OrdersExplorerViewModelTest {
         return new Order(id, "Acme Ltd", date, "REF-" + id, List.of());
     }
 
+    private static OrderService serviceWith(Order... orders) {
+        return new OrderService(new StubOrderRepository(orders));
+    }
+
     @Nested
     @DisplayName("when created")
     class WhenCreated {
@@ -33,7 +39,7 @@ class OrdersExplorerViewModelTest {
         @DisplayName("orders are loaded immediately")
         void ordersLoadedImmediately() {
             var vm = new OrdersExplorerViewModel(
-                () -> List.of(order("1", RECENT)),
+                serviceWith(order("1", RECENT)),
                 new OrderContext(),
                 o -> {}
             );
@@ -45,7 +51,7 @@ class OrdersExplorerViewModelTest {
         @DisplayName("the status text shows the total and overdue order counts")
         void statusTextShowsCountsOnCreation() {
             var vm = new OrdersExplorerViewModel(
-                () -> List.of(order("1", RECENT), order("2", OVERDUE)),
+                serviceWith(order("1", RECENT), order("2", OVERDUE)),
                 new OrderContext(),
                 o -> {}
             );
@@ -58,7 +64,7 @@ class OrdersExplorerViewModelTest {
         void pendingCountUpdatedOnCreation() {
             var context = new OrderContext();
             new OrdersExplorerViewModel(
-                () -> List.of(order("1", OVERDUE), order("2", OVERDUE)),
+                serviceWith(order("1", OVERDUE), order("2", OVERDUE)),
                 context,
                 o -> {}
             );
@@ -72,22 +78,23 @@ class OrdersExplorerViewModelTest {
     class WhenRefreshed {
 
         @Test
-        @DisplayName("orders are reloaded from the use case")
+        @DisplayName("orders are reloaded from the service")
         void ordersReloaded() {
-            var vm = new OrdersExplorerViewModel(List::of, new OrderContext(), o -> {});
+            var vm = new OrdersExplorerViewModel(serviceWith(), new OrderContext(), o -> {});
 
             vm.refresh();
 
-            // confirm it still works after a second load — no state corruption
             assertEquals(0, vm.getOrders().size());
         }
 
         @Test
         @DisplayName("the status text is updated to reflect the new order list")
         void statusTextUpdated() {
-            var orders = new java.util.concurrent.atomic.AtomicReference<>(List.<Order>of());
-            var vm = new OrdersExplorerViewModel(orders::get, new OrderContext(), o -> {});
-            orders.set(List.of(order("1", RECENT), order("2", RECENT), order("3", RECENT)));
+            var repo = new StubOrderRepository();
+            var vm = new OrdersExplorerViewModel(new OrderService(repo), new OrderContext(), o -> {});
+            repo.save(order("1", RECENT));
+            repo.save(order("2", RECENT));
+            repo.save(order("3", RECENT));
 
             vm.refresh();
 
@@ -98,7 +105,7 @@ class OrdersExplorerViewModelTest {
         @DisplayName("orders are sorted with the most recent date first")
         void ordersSortedByDateDescending() {
             var vm = new OrdersExplorerViewModel(
-                () -> List.of(order("older", OLDER), order("recent", RECENT)),
+                serviceWith(order("older", OLDER), order("recent", RECENT)),
                 new OrderContext(),
                 o -> {}
             );
@@ -111,9 +118,9 @@ class OrdersExplorerViewModelTest {
         @DisplayName("the pending count on the context is updated")
         void pendingCountUpdated() {
             var context = new OrderContext();
-            var orders = new AtomicReference<>(List.<Order>of());
-            var vm = new OrdersExplorerViewModel(orders::get, context, o -> {});
-            orders.set(List.of(order("1", OVERDUE)));
+            var repo = new StubOrderRepository();
+            var vm = new OrdersExplorerViewModel(new OrderService(repo), context, o -> {});
+            repo.save(order("1", OVERDUE));
 
             vm.refresh();
 
@@ -130,7 +137,7 @@ class OrdersExplorerViewModelTest {
         void navigationCallbackInvoked() {
             var selected = new AtomicReference<Order>();
             var order = order("1", RECENT);
-            var vm = new OrdersExplorerViewModel(() -> List.of(order), new OrderContext(), selected::set);
+            var vm = new OrdersExplorerViewModel(serviceWith(order), new OrderContext(), selected::set);
 
             vm.openOrder(order);
 
@@ -141,7 +148,7 @@ class OrdersExplorerViewModelTest {
         @DisplayName("the navigation callback is not invoked when called with null")
         void navigationCallbackNotInvokedForNull() {
             var selected = new AtomicReference<Order>();
-            var vm = new OrdersExplorerViewModel(List::of, new OrderContext(), selected::set);
+            var vm = new OrdersExplorerViewModel(serviceWith(), new OrderContext(), selected::set);
 
             vm.openOrder(null);
 

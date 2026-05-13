@@ -6,6 +6,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderService;
 import mvvm.example.orders.context.PendingOrderCounter;
 
 import java.util.Comparator;
@@ -16,16 +17,16 @@ public class OrdersExplorerViewModel {
     private final ObservableList<Order> orders = FXCollections.observableArrayList();
     private final StringProperty statusText = new SimpleStringProperty("");
 
-    private final LoadOrdersUseCase loadOrders;
+    private final OrderService orderService;
     private final PendingOrderCounter orderContext;
     private final Consumer<Order> onOrderSelected;
 
     public OrdersExplorerViewModel(
-        LoadOrdersUseCase loadOrders,
+        OrderService orderService,
         PendingOrderCounter orderContext,
         Consumer<Order> onOrderSelected
     ) {
-        this.loadOrders = loadOrders;
+        this.orderService = orderService;
         this.orderContext = orderContext;
         this.onOrderSelected = onOrderSelected;
         refresh();
@@ -40,7 +41,7 @@ public class OrdersExplorerViewModel {
     }
 
     public void refresh() {
-        var result = loadOrders.execute()
+        var result = orderService.fetchAll()
             .stream()
             .sorted(Comparator.comparing(Order::date).reversed())
             .toList();

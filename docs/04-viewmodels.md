@@ -194,6 +194,8 @@ Three complementary strategies address this. They may be applied independently o
 
 #### 4.2.1 Use cases as injectable objects
 
+> **Note: this section is out of date and needs updating.**
+
 Each operation is extracted into its own use case class rather than implemented as a method on the ViewModel. The ViewModel holds use case instances and delegates to them, becoming a coordinator. Each use case is independently testable without the ViewModel being involved.
 
 Each use case has three distinct parts that keep construction concerns separate from execution concerns:
@@ -343,6 +345,8 @@ private OrderEditorViewModel orderEditor(Order order) {
 ```
 
 #### 4.2.2 Managing constructor length with a use case record
+
+> **Note: this section is out of date and needs updating.**
 
 As a ViewModel grows to coordinate more operations, its constructor accumulates one argument per use case. This is an accurate reflection of its dependencies, but the signature becomes long. A use case record bundles the related use cases into a single named parameter object:
 

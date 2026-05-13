@@ -5,12 +5,9 @@ import mvvm.example.core.view.ViewRouter;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
-import mvvm.example.orders.editor.usecases.CopyOrderUseCase;
-import mvvm.example.orders.editor.usecases.DeleteOrderUseCase;
-import mvvm.example.orders.editor.usecases.OrderEditorUseCases;
+import mvvm.example.orders.editor.OrderEditorRequests;
 import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.editor.OrderEditorViewModel;
-import mvvm.example.orders.editor.usecases.SaveOrderUseCase;
 import mvvm.example.orders.editor.edititem.EditItemSession;
 import mvvm.example.orders.editor.edititem.EditItemView;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
@@ -43,31 +40,23 @@ public class OrderModule {
 
     public OrdersExplorerViewModel orders() {
         return new OrdersExplorerViewModel(
-            orderService::fetchAll,
+            orderService,
             orderContext,
             order -> viewRouter.route(orderEditor(order))
         );
     }
 
     private OrderEditorViewModel orderEditor(Order order) {
-        var useCases = new OrderEditorUseCases(
-            new SaveOrderUseCase(
-                orderService,
-                () -> viewRouter.route(orders())
-            ),
-            new CopyOrderUseCase(
-                orderService,
-                copy -> viewRouter.route(orderEditor(copy))
-            ),
-            new DeleteOrderUseCase(
-                orderService,
-                () -> viewRouter.route(orders())
-            )
+        var requests = new OrderEditorRequests(
+            () -> viewRouter.route(orders()),
+            copy -> viewRouter.route(orderEditor(copy)),
+            () -> viewRouter.route(orders())
         );
 
         return new OrderEditorViewModel(
             order,
-            useCases,
+            orderService,
+            requests,
             session -> viewRouter.route(editItem(session))
         );
     }

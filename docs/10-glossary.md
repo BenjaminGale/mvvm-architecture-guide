@@ -18,8 +18,8 @@ Quick-reference tables covering the layers, types, and roles introduced througho
 | **Model** | Model | Plain object representing a domain concept. Immutable or encapsulates domain rules. No observable properties, no UI imports. |
 | **Repository** | Service | Interface defining the persistence contract for a Model type. Concrete implementations live in `adapters`. |
 | **Service** | Service | Retrieves and persists Models. Exposes operations the application needs, not a general-purpose CRUD API. Not injected directly into ViewModels. |
-| **Use case** | Service / ViewModel boundary | Single-operation class. Constructor receives services; `execute` receives data from the ViewModel at invocation time. Keeps service logic out of ViewModels. |
-| **Use case record** | Service / ViewModel boundary | Parameter object bundling related use cases into a single named argument, reducing ViewModel constructor length. |
+| **Use case** | Service / ViewModel boundary | ~~Single-operation class. Constructor receives services; `execute` receives data from the ViewModel at invocation time. Keeps service logic out of ViewModels.~~ _Out of date, needs updating._ |
+| **Use case record** | Service / ViewModel boundary | ~~Parameter object bundling related use cases into a single named argument, reducing ViewModel constructor length.~~ _Out of date, needs updating._ |
 | **ViewModel** | ViewModel | Observable state and behaviour for one screen or area. Holds use cases and navigation callbacks. No UI framework types, no knowledge of Views. |
 | **Sub-ViewModel** | ViewModel | ViewModel for a distinct section of a parent screen. Constructed directly by the parent; never registered with the ViewLocator or navigated to. |
 | **Context object** | ViewModel | Shared observable state for a specific domain concern, injected into multiple ViewModels. Producer writes to it; consumer binds to it. Neither knows about the other. |

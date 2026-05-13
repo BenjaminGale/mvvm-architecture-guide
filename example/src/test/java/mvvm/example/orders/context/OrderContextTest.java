@@ -1,6 +1,8 @@
 package mvvm.example.orders.context;
 
+import mvvm.example.orders.StubOrderRepository;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderService;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 import mvvm.example.shell.sidebar.SidebarViewModel;
 import org.junit.jupiter.api.DisplayName;
@@ -54,13 +56,13 @@ class OrderContextTest {
         @DisplayName("the sidebar reflects the pending count set by OrdersExplorerViewModel on refresh")
         void sidebarReflectsCountFromOrdersViewModel() {
             var context = new OrderContext();
-            var ordersVm = new OrdersExplorerViewModel(
-                () -> List.of(overdueOrder("1"), overdueOrder("2")),
-                context,
-                order -> {}
-            );
+            var repo = new StubOrderRepository();
+            var ordersVm = new OrdersExplorerViewModel(new OrderService(repo), context, order -> {});
             var sidebarVm = new SidebarViewModel(context, () -> {}, () -> {}, () -> {});
+            assertEquals(0, sidebarVm.pendingOrderCountProperty().get());
 
+            repo.save(overdueOrder("1"));
+            repo.save(overdueOrder("2"));
             ordersVm.refresh();
 
             assertEquals(2, sidebarVm.pendingOrderCountProperty().get());

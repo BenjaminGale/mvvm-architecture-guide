@@ -35,6 +35,8 @@ ViewModels in this architecture are state holders and coordinators. They expose 
 
 #### 8.2.2 Services injected directly into ViewModels
 
+> **Note: this section is out of date and needs updating.**
+
 No services are injected into ViewModels. A ViewModel receives use case objects and callbacks; a use case takes only the service functionality it requires. The ViewModel has no knowledge of whether data originates from a database, a remote API, or a test stub. ISP violations do not arise because the ViewModel holds no service interface. Tests construct the ViewModel with lightweight dependencies and assert state directly.
 
 #### 8.2.3 Navigation coupled to presentation
@@ -46,6 +48,8 @@ The ViewRouter carries no presentation intent — one method, no knowledge of ho
 The `View` interface enforces construction ordering through convention rather than inheritance — views fully initialise themselves in the constructor. Views do not share a base class. ViewModels have no base class either. Shared state is held in context objects, not extracted into common parents. There is no inheritance hierarchy that can become fragile.
 
 #### 8.2.5 Fat ViewModels from delegate commands
+
+> **Note: this section is out of date and needs updating.**
 
 Use cases replace delegate commands. Each is a discrete class with its own dependencies, independently constructable and testable. The ViewModel delegates rather than housing command logic. Adding an operation means adding a use case class; the ViewModel acquires one new constructor argument.
 

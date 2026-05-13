@@ -81,6 +81,8 @@ private SidebarViewModel sidebar() {
 
 #### 5.3.2 Orders flow
 
+> **Note: this section is out of date and needs updating.**
+
 The orders list navigates to the order editor. The editor receives three use cases, each constructed with its own service dependency and completion callback. Sub-ViewModels are constructed inside `OrderEditorViewModel` itself — the composition root does not need to know about them:
 
 ```java

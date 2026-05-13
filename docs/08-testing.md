@@ -199,6 +199,8 @@ void save_disabledWhileExecuting() {
 
 ### 8.2 Testing use cases
 
+> **Note: this section is out of date and needs updating.**
+
 A use case test verifies that the service received the correct data and that the completion callback was invoked. The service is an in-memory stub:
 
 ```java

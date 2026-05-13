@@ -4,10 +4,6 @@ import mvvm.example.orders.StubOrderRepository;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
-import mvvm.example.orders.editor.usecases.CopyOrderUseCase;
-import mvvm.example.orders.editor.usecases.DeleteOrderUseCase;
-import mvvm.example.orders.editor.usecases.OrderEditorUseCases;
-import mvvm.example.orders.editor.usecases.SaveOrderUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,16 +33,16 @@ class OrderEditorViewModelTest {
         return new Order("id-1", "Acme Ltd", A_DATE, "REF-001", List.of());
     }
 
-    private static OrderEditorUseCases useCasesFor(OrderService service) {
-        return new OrderEditorUseCases(
-            new SaveOrderUseCase(service, () -> {}),
-            new CopyOrderUseCase(service, order -> {}),
-            new DeleteOrderUseCase(service, () -> {})
-        );
+    private static OrderService serviceWith(Order... orders) {
+        return new OrderService(new StubOrderRepository(orders));
     }
 
-    private static OrderEditorUseCases noOpUseCases() {
-        return useCasesFor(new OrderService(new StubOrderRepository()));
+    private static OrderEditorRequests noOpRequests() {
+        return new OrderEditorRequests(() -> {}, order -> {}, () -> {});
+    }
+
+    private static OrderEditorViewModel vmFor(Order order) {
+        return new OrderEditorViewModel(order, serviceWith(order), noOpRequests(), session -> {});
     }
 
     @Nested
@@ -56,7 +52,7 @@ class OrderEditorViewModelTest {
         @Test
         @DisplayName("canSave is false when the customer name is blank")
         void canSaveIsFalseWhenCustomerNameBlank() {
-            var vm = new OrderEditorViewModel(orderWithBlankCustomerName(), noOpUseCases(), session -> {});
+            var vm = vmFor(orderWithBlankCustomerName());
 
             assertFalse(vm.save.canExecute());
         }
@@ -64,7 +60,7 @@ class OrderEditorViewModelTest {
         @Test
         @DisplayName("canSave is false when there are no line items")
         void canSaveIsFalseWhenNoLineItems() {
-            var vm = new OrderEditorViewModel(orderWithNoLineItems(), noOpUseCases(), session -> {});
+            var vm = vmFor(orderWithNoLineItems());
 
             assertFalse(vm.save.canExecute());
         }
@@ -72,7 +68,7 @@ class OrderEditorViewModelTest {
         @Test
         @DisplayName("canSave is true when the header is valid and line items are present")
         void canSaveIsTrueWhenValid() {
-            var vm = new OrderEditorViewModel(validOrderWithLineItems(), noOpUseCases(), session -> {});
+            var vm = vmFor(validOrderWithLineItems());
 
             assertTrue(vm.save.canExecute());
         }
@@ -85,7 +81,7 @@ class OrderEditorViewModelTest {
         @Test
         @DisplayName("canSave becomes true when a blank customer name is populated")
         void canSaveBecomesTrue() {
-            var vm = new OrderEditorViewModel(orderWithBlankCustomerName(), noOpUseCases(), session -> {});
+            var vm = vmFor(orderWithBlankCustomerName());
 
             vm.getHeader().customerNameProperty().set("Acme Ltd");
 
@@ -95,7 +91,7 @@ class OrderEditorViewModelTest {
         @Test
         @DisplayName("canSave becomes false when the last line item is removed")
         void canSaveBecomesFalseWhenLastItemRemoved() {
-            var vm = new OrderEditorViewModel(validOrderWithLineItems(), noOpUseCases(), session -> {});
+            var vm = vmFor(validOrderWithLineItems());
             vm.getLineItems().selectRow(vm.getLineItems().getRows().getFirst());
 
             vm.getLineItems().removeSelected();
@@ -109,12 +105,13 @@ class OrderEditorViewModelTest {
     class WhenSaved {
 
         @Test
-        @DisplayName("the order is persisted via the save use case")
+        @DisplayName("the order is persisted via the service")
         void orderIsPersisted() {
             var repo = new StubOrderRepository();
             var vm = new OrderEditorViewModel(
                 validOrderWithLineItems(),
-                useCasesFor(new OrderService(repo)),
+                new OrderService(repo),
+                noOpRequests(),
                 session -> {}
             );
 
@@ -129,11 +126,11 @@ class OrderEditorViewModelTest {
     class WhenDeleted {
 
         @Test
-        @DisplayName("the order is removed via the delete use case")
+        @DisplayName("the order is removed via the service")
         void orderIsRemoved() {
             var order = validOrderWithLineItems();
             var repo = new StubOrderRepository(order);
-            var vm = new OrderEditorViewModel(order, useCasesFor(new OrderService(repo)), session -> {});
+            var vm = new OrderEditorViewModel(order, new OrderService(repo), noOpRequests(), session -> {});
 
             vm.delete.execute();
 
@@ -151,12 +148,8 @@ class OrderEditorViewModelTest {
             var order = validOrderWithLineItems();
             var copied = new AtomicReference<Order>();
             var repo = new StubOrderRepository(order);
-            var useCases = new OrderEditorUseCases(
-                new SaveOrderUseCase(new OrderService(repo), () -> {}),
-                new CopyOrderUseCase(new OrderService(repo), copied::set),
-                new DeleteOrderUseCase(new OrderService(repo), () -> {})
-            );
-            var vm = new OrderEditorViewModel(order, useCases, session -> {});
+            var requests = new OrderEditorRequests(() -> {}, copied::set, () -> {});
+            var vm = new OrderEditorViewModel(order, new OrderService(repo), requests, session -> {});
 
             vm.copy.execute();
 
@@ -172,7 +165,7 @@ class OrderEditorViewModelTest {
         @Test
         @DisplayName("the order reflects the current header and line item values")
         void orderReflectsCurrentValues() {
-            var vm = new OrderEditorViewModel(validOrderWithLineItems(), noOpUseCases(), session -> {});
+            var vm = vmFor(validOrderWithLineItems());
             vm.getHeader().customerNameProperty().set("New Customer");
 
             var updated = vm.buildUpdatedOrder();
