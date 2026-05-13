@@ -8,12 +8,12 @@ import mvvm.example.customers.domain.CustomerService;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
-public class CustomersViewModel {
+public class CustomersExplorerViewModel {
 
     private final ObservableList<Customer> customers = FXCollections.observableArrayList();
     private final Consumer<Customer> onCustomerSelected;
 
-    public CustomersViewModel(CustomerService customerService, Consumer<Customer> onCustomerSelected) {
+    public CustomersExplorerViewModel(CustomerService customerService, Consumer<Customer> onCustomerSelected) {
         this.onCustomerSelected = onCustomerSelected;
 
         var sorted = customerService.fetchAll()

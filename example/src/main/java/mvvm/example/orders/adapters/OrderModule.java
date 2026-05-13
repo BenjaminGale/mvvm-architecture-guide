@@ -15,7 +15,7 @@ import mvvm.example.orders.editor.edititem.EditItemSession;
 import mvvm.example.orders.editor.edititem.EditItemView;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
 import mvvm.example.orders.explorer.OrdersExplorerView;
-import mvvm.example.orders.explorer.OrdersViewModel;
+import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 
 public class OrderModule {
 
@@ -28,7 +28,7 @@ public class OrderModule {
         this.orderContext  = new OrderContext();
         this.viewRouter    = viewRouter;
 
-        viewLocator.register(OrdersViewModel.class,      OrdersExplorerView::new);
+        viewLocator.register(OrdersExplorerViewModel.class,      OrdersExplorerView::new);
         viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
         viewLocator.register(EditItemViewModel.class,    EditItemView::new);
     }
@@ -41,8 +41,8 @@ public class OrderModule {
         viewRouter.route(orders());
     }
 
-    public OrdersViewModel orders() {
-        return new OrdersViewModel(
+    public OrdersExplorerViewModel orders() {
+        return new OrdersExplorerViewModel(
             orderService::fetchAll,
             orderContext,
             order -> viewRouter.route(orderEditor(order))

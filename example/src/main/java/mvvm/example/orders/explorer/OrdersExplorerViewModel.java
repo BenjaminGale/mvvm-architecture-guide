@@ -11,7 +11,7 @@ import mvvm.example.orders.context.PendingOrderCounter;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
-public class OrdersViewModel {
+public class OrdersExplorerViewModel {
 
     private final ObservableList<Order> orders = FXCollections.observableArrayList();
     private final StringProperty statusText = new SimpleStringProperty("");
@@ -20,7 +20,7 @@ public class OrdersViewModel {
     private final PendingOrderCounter orderContext;
     private final Consumer<Order> onOrderSelected;
 
-    public OrdersViewModel(
+    public OrdersExplorerViewModel(
         LoadOrdersUseCase loadOrders,
         PendingOrderCounter orderContext,
         Consumer<Order> onOrderSelected

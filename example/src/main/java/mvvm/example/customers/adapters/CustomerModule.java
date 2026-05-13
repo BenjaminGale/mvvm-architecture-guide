@@ -7,7 +7,7 @@ import mvvm.example.customers.detail.CustomerDetailViewModel;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerService;
 import mvvm.example.customers.explorer.CustomersExplorerView;
-import mvvm.example.customers.explorer.CustomersViewModel;
+import mvvm.example.customers.explorer.CustomersExplorerViewModel;
 
 public class CustomerModule {
 
@@ -18,7 +18,7 @@ public class CustomerModule {
         this.customerService = new CustomerService(new InMemoryCustomerRepository());
         this.viewRouter      = viewRouter;
 
-        viewLocator.register(CustomersViewModel.class,      CustomersExplorerView::new);
+        viewLocator.register(CustomersExplorerViewModel.class,      CustomersExplorerView::new);
         viewLocator.register(CustomerDetailViewModel.class, CustomerDetailView::new);
     }
 
@@ -26,8 +26,8 @@ public class CustomerModule {
         viewRouter.route(customers());
     }
 
-    private CustomersViewModel customers() {
-        return new CustomersViewModel(
+    private CustomersExplorerViewModel customers() {
+        return new CustomersExplorerViewModel(
             customerService,
             customer -> viewRouter.route(customerDetail(customer))
         );
