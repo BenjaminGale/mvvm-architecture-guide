@@ -8,7 +8,7 @@ import mvvm.example.customers.domain.Customer;
 
 public class CustomersExplorerView extends StackPane {
 
-    public CustomersExplorerView(CustomersViewModel viewModel) {
+    public CustomersExplorerView(CustomersExplorerViewModel viewModel) {
         var table = new TableView<Customer>();
         table.setItems(viewModel.getCustomers());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
