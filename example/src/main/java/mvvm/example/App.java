@@ -7,7 +7,7 @@ import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewLocator;
 import mvvm.example.core.viewmodel.ViewModelRouter;
 import mvvm.example.customers.adapters.CustomerModule;
-import mvvm.example.orders.adapters.OrderModule;
+import mvvm.example.orders.adapters.OrdersModule;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
 import mvvm.example.settings.SettingsModule;
 import mvvm.example.shell.main.MainView;
@@ -24,7 +24,7 @@ public class App extends Application {
         var dialogManager = new DialogManager(stage, viewLocator, viewModelRouter);
         dialogManager.register(EditItemViewModel.class);
 
-        var orderModule = new OrderModule(viewLocator, viewModelRouter);
+        var orderModule = new OrdersModule(viewLocator, viewModelRouter);
         var customerModule = new CustomerModule(viewLocator, viewModelRouter);
         var settingsModule = new SettingsModule(viewLocator, viewModelRouter, orderModule::routeToOrders);
 

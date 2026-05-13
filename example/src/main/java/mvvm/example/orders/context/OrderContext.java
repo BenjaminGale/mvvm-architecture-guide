@@ -8,7 +8,7 @@ public class OrderContext implements PendingOrderCount, PendingOrderCounter {
     private final ReadOnlyIntegerWrapper pendingCount = new ReadOnlyIntegerWrapper(this, "pendingCount", 0);
 
     @Override
-    public void setPendingCount(int count) {
+    public void setCount(int count) {
         pendingCount.set(count);
     }
 

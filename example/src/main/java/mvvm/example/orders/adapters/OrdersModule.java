@@ -11,16 +11,17 @@ import mvvm.example.orders.editor.OrderEditorViewModel;
 import mvvm.example.orders.editor.edititem.EditItemSession;
 import mvvm.example.orders.editor.edititem.EditItemView;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
+import mvvm.example.orders.explorer.OrdersExplorerHost;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 
-public class OrderModule {
+public class OrdersModule {
 
     private final OrderService orderService;
     private final OrderContext orderContext;
     private final ViewModelRouter viewModelRouter;
 
-    public OrderModule(ViewLocator viewLocator, ViewModelRouter viewModelRouter) {
+    public OrdersModule(ViewLocator viewLocator, ViewModelRouter viewModelRouter) {
         this.orderService = new OrderService(new InMemoryOrderRepository());
         this.orderContext = new OrderContext();
         this.viewModelRouter = viewModelRouter;
@@ -40,9 +41,18 @@ public class OrderModule {
 
     public OrdersExplorerViewModel orders() {
         return new OrdersExplorerViewModel(
-            orderService,
-            orderContext,
-            order -> viewModelRouter.dispatch(orderEditor(order))
+            orderService::fetchAll,
+            new OrdersExplorerHost() {
+                @Override
+                public void showOrderDetails(Order order) {
+                    viewModelRouter.dispatch(orderEditor(order));
+                }
+
+                @Override
+                public void setPendingOrderCount(int count) {
+                    orderContext.setCount(count);
+                }
+            }
         );
     }
 

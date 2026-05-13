@@ -1,15 +1,12 @@
 package mvvm.example.orders.explorer;
 
 import mvvm.example.orders.StubOrderRepository;
-import mvvm.example.orders.context.OrderContext;
-import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -18,6 +15,30 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("OrdersExplorerViewModel")
 class OrdersExplorerViewModelTest {
+
+    public static class MockOrdersExplorerHost implements OrdersExplorerHost {
+
+        private Order shownOrder;
+        private Integer pendingOrderCount;
+
+        @Override
+        public void showOrderDetails(Order order) {
+            shownOrder = order;
+        }
+
+        @Override
+        public void setPendingOrderCount(int count) {
+            pendingOrderCount = count;
+        }
+
+        public void assertOrderWasShown(Order order) {
+            assertEquals(order, shownOrder);
+        }
+
+        public void assertPendingOrderCount(int count) {
+            assertEquals(count, pendingOrderCount);
+        }
+    }
 
     private static final LocalDate RECENT = LocalDate.now().minusDays(1);
     private static final LocalDate OLDER  = LocalDate.now().minusDays(10);
@@ -31,6 +52,20 @@ class OrdersExplorerViewModelTest {
         return new OrderService(new StubOrderRepository(orders));
     }
 
+    private static OrdersExplorerHost host() {
+        return new OrdersExplorerHost() {
+            @Override
+            public void showOrderDetails(Order order) {
+
+            }
+
+            @Override
+            public void setPendingOrderCount(int count) {
+
+            }
+        };
+    }
+
     @Nested
     @DisplayName("when created")
     class WhenCreated {
@@ -39,9 +74,8 @@ class OrdersExplorerViewModelTest {
         @DisplayName("orders are loaded immediately")
         void ordersLoadedImmediately() {
             var vm = new OrdersExplorerViewModel(
-                serviceWith(order("1", RECENT)),
-                new OrderContext(),
-                o -> {}
+                () -> serviceWith(order("1", RECENT)).fetchAll(),
+                host()
             );
 
             assertEquals(1, vm.getOrders().size());
@@ -51,9 +85,8 @@ class OrdersExplorerViewModelTest {
         @DisplayName("the status text shows the total and overdue order counts")
         void statusTextShowsCountsOnCreation() {
             var vm = new OrdersExplorerViewModel(
-                serviceWith(order("1", RECENT), order("2", OVERDUE)),
-                new OrderContext(),
-                o -> {}
+                () -> serviceWith(order("1", RECENT), order("2", OVERDUE)).fetchAll(),
+                host()
             );
 
             assertEquals("2 orders, 1 overdue", vm.statusTextProperty().get());
@@ -62,14 +95,13 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("the pending order count on the context is updated")
         void pendingCountUpdatedOnCreation() {
-            var context = new OrderContext();
+            var host = new MockOrdersExplorerHost();
             new OrdersExplorerViewModel(
-                serviceWith(order("1", OVERDUE), order("2", OVERDUE)),
-                context,
-                o -> {}
+                () -> serviceWith(order("1", OVERDUE), order("2", OVERDUE)).fetchAll(),
+                host
             );
 
-            assertEquals(2, context.pendingCountProperty().get());
+            host.assertPendingOrderCount(2);
         }
     }
 
@@ -80,7 +112,10 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("orders are reloaded from the service")
         void ordersReloaded() {
-            var vm = new OrdersExplorerViewModel(serviceWith(), new OrderContext(), o -> {});
+            var vm = new OrdersExplorerViewModel(
+                () -> serviceWith().fetchAll(),
+                host()
+            );
 
             vm.refresh();
 
@@ -91,7 +126,11 @@ class OrdersExplorerViewModelTest {
         @DisplayName("the status text is updated to reflect the new order list")
         void statusTextUpdated() {
             var repo = new StubOrderRepository();
-            var vm = new OrdersExplorerViewModel(new OrderService(repo), new OrderContext(), o -> {});
+            var vm = new OrdersExplorerViewModel(
+                () -> new OrderService(repo).fetchAll(),
+                host()
+            );
+
             repo.save(order("1", RECENT));
             repo.save(order("2", RECENT));
             repo.save(order("3", RECENT));
@@ -105,9 +144,8 @@ class OrdersExplorerViewModelTest {
         @DisplayName("orders are sorted with the most recent date first")
         void ordersSortedByDateDescending() {
             var vm = new OrdersExplorerViewModel(
-                serviceWith(order("older", OLDER), order("recent", RECENT)),
-                new OrderContext(),
-                o -> {}
+                () -> serviceWith(order("older", OLDER), order("recent", RECENT)).fetchAll(),
+                host()
             );
 
             assertEquals("recent", vm.getOrders().getFirst().id());
@@ -117,14 +155,18 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("the pending count on the context is updated")
         void pendingCountUpdated() {
-            var context = new OrderContext();
             var repo = new StubOrderRepository();
-            var vm = new OrdersExplorerViewModel(new OrderService(repo), context, o -> {});
+            var host = new MockOrdersExplorerHost();
+            var vm = new OrdersExplorerViewModel(
+                () -> new OrderService(repo).fetchAll(),
+                host
+            );
+
             repo.save(order("1", OVERDUE));
 
             vm.refresh();
 
-            assertEquals(1, context.pendingCountProperty().get());
+            host.assertPendingOrderCount(1);
         }
     }
 
@@ -135,20 +177,26 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("the navigation callback is invoked with the selected order")
         void navigationCallbackInvoked() {
-            var selected = new AtomicReference<Order>();
+            var host = new MockOrdersExplorerHost();
             var order = order("1", RECENT);
-            var vm = new OrdersExplorerViewModel(serviceWith(order), new OrderContext(), selected::set);
+            var vm = new OrdersExplorerViewModel(
+                () -> serviceWith(order).fetchAll(),
+                host
+            );
 
             vm.openOrder(order);
 
-            assertEquals(order, selected.get());
+            host.assertOrderWasShown(order);
         }
 
         @Test
         @DisplayName("the navigation callback is not invoked when called with null")
         void navigationCallbackNotInvokedForNull() {
             var selected = new AtomicReference<Order>();
-            var vm = new OrdersExplorerViewModel(serviceWith(), new OrderContext(), selected::set);
+            var vm = new OrdersExplorerViewModel(
+                () -> serviceWith().fetchAll(),
+                host()
+            );
 
             vm.openOrder(null);
 

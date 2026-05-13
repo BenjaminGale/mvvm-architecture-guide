@@ -6,29 +6,20 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.domain.OrderService;
-import mvvm.example.orders.context.PendingOrderCounter;
 
 import java.util.Comparator;
-import java.util.function.Consumer;
 
 public class OrdersExplorerViewModel {
 
     private final ObservableList<Order> orders = FXCollections.observableArrayList();
     private final StringProperty statusText = new SimpleStringProperty("");
 
-    private final OrderService orderService;
-    private final PendingOrderCounter orderContext;
-    private final Consumer<Order> onOrderSelected;
+    private final OrdersExplorerService service;
+    private final OrdersExplorerHost host;
 
-    public OrdersExplorerViewModel(
-        OrderService orderService,
-        PendingOrderCounter orderContext,
-        Consumer<Order> onOrderSelected
-    ) {
-        this.orderService = orderService;
-        this.orderContext = orderContext;
-        this.onOrderSelected = onOrderSelected;
+    public OrdersExplorerViewModel(OrdersExplorerService service, OrdersExplorerHost host) {
+        this.service = service;
+        this.host = host;
         refresh();
     }
 
@@ -41,7 +32,8 @@ public class OrdersExplorerViewModel {
     }
 
     public void refresh() {
-        var result = orderService.fetchAll()
+        var result = service
+            .fetchAllOrders()
             .stream()
             .sorted(Comparator.comparing(Order::date).reversed())
             .toList();
@@ -49,12 +41,12 @@ public class OrdersExplorerViewModel {
         orders.setAll(result);
 
         var pendingCount = (int) result.stream().filter(Order::isOverdue).count();
-        orderContext.setPendingCount(pendingCount);
+        host.setPendingOrderCount(pendingCount);
 
         statusText.set(result.size() + " orders, " + pendingCount + " overdue");
     }
 
     public void openOrder(Order order) {
-        if (order != null) onOrderSelected.accept(order);
+        if (order != null) host.showOrderDetails(order);
     }
 }

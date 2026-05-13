@@ -24,7 +24,7 @@ class SidebarViewModelTest {
         @DisplayName("reflects the initial value from the context")
         void reflectsInitialContextValue() {
             var context = new OrderContext();
-            context.setPendingCount(3);
+            context.setCount(3);
 
             var vm = viewModelWith(context);
 
@@ -37,7 +37,7 @@ class SidebarViewModelTest {
             var context = new OrderContext();
             var vm = viewModelWith(context);
 
-            context.setPendingCount(5);
+            context.setCount(5);
 
             assertEquals(5, vm.pendingOrderCountProperty().get());
         }
