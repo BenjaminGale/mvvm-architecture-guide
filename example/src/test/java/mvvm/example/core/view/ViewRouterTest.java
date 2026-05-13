@@ -6,8 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("ViewRouter")
@@ -15,78 +13,69 @@ class ViewRouterTest {
 
     private static class StubViewModel {}
     private static class StubView extends Pane {}
-    private static class OtherViewModel {}
     private static class OtherView extends Pane {}
+
+    private static class StubListener<V extends Region> {
+        private V received;
+
+        void accept(V view) { received = view; }
+
+        void assertReceivedView(V expected) { assertSame(expected, received); }
+        void assertNoViewReceived() { assertNull(received); }
+    }
 
     private ViewRouter routerWith(Class<?> vmClass, Region view) {
         var locator = new ViewLocator();
-        locator.register(StubViewModel.class, vm -> view);
-        var router = new ViewRouter(locator);
+        locator.register(vmClass, _ -> view);
+
+        return new ViewRouter(locator);
+    }
+
+    private <V extends Region> ViewRouter routerWith(Class<?> vmClass, Class<V> viewClass, V view, StubListener<V> listener) {
+        var router = routerWith(vmClass, view);
+        router.addListener(viewClass, listener::accept);
         return router;
     }
 
     @Nested
-    @DisplayName("when a listener is registered for a view type")
+    @DisplayName("when routing to a ViewModel with a registered listener")
     class WhenListenerRegistered {
 
         @Test
-        @DisplayName("the listener is called when routing to a matching ViewModel")
-        void listenerCalledForMatchingViewModel() {
+        @DisplayName("the view is delivered to the listener")
+        void viewDeliveredToListener() {
             var view = new StubView();
-            var locator = new ViewLocator();
-            locator.register(StubViewModel.class, vm -> view);
-            var router = new ViewRouter(locator);
-            var received = new AtomicReference<Region>();
-            router.addListener(StubView.class, received::set);
+            var listener = new StubListener<StubView>();
+            var router = routerWith(StubViewModel.class, StubView.class, view, listener);
 
             router.route(new StubViewModel());
 
-            assertSame(view, received.get());
-        }
-
-        @Test
-        @DisplayName("the listener receives the correctly typed view")
-        void listenerReceivesCorrectlyTypedView() {
-            var view = new StubView();
-            var locator = new ViewLocator();
-            locator.register(StubViewModel.class, vm -> view);
-            var router = new ViewRouter(locator);
-            var received = new AtomicReference<StubView>();
-            router.addListener(StubView.class, received::set);
-
-            router.route(new StubViewModel());
-
-            assertInstanceOf(StubView.class, received.get());
+            listener.assertReceivedView(view);
         }
     }
 
     @Nested
-    @DisplayName("when no listener is registered for the resolved view type")
+    @DisplayName("when no listener is registered for the resolved view")
     class WhenNoListenerRegistered {
 
         @Test
-        @DisplayName("routing completes without error")
-        void routingCompletesWithoutError() {
-            var locator = new ViewLocator();
-            locator.register(StubViewModel.class, vm -> new StubView());
-            var router = new ViewRouter(locator);
+        @DisplayName("no error is thrown")
+        void noErrorThrown() {
+            var router = routerWith(StubViewModel.class, new StubView());
 
             assertDoesNotThrow(() -> router.route(new StubViewModel()));
         }
 
         @Test
-        @DisplayName("listeners registered for other view types are not called")
-        void otherListenersNotCalled() {
-            var locator = new ViewLocator();
-            locator.register(StubViewModel.class, vm -> new StubView());
-            locator.register(OtherViewModel.class, vm -> new OtherView());
-            var router = new ViewRouter(locator);
-            var received = new AtomicReference<Region>();
-            router.addListener(OtherView.class, received::set);
+        @DisplayName("listeners for other view types are not notified")
+        void listenersForOtherViewTypesNotNotified() {
+            var otherListener = new StubListener<OtherView>();
+            var router = routerWith(StubViewModel.class, StubView.class, new StubView(), new StubListener<>());
+            router.addListener(OtherView.class, otherListener::accept);
 
             router.route(new StubViewModel());
 
-            assertNull(received.get());
+            otherListener.assertNoViewReceived();
         }
     }
 }
