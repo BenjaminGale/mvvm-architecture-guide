@@ -21,9 +21,8 @@ public class App extends Application {
         var viewLocator = new ViewLocator();
         var viewModelRouter = new ViewModelRouter();
 
-        viewModelRouter.receive(
-            EditItemViewModel.class,
-            vm -> new DialogManager(stage).openAsDialog(viewLocator.resolve(vm)));
+        var dialogManager = new DialogManager(stage, viewLocator, viewModelRouter);
+        dialogManager.register(EditItemViewModel.class);
 
         var orderModule = new OrderModule(viewLocator, viewModelRouter);
         var customerModule = new CustomerModule(viewLocator, viewModelRouter);
