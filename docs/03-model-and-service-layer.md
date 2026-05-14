@@ -4,12 +4,14 @@ The Model and Service layers sit below the ViewModel layer. They are completely 
 
 ### Contents
 
-- [3.1 Model objects](#31-model-objects)
-  - [3.1.1 Data carriers](#311-data-carriers)
-  - [3.1.2 Rich domain objects](#312-rich-domain-objects)
-- [3.2 Repositories](#32-repositories)
-- [3.3 Services](#33-services)
-  - [3.3.1 Responsibilities of services](#331-responsibilities-of-services)
+* [3.1 Model objects](#31-model-objects)
+
+  * [3.1.1 Data carriers](#311-data-carriers)
+  * [3.1.2 Rich domain objects](#312-rich-domain-objects)
+* [3.2 Repositories](#32-repositories)
+* [3.3 Services](#33-services)
+
+  * [3.3.1 Responsibilities of services](#331-responsibilities-of-services)
 
 ---
 
