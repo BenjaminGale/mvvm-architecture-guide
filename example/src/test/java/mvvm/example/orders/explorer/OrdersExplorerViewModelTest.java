@@ -2,12 +2,16 @@ package mvvm.example.orders.explorer;
 
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.StubOrderRepository;
+import mvvm.example.orders.domain.Order;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,14 +50,23 @@ class OrdersExplorerViewModelTest {
         }
 
         @Test
+        @DisplayName("shows empty state when no orders exist")
+        void handlesEmptyRepository() {
+            var vm = createViewModel();
+
+            assertEquals(0, vm.getOrders().size());
+            assertEquals("0 orders, 0 overdue", vm.statusTextProperty().get());
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusTextCases")
         @DisplayName("it shows total and overdue order counts")
-        void showsExpectedStatusText() {
-            repository.save(MockOrders.of("1", RECENT));
-            repository.save(MockOrders.of("2", OVERDUE));
+        void showsExpectedStatusText(String caseName, List<Order> orders, String expected) {
+            orders.forEach(repository::save);
 
             var vm = createViewModel();
 
-            assertEquals("2 orders, 1 overdue", vm.statusTextProperty().get());
+            assertEquals(expected, vm.statusTextProperty().get());
         }
 
         @Test
@@ -73,7 +86,7 @@ class OrdersExplorerViewModelTest {
     class WhenRefreshed {
 
         @Test
-        @DisplayName("reloads orders from storage")
+        @DisplayName("it reloads orders from storage")
         void ordersReloaded() {
             var vm = createViewModel();
             vm.refresh();
@@ -81,7 +94,7 @@ class OrdersExplorerViewModelTest {
         }
 
         @Test
-        @DisplayName("updates status text after refresh")
+        @DisplayName("it updates status text after refresh")
         void statusTextUpdated() {
             repository.save(MockOrders.of("1", RECENT));
             repository.save(MockOrders.of("2", RECENT));
@@ -93,16 +106,20 @@ class OrdersExplorerViewModelTest {
             assertEquals("3 orders, 0 overdue", vm.statusTextProperty().get());
         }
 
-        @Test
-        @DisplayName("sorts orders by most recent date first")
-        void ordersSortedByDateDescending() {
-            repository.save(MockOrders.of("older", OLDER));
-            repository.save(MockOrders.of("recent", RECENT));
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#sortingCases")
+        @DisplayName("it sorts orders by most recent date first")
+        void sortsOrdersByDateDescending(String caseName, List<Order> input, List<String> expectedOrder) {
+            input.forEach(repository::save);
 
             var vm = createViewModel();
 
-            assertEquals("recent", vm.getOrders().getFirst().id());
-            assertEquals("older", vm.getOrders().getLast().id());
+            var actual = vm.getOrders()
+                .stream()
+                .map(Order::id)
+                .toList();
+
+            assertEquals(expectedOrder, actual);
         }
 
         @Test

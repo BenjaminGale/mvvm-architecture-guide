@@ -1,0 +1,77 @@
+package mvvm.example.orders.explorer;
+
+import mvvm.example.orders.MockOrders;
+import org.junit.jupiter.params.provider.Arguments;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Stream;
+
+public class OrdersExplorerViewModelScenarios {
+
+    private static final LocalDate RECENT = LocalDate.of(2026, 5, 10);
+    private static final LocalDate OLDER = LocalDate.of(2026, 5, 1);
+    private static final LocalDate OVERDUE = LocalDate.of(2026, 4, 1);
+
+    public static Stream<Arguments> statusTextCases() {
+        return Stream.of(
+            Arguments.of(
+                "empty repository",
+                List.of(),
+                "0 orders, 0 overdue"
+            ),
+            Arguments.of(
+                "single non-overdue order",
+                List.of(MockOrders.of("1", RECENT)),
+                "1 orders, 0 overdue"
+            ),
+            Arguments.of(
+                "mixed overdue and non-overdue orders",
+                List.of(
+                    MockOrders.of("1", RECENT),
+                    MockOrders.of("2", OVERDUE)
+                ),
+                "2 orders, 1 overdue"
+            ),
+            Arguments.of(
+                "all orders overdue",
+                List.of(
+                    MockOrders.of("1", OVERDUE),
+                    MockOrders.of("2", OVERDUE),
+                    MockOrders.of("3", OVERDUE)
+                ),
+                "3 orders, 3 overdue"
+            )
+        );
+    }
+
+    static Stream<Arguments> sortingCases() {
+        return Stream.of(
+            Arguments.of(
+                "reverse chronological input",
+                List.of(
+                    MockOrders.of("older", OLDER),
+                    MockOrders.of("recent", RECENT)
+                ),
+                List.of("recent", "older")
+            ),
+            Arguments.of(
+                "already sorted input",
+                List.of(
+                    MockOrders.of("recent", RECENT),
+                    MockOrders.of("older", OLDER)
+                ),
+                List.of("recent", "older")
+            ),
+            Arguments.of(
+                "same-date orders preserve insertion order",
+                List.of(
+                    MockOrders.of("A", RECENT),
+                    MockOrders.of("B", RECENT),
+                    MockOrders.of("C", RECENT)
+                ),
+                List.of("A", "B", "C")
+            )
+        );
+    }
+}
