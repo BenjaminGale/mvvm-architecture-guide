@@ -21,8 +21,8 @@ public class LineItemsView extends BorderPane {
         table.getColumns().add(unitPriceColumn());
         table.getColumns().add(totalColumn());
 
-        var addBtn    = new Button("Add");
-        var editBtn   = new Button("Edit");
+        var addBtn = new Button("Add");
+        var editBtn = new Button("Edit");
         var removeBtn = new Button("Remove");
 
         var toolbar = new HBox(8, addBtn, editBtn, removeBtn);
@@ -38,7 +38,8 @@ public class LineItemsView extends BorderPane {
         editBtn.setOnAction(e -> viewModel.editSelected());
         removeBtn.setOnAction(e -> viewModel.removeSelected());
 
-        table.getSelectionModel().selectedItemProperty()
+        table.getSelectionModel()
+            .selectedItemProperty()
             .addListener((obs, old, row) -> viewModel.selectRow(row));
     }
 

@@ -31,12 +31,16 @@ public class LineItemRowViewModel {
         unitPrice.set(item.unitPrice());
     }
 
-    public StringProperty descriptionProperty()           { return description; }
-    public IntegerProperty quantityProperty()             { return quantity; }
+    public StringProperty descriptionProperty() { return description; }
+    public IntegerProperty quantityProperty() { return quantity; }
     public ObjectProperty<BigDecimal> unitPriceProperty() { return unitPrice; }
-    public ObjectBinding<BigDecimal> totalProperty()      { return total; }
+    public ObjectBinding<BigDecimal> totalProperty() { return total; }
 
     public LineItem toLineItem() {
-        return new LineItem(description.get(), quantity.get(), unitPrice.get());
+        return new LineItem(
+            description.get(),
+            quantity.get(),
+            unitPrice.get()
+        );
     }
 }

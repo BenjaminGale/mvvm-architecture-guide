@@ -31,19 +31,20 @@ public class OrderHeaderViewModel {
     }
 
     private void validate() {
-        valid.set(
-            customerName.get() != null && !customerName.get().isBlank() &&
-            orderDate.get() != null &&
-            reference.get() != null && !reference.get().isBlank()
+        valid.set(customerName.get() != null
+            && !customerName.get().isBlank()
+            && orderDate.get() != null
+            && reference.get() != null
+            && !reference.get().isBlank()
         );
     }
 
-    public StringProperty customerNameProperty()         { return customerName; }
+    public StringProperty customerNameProperty() { return customerName; }
     public ObjectProperty<LocalDate> orderDateProperty() { return orderDate; }
-    public StringProperty referenceProperty()            { return reference; }
-    public ReadOnlyBooleanProperty validProperty()       { return valid; }
+    public StringProperty referenceProperty() { return reference; }
+    public ReadOnlyBooleanProperty validProperty() { return valid; }
 
-    public Order.OrderHeader buildHeader() {
-        return new Order.OrderHeader(customerName.get(), orderDate.get(), reference.get());
+    public Order.Header buildHeader() {
+        return new Order.Header(customerName.get(), orderDate.get(), reference.get());
     }
 }

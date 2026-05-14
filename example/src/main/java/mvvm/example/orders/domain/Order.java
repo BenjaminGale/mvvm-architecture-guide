@@ -6,7 +6,7 @@ import java.util.List;
 
 public record Order(String id, String customerName, LocalDate date, String reference, List<LineItem> lineItems) {
 
-    public record OrderHeader(String customerName, LocalDate date, String reference) {
+    public record Header(String customerName, LocalDate date, String reference) {
     }
 
     public Order(String id, String customerName, LocalDate date, String reference, List<LineItem> lineItems) {
@@ -29,13 +29,15 @@ public record Order(String id, String customerName, LocalDate date, String refer
     }
 
     public boolean isValid() {
-        return customerName != null && !customerName.isBlank()
+        return customerName != null
+            && !customerName.isBlank()
             && date != null
-            && reference != null && !reference.isBlank()
+            && reference != null
+            && !reference.isBlank()
             && !lineItems.isEmpty();
     }
 
-    public Order withHeader(OrderHeader header) {
+    public Order withHeader(Header header) {
         return new Order(id, header.customerName(), header.date(), header.reference(), lineItems);
     }
 

@@ -61,10 +61,10 @@ public class LineItemsViewModel {
         selectedRow.set(row);
     }
 
-    public ObservableList<LineItemRowViewModel> getRows()                      { return rows; }
-    public ReadOnlyBooleanProperty canRemoveProperty()                         { return canRemove; }
-    public ReadOnlyBooleanProperty validProperty()                             { return valid; }
-    public ReadOnlyObjectProperty<LineItemRowViewModel> selectedRowProperty()  { return selectedRow; }
+    public ObservableList<LineItemRowViewModel> getRows() { return rows; }
+    public ReadOnlyBooleanProperty canRemoveProperty() { return canRemove; }
+    public ReadOnlyBooleanProperty validProperty() { return valid; }
+    public ReadOnlyObjectProperty<LineItemRowViewModel> selectedRowProperty() { return selectedRow; }
 
     public List<LineItem> buildLineItems() {
         return rows.stream().map(LineItemRowViewModel::toLineItem).toList();

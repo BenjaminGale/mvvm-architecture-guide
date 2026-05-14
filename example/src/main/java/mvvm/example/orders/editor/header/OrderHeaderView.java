@@ -16,15 +16,17 @@ public class OrderHeaderView extends GridPane {
         setPadding(new Insets(8));
 
         var customerNameField = new TextField();
-        var orderDatePicker   = new DatePicker();
-        var referenceField    = new TextField();
+        var orderDatePicker = new DatePicker();
+        var referenceField = new TextField();
 
-        add(new Label("Customer"),  0, 0);
-        add(customerNameField,      1, 0);
-        add(new Label("Date"),      0, 1);
-        add(orderDatePicker,        1, 1);
+        add(new Label("Customer"), 0, 0);
+        add(customerNameField, 1, 0);
+
+        add(new Label("Date"), 0, 1);
+        add(orderDatePicker, 1, 1);
+
         add(new Label("Reference"), 0, 2);
-        add(referenceField,         1, 2);
+        add(referenceField, 1, 2);
 
         var labelCol = new ColumnConstraints();
         var fieldCol = new ColumnConstraints();

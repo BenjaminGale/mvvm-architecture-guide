@@ -18,7 +18,7 @@ public class EditItemSession {
         return item;
     }
 
-    public void confirm(LineItem updated) {
+    public void confirmChanges(LineItem updated) {
         onConfirmed.accept(updated);
     }
 }
