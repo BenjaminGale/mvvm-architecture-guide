@@ -2,7 +2,7 @@ package mvvm.example.orders.editor;
 
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.editor.edititem.EditItemSession;
+import mvvm.example.orders.editor.edititem.EditItemRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ class OrderEditorViewModelTest {
 
         @Override public void returnToList() {}
         @Override public void openOrder(Order order) { shownOrder = order; }
-        @Override public void showItemEditor(EditItemSession session) { }
+        @Override public void showItemEditor(EditItemRequest request) { }
 
         void assertOrderWasShown(Order order) {
             assertEquals(order, shownOrder);
@@ -61,7 +61,7 @@ class OrderEditorViewModelTest {
         return new OrderEditorHost() {
             @Override public void returnToList() {}
             @Override public void openOrder(Order order) {}
-            @Override public void showItemEditor(EditItemSession session) {}
+            @Override public void showItemEditor(EditItemRequest request) {}
         };
     }
 

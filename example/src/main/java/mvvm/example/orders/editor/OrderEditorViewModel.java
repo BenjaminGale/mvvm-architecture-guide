@@ -3,8 +3,9 @@ package mvvm.example.orders.editor;
 import javafx.beans.binding.Bindings;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
+import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.editor.edititem.EditItemSession;
+import mvvm.example.orders.editor.edititem.EditItemRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemRowViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
@@ -58,11 +59,18 @@ public class OrderEditorViewModel {
     }
 
     private void editRow(LineItemRowViewModel row) {
-        host.showItemEditor(new EditItemSession(row.toLineItem(), updated -> {
-            row.descriptionProperty().set(updated.description());
-            row.quantityProperty().set(updated.quantity());
-            row.unitPriceProperty().set(updated.unitPrice());
-        }));
+        host.showItemEditor(
+            new EditItemRequest(
+                row.toLineItem(),
+                updated -> saveEditedRow(row, updated)
+            )
+        );
+    }
+
+    private void saveEditedRow(LineItemRowViewModel row, LineItem updated) {
+        row.descriptionProperty().set(updated.description());
+        row.quantityProperty().set(updated.quantity());
+        row.unitPriceProperty().set(updated.unitPrice());
     }
 
     public OrderHeaderViewModel getHeader()  { return header; }

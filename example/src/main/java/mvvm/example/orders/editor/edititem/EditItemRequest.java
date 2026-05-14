@@ -4,14 +4,14 @@ import mvvm.example.orders.domain.LineItem;
 
 import java.util.function.Consumer;
 
-public class EditItemSession {
+public class EditItemRequest {
 
     private final LineItem item;
-    private final Consumer<LineItem> onConfirmed;
+    private final Consumer<LineItem> listener;
 
-    public EditItemSession(LineItem item, Consumer<LineItem> onConfirmed) {
-        this.item = item;
-        this.onConfirmed = onConfirmed;
+    public EditItemRequest(LineItem original, Consumer<LineItem> listener) {
+        this.item = original;
+        this.listener = listener;
     }
 
     public LineItem getItem() {
@@ -19,6 +19,6 @@ public class EditItemSession {
     }
 
     public void confirmChanges(LineItem updated) {
-        onConfirmed.accept(updated);
+        listener.accept(updated);
     }
 }

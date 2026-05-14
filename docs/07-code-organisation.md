@@ -91,7 +91,7 @@ orders/editor/
 │   ├── LineItemsViewModel.java
 │   └── LineItemsView.java
 └── edititem/
-    ├── EditItemSession.java
+    ├── EditItemRequest.java
     ├── EditItemViewModel.java
     └── EditItemView.java
 ```
@@ -182,7 +182,7 @@ com.example/
 │   │   │   ├── LineItemsViewModel.java
 │   │   │   └── LineItemsView.java
 │   │   └── edititem/
-│   │       ├── EditItemSession.java
+│   │       ├── EditItemRequet.java
 │   │       ├── EditItemViewModel.java
 │   │       └── EditItemView.java
 │   └── adapters/

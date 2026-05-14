@@ -10,7 +10,7 @@ import mvvm.example.orders.editor.OrderEditorHost;
 import mvvm.example.orders.editor.OrderEditorService;
 import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.editor.OrderEditorViewModel;
-import mvvm.example.orders.editor.edititem.EditItemSession;
+import mvvm.example.orders.editor.edititem.EditItemRequest;
 import mvvm.example.orders.editor.edititem.EditItemView;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
 import mvvm.example.orders.explorer.OrdersExplorerHost;
@@ -64,11 +64,11 @@ public class OrdersModule {
             new OrderEditorHost() {
                 @Override public void returnToList() { viewModelRouter.dispatch(orders()); }
                 @Override public void openOrder(Order copied) { viewModelRouter.dispatch(orderEditor(copied)); }
-                @Override public void showItemEditor(EditItemSession s) { viewModelRouter.dispatch(editItem(s)); }
+                @Override public void showItemEditor(EditItemRequest request) { viewModelRouter.dispatch(editItem(request)); }
             });
     }
 
-    private EditItemViewModel editItem(EditItemSession session) {
-        return new EditItemViewModel(session);
+    private EditItemViewModel editItem(EditItemRequest request) {
+        return new EditItemViewModel(request);
     }
 }

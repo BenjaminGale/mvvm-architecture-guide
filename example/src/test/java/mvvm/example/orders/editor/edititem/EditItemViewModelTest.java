@@ -16,7 +16,7 @@ class EditItemViewModelTest {
     private static final LineItem ORIGINAL = new LineItem("Widget", 2, BigDecimal.valueOf(9.99));
 
     private static EditItemViewModel viewModelFor(LineItem item) {
-        return new EditItemViewModel(new EditItemSession(item, confirmed -> {}));
+        return new EditItemViewModel(new EditItemRequest(item, confirmed -> {}));
     }
 
     @Nested
@@ -24,7 +24,7 @@ class EditItemViewModelTest {
     class WhenCreated {
 
         @Test
-        @DisplayName("the description property is populated from the session item")
+        @DisplayName("the description property is populated from the request item")
         void descriptionPopulated() {
             var vm = viewModelFor(ORIGINAL);
 
@@ -32,7 +32,7 @@ class EditItemViewModelTest {
         }
 
         @Test
-        @DisplayName("the quantity property is populated from the session item")
+        @DisplayName("the quantity property is populated from the request item")
         void quantityPopulated() {
             var vm = viewModelFor(ORIGINAL);
 
@@ -40,7 +40,7 @@ class EditItemViewModelTest {
         }
 
         @Test
-        @DisplayName("the unit price property is populated from the session item")
+        @DisplayName("the unit price property is populated from the request item")
         void unitPricePopulated() {
             var vm = viewModelFor(ORIGINAL);
 
@@ -53,11 +53,11 @@ class EditItemViewModelTest {
     class WhenConfirmed {
 
         @Test
-        @DisplayName("the session callback is invoked with the updated item")
-        void sessionCallbackInvokedWithUpdatedItem() {
+        @DisplayName("the request callback is invoked with the updated item")
+        void requestCallbackInvokedWithUpdatedItem() {
             var confirmed = new AtomicReference<LineItem>();
-            var session = new EditItemSession(ORIGINAL, confirmed::set);
-            var vm = new EditItemViewModel(session);
+            var request = new EditItemRequest(ORIGINAL, confirmed::set);
+            var vm = new EditItemViewModel(request);
 
             vm.confirm();
 
@@ -68,8 +68,8 @@ class EditItemViewModelTest {
         @DisplayName("the confirmed item reflects the edited property values")
         void confirmedItemReflectsEditedValues() {
             var confirmed = new AtomicReference<LineItem>();
-            var session = new EditItemSession(ORIGINAL, confirmed::set);
-            var vm = new EditItemViewModel(session);
+            var request = new EditItemRequest(ORIGINAL, confirmed::set);
+            var vm = new EditItemViewModel(request);
             vm.descriptionProperty().set("Gadget");
             vm.quantityProperty().set(5);
             vm.unitPriceProperty().set(BigDecimal.valueOf(19.99));

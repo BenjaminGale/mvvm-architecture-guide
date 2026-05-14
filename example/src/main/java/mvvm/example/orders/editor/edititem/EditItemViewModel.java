@@ -12,22 +12,22 @@ import java.math.BigDecimal;
 
 public class EditItemViewModel {
 
-    private final EditItemSession session;
+    private final EditItemRequest request;
 
     private final StringProperty description = new SimpleStringProperty();
     private final IntegerProperty quantity = new SimpleIntegerProperty();
     private final ObjectProperty<BigDecimal> unitPrice = new SimpleObjectProperty<>();
 
-    public EditItemViewModel(EditItemSession session) {
-        this.session = session;
+    public EditItemViewModel(EditItemRequest request) {
+        this.request = request;
 
-        description.set(session.getItem().description());
-        quantity.set(session.getItem().quantity());
-        unitPrice.set(session.getItem().unitPrice());
+        description.set(request.getItem().description());
+        quantity.set(request.getItem().quantity());
+        unitPrice.set(request.getItem().unitPrice());
     }
 
     public void confirm() {
-        session.confirmChanges(
+        request.confirmChanges(
             new LineItem(
                 description.get(),
                 quantity.get(),
