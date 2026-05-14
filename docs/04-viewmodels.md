@@ -1079,3 +1079,324 @@ A useful distinction is:
 
 - contexts model shared application state,
 - requests model temporary interaction state.
+
+---
+
+### 4.6 Action classes
+
+Actions are optional utility objects that encapsulate executable UI behaviour together with observable execution state.
+
+Without Actions, views typically bind multiple independent concerns for every interactive control:
+
+- whether the control is enabled,
+- what happens when it is activated,
+- whether an operation is already executing,
+- and sometimes loading or progress state.
+
+These concerns are closely related but are often wired separately across many views.
+
+Action classes consolidate this behaviour into a single object that the view binds to declaratively.
+
+#### 4.6.1 The problem they solve
+
+Without an Action, a view usually coordinates execution and availability separately:
+
+```java
+saveButton.disableProperty().bind(viewModel.canSaveProperty().not());
+saveButton.setOnAction(e -> viewModel.save());
+```
+
+For a small view this overhead is manageable, but the pattern repeats throughout the application:
+
+- buttons,
+- menu items,
+- toolbar actions,
+- keyboard shortcuts,
+- and context menus.
+
+As interactions become asynchronous, additional coordination is often introduced:
+
+- loading indicators,
+- double-submit prevention,
+- progress state,
+- exception handling,
+- and cancellation behaviour.
+
+The result is that views accumulate procedural UI wiring that conceptually belongs to the interaction itself.
+
+An Action centralises these concerns into a reusable executable object.
+
+#### 4.6.2 Action
+
+`Action` represents a synchronous executable interaction.
+
+It combines:
+
+- execution behaviour,
+- and observable execution availability.
+
+```java
+public class Action {
+
+    private final ReadOnlyBooleanWrapper canExecute =
+        new ReadOnlyBooleanWrapper(
+            this,
+            "canExecute",
+            true
+        );
+
+    private final Listener listener;
+
+    private final ObservableValue<? extends Boolean>
+        binding;
+
+    public Action(Listener listener) {
+
+        this.listener =
+            requireNonNull(listener);
+
+        this.binding = null;
+    }
+
+    public Action(
+        Listener listener,
+        ObservableValue<? extends Boolean> binding
+    ) {
+
+        this.listener =
+            requireNonNull(listener);
+
+        this.binding =
+            requireNonNull(binding);
+
+        canExecute.bind(binding);
+    }
+
+    public final ReadOnlyBooleanProperty canExecuteProperty() {
+
+        return canExecute.getReadOnlyProperty();
+    }
+
+    public final boolean canExecute() {
+        return canExecuteProperty().get();
+    }
+
+    public final void execute() {
+        if (canExecute()) {
+            listener.actionExecuted();
+        }
+    }
+
+    @FunctionalInterface
+    public interface Listener {
+        void actionExecuted();
+    }
+}
+```
+
+The execute method is self-guarding:
+
+- if `canExecute` is false,
+- execution does nothing.
+
+This ensures the interaction cannot be triggered accidentally even if the view binding is incorrect.
+
+A ViewModel exposes Actions directly:
+
+```java
+public class OrderEditorViewModel {
+
+    public final Action delete;
+
+    public OrderEditorViewModel(
+        OrderEditorHost host
+    ) {
+
+        this.delete = new Action(host::deleteOrder);
+    }
+}
+```
+
+The view binds directly to the Action:
+
+```java
+deleteButton.disableProperty()
+    .bind(viewModel.delete
+        .canExecuteProperty()
+        .not());
+
+deleteButton.setOnAction(e -> viewModel.delete.execute());
+```
+
+The Action now owns:
+
+- execution semantics,
+- availability state,
+- and execution guarding.
+
+#### 4.6.3 AsyncAction
+
+`AsyncAction` extends the same model to asynchronous interactions.
+
+It adds:
+
+- automatic execution tracking,
+- automatic disabling while running,
+- and consistent async execution coordination.
+
+```java
+public class AsyncAction {
+
+    private final ReadOnlyBooleanWrapper
+        canExecuteProperty =
+            new ReadOnlyBooleanWrapper(
+                this,
+                "canExecute",
+                true
+            );
+
+    private final ReadOnlyBooleanWrapper isExecutingProperty =
+            new ReadOnlyBooleanWrapper(
+                this,
+                "isExecuting",
+                false
+            );
+
+    private final BooleanBinding canActionExecuteBinding =
+            Bindings.createBooleanBinding(
+                () -> !isExecuting(),
+                isExecutingProperty
+            );
+
+    private final Listener listener;
+
+    public AsyncAction(Listener listener) {
+
+        requireNonNull(listener);
+
+        canExecuteProperty.bind(
+            canActionExecuteBinding
+        );
+
+        this.listener = listener;
+    }
+
+    public AsyncAction(
+        Listener listener,
+        ObservableBooleanValue canExecuteBinding
+    ) {
+
+        requireNonNull(listener);
+        requireNonNull(canExecuteBinding);
+
+        canExecuteProperty.bind(
+            canActionExecuteBinding
+                .and(canExecuteBinding)
+        );
+
+        this.listener = listener;
+    }
+
+    public CompletableFuture<Void> executeAsync(Executor viewExecutor) {
+
+        requireNonNull(viewExecutor);
+
+        if (!canExecute()) {
+            return CompletableFuture
+                .completedFuture(null);
+        }
+
+        isExecutingProperty.set(true);
+
+        return listener
+            .actionExecutedAsync()
+            .whenCompleteAsync(
+                (result, exception) -> {
+                    if (result != null) result.run();
+                    isExecutingProperty.set(false);
+                },
+                viewExecutor
+            )
+            .thenApply(ignored -> null);
+    }
+
+    public final ReadOnlyBooleanProperty canExecuteProperty() {
+        return canExecuteProperty
+            .getReadOnlyProperty();
+    }
+
+    public final ReadOnlyBooleanProperty isExecutingProperty() {
+        return isExecutingProperty
+            .getReadOnlyProperty();
+    }
+
+    public final boolean canExecute() {
+        return canExecuteProperty().get();
+    }
+
+    public final boolean isExecuting() {
+        return isExecutingProperty().get();
+    }
+
+    @FunctionalInterface
+    public interface Listener {
+
+        CompletableFuture<Runnable>
+        actionExecutedAsync();
+    }
+}
+```
+
+`AsyncAction` automatically:
+
+- disables execution while running,
+- exposes observable execution state,
+- and prevents double submission.
+
+The ViewModel does not need to manually maintain:
+
+- `isSaving`,
+- `isLoading`,
+- or execution guard flags.
+
+#### 4.6.4 Binding Actions in views
+
+Actions are designed to simplify view binding.
+
+A ViewModel exposes executable interactions declaratively:
+
+```java
+public class OrderEditorViewModel {
+
+    public final AsyncAction save;
+    public final Action delete;
+
+    public OrderEditorViewModel(...) {
+        save = new AsyncAction(...);
+        delete = new Action(...);
+    }
+}
+```
+
+The view binds directly to Action state:
+
+```java
+saveButton.disableProperty()
+    .bind(viewModel.save
+        .canExecuteProperty()
+        .not());
+
+progressIndicator.visibleProperty()
+    .bind(viewModel.save.isExecutingProperty());
+
+saveButton.setOnAction(e -> viewModel.save.executeAsync(Platform::runLater));
+```
+
+This produces several architectural benefits:
+
+- views remain declarative,
+- execution state stays close to the interaction,
+- execution semantics become reusable,
+- and ViewModels avoid repetitive async coordination code.
+
+Actions are optional utilities rather than a required part of MVVM itself. Their purpose is to reduce repetitive interaction wiring and centralise execution semantics around executable UI behaviour.
