@@ -3,6 +3,7 @@ package mvvm.example.orders.explorer;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.StubOrderRepository;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,6 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -185,21 +187,24 @@ class OrdersExplorerViewModelTest {
     @DisplayName("when refreshed multiple times")
     class WhenRefreshedMultipleTimes {
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#multipleRefreshCases")
         @DisplayName("it does not retain stale order state")
-        void remainsConsistentAcrossMultipleRefreshCycles() {
-            repository.save(MockOrders.of("1", RECENT));
+        void remainsConsistentAcrossMultipleRefreshCycles(
+            String caseName,
+            List<Order> initialOrders,
+            Consumer<OrderRepository> repoUpdate,
+            List<String> expectedIds
+        ) {
+            initialOrders.forEach(repository::save);
             var vm = createViewModel();
 
             vm.refresh();
 
-            repository.save(MockOrders.of("2", OVERDUE));
+            repoUpdate.accept(repository);
             vm.refresh();
 
-            assertEquals(
-                List.of("1", "2"),
-                vm.getOrders().stream().map(Order::id).toList()
-            );
+            assertEquals(expectedIds, vm.getOrders().stream().map(Order::id).toList());
         }
     }
 }
