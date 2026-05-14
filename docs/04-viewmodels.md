@@ -1400,3 +1400,42 @@ This produces several architectural benefits:
 - and ViewModels avoid repetitive async coordination code.
 
 Actions are optional utilities rather than a required part of MVVM itself. Their purpose is to reduce repetitive interaction wiring and centralise execution semantics around executable UI behaviour.
+
+---
+
+## 4.7 Architectural summary
+
+The ViewModel layer presented in this chapter is centred around a small set of architectural principles:
+
+- ViewModels expose observable presentation state.
+- Views remain passive and bind reactively.
+- Application interactions are expressed through hosts.
+- Hosted interactions communicate through requests.
+- Shared state is coordinated through observable properties and contexts.
+- Complex screens are decomposed into smaller compositional ViewModels.
+- Construction responsibility remains with the hosting application rather than with ViewModels themselves.
+
+These principles work together to preserve separation between:
+
+- presentation coordination,
+- application infrastructure,
+- and rendering concerns.
+
+A ViewModel does not construct views or hosted ViewModels. It does not own navigation infrastructure or presentation mechanics. Instead, it communicates intent declaratively through observable state and capability-oriented interfaces.
+
+The result is an architecture where:
+
+- ViewModels remain highly testable,
+- dependencies remain localised,
+- presentation structure stays compositional,
+- and application coordination remains reactive rather than tightly coupled.
+
+The supporting patterns introduced throughout this chapter — hosts, requests, contexts and Actions — are not intended as rigid framework abstractions. They are compositional techniques used to maintain these boundaries consistently as applications grow in complexity.
+
+In practice, many interactions can be expressed with nothing more than:
+
+- observable properties,
+- composition-time bindings,
+- and focused host interfaces.
+
+The additional patterns exist to support more complex coordination scenarios without collapsing architectural boundaries or introducing infrastructure concerns directly into ViewModels.
