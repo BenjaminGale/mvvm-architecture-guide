@@ -27,47 +27,42 @@ class OrdersExplorerViewModelTest {
         host = new MockOrdersExplorerHost();
     }
 
+    private OrdersExplorerViewModel createViewModel() {
+        return new OrdersExplorerViewModel(repository::findAll, host);
+    }
+
     @Nested
     @DisplayName("when created")
     class WhenCreated {
 
         @Test
-        @DisplayName("orders are loaded immediately")
+        @DisplayName("it loads orders from storage")
         void ordersLoadedImmediately() {
             repository.save(MockOrders.of("1", RECENT));
 
-            var vm = new OrdersExplorerViewModel(
-                repository::findAll,
-                host
-            );
+            var vm = createViewModel();
 
             assertEquals(1, vm.getOrders().size());
         }
 
         @Test
-        @DisplayName("the status text shows the total and overdue order counts")
-        void statusTextShowsCountsOnCreation() {
+        @DisplayName("it shows total and overdue order counts")
+        void showsExpectedStatusText() {
             repository.save(MockOrders.of("1", RECENT));
             repository.save(MockOrders.of("2", OVERDUE));
 
-            var vm = new OrdersExplorerViewModel(
-                repository::findAll,
-                host
-            );
+            var vm = createViewModel();
 
             assertEquals("2 orders, 1 overdue", vm.statusTextProperty().get());
         }
 
         @Test
-        @DisplayName("the pending order count on the context is updated")
-        void pendingCountUpdatedOnCreation() {
+        @DisplayName("it reports pending order count")
+        void pendingCountUpdated() {
             repository.save(MockOrders.of("1", OVERDUE));
             repository.save(MockOrders.of("2", OVERDUE));
 
-            new OrdersExplorerViewModel(
-                repository::findAll,
-                host
-            );
+            createViewModel();
 
             host.assertPendingOrderCount(2);
         }
@@ -78,60 +73,44 @@ class OrdersExplorerViewModelTest {
     class WhenRefreshed {
 
         @Test
-        @DisplayName("orders are reloaded from the service")
+        @DisplayName("reloads orders from storage")
         void ordersReloaded() {
-            var vm = new OrdersExplorerViewModel(
-                repository::findAll,
-                host
-            );
-
+            var vm = createViewModel();
             vm.refresh();
-
             assertEquals(0, vm.getOrders().size());
         }
 
         @Test
-        @DisplayName("the status text is updated to reflect the new order list")
+        @DisplayName("updates status text after refresh")
         void statusTextUpdated() {
-            var vm = new OrdersExplorerViewModel(
-                repository::findAll,
-                host
-            );
-
             repository.save(MockOrders.of("1", RECENT));
             repository.save(MockOrders.of("2", RECENT));
             repository.save(MockOrders.of("3", RECENT));
 
+            var vm = createViewModel();
             vm.refresh();
 
             assertEquals("3 orders, 0 overdue", vm.statusTextProperty().get());
         }
 
         @Test
-        @DisplayName("orders are sorted with the most recent date first")
+        @DisplayName("sorts orders by most recent date first")
         void ordersSortedByDateDescending() {
             repository.save(MockOrders.of("older", OLDER));
             repository.save(MockOrders.of("recent", RECENT));
 
-            var vm = new OrdersExplorerViewModel(
-                repository::findAll,
-                host
-            );
+            var vm = createViewModel();
 
             assertEquals("recent", vm.getOrders().getFirst().id());
             assertEquals("older", vm.getOrders().getLast().id());
         }
 
         @Test
-        @DisplayName("the pending count on the context is updated")
+        @DisplayName("reports updated pending order count after refresh")
         void pendingCountUpdated() {
-            var vm = new OrdersExplorerViewModel(
-                repository::findAll,
-                host
-            );
-
             repository.save(MockOrders.of("1", OVERDUE));
 
+            var vm = createViewModel();
             vm.refresh();
 
             host.assertPendingOrderCount(1);
@@ -143,29 +122,21 @@ class OrdersExplorerViewModelTest {
     class WhenAnOrderIsOpened {
 
         @Test
-        @DisplayName("the navigation callback is invoked with the selected order")
+        @DisplayName("it displays the order")
         void navigationCallbackInvoked() {
             var order = MockOrders.of("1", RECENT);
-            var vm = new OrdersExplorerViewModel(
-                repository::findAll,
-                host
-            );
-
             repository.save(order);
 
+            var vm = createViewModel();
             vm.openOrder(order);
 
             host.assertOrderWasShown(order);
         }
 
         @Test
-        @DisplayName("the navigation callback is not invoked when called with null")
+        @DisplayName("does nothing when no order found")
         void navigationCallbackNotInvokedForNull() {
-            var vm = new OrdersExplorerViewModel(
-                repository::findAll,
-                host
-            );
-
+            var vm = createViewModel();
             vm.openOrder(null);
 
             host.assertNoOrderWasShown();
