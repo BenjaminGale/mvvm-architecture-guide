@@ -16,7 +16,7 @@ public class OrdersExplorerViewModelScenarios {
     public static Stream<Arguments> statusTextCases() {
         return Stream.of(
             Arguments.of(
-                "empty repository",
+                "no orders",
                 List.of(),
                 "0 orders, 0 overdue"
             ),
@@ -71,6 +71,30 @@ public class OrdersExplorerViewModelScenarios {
                     MockOrders.of("C", RECENT)
                 ),
                 List.of("A", "B", "C")
+            )
+        );
+    }
+
+    static Stream<Arguments> refreshListCases() {
+        return Stream.of(
+            Arguments.of(
+                "no orders",
+                List.of(),
+                List.of()
+            ),
+            Arguments.of(
+                "single order",
+                List.of(MockOrders.of("1", RECENT)),
+                List.of("1")
+            ),
+            Arguments.of(
+                "multiple orders",
+                List.of(
+                    MockOrders.of("1", RECENT),
+                    MockOrders.of("2", RECENT),
+                    MockOrders.of("3", RECENT)
+                ),
+                List.of("1", "2", "3")
             )
         );
     }

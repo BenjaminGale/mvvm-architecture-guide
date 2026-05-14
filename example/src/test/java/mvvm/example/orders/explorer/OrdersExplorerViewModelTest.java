@@ -39,28 +39,41 @@ class OrdersExplorerViewModelTest {
     @DisplayName("when created")
     class WhenCreated {
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#refreshListCases")
         @DisplayName("it loads orders from storage")
-        void ordersLoadedImmediately() {
-            repository.save(MockOrders.of("1", RECENT));
+        void reloadsOrdersFromStorage(String caseName, List<Order> input, List<String> expectedOrder) {
+            input.forEach(repository::save);
 
             var vm = createViewModel();
 
-            assertEquals(1, vm.getOrders().size());
+            var actual = vm.getOrders()
+                .stream()
+                .map(Order::id)
+                .toList();
+
+            assertEquals(expectedOrder, actual);
         }
 
-        @Test
-        @DisplayName("shows empty state when no orders exist")
-        void handlesEmptyRepository() {
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#sortingCases")
+        @DisplayName("it sorts orders by most recent date")
+        void sortsOrdersByDateDescendingOnCreation(String caseName, List<Order> input, List<String> expectedOrder) {
+            input.forEach(repository::save);
+
             var vm = createViewModel();
 
-            assertEquals(0, vm.getOrders().size());
-            assertEquals("0 orders, 0 overdue", vm.statusTextProperty().get());
+            var actual = vm.getOrders()
+                .stream()
+                .map(Order::id)
+                .toList();
+
+            assertEquals(expectedOrder, actual);
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusTextCases")
-        @DisplayName("it shows total and overdue order counts")
+        @DisplayName("it shows expected status label")
         void showsExpectedStatusText(String caseName, List<Order> orders, String expected) {
             orders.forEach(repository::save);
 
@@ -85,30 +98,38 @@ class OrdersExplorerViewModelTest {
     @DisplayName("when refreshed")
     class WhenRefreshed {
 
-        @Test
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#refreshListCases")
         @DisplayName("it reloads orders from storage")
-        void ordersReloaded() {
+        void reloadsOrdersFromStorage(String caseName, List<Order> input, List<String> expectedOrder) {
+            input.forEach(repository::save);
+
             var vm = createViewModel();
             vm.refresh();
-            assertEquals(0, vm.getOrders().size());
+
+            var actual = vm.getOrders()
+                .stream()
+                .map(Order::id)
+                .toList();
+
+            assertEquals(expectedOrder, actual);
         }
 
-        @Test
-        @DisplayName("it updates status text after refresh")
-        void statusTextUpdated() {
-            repository.save(MockOrders.of("1", RECENT));
-            repository.save(MockOrders.of("2", RECENT));
-            repository.save(MockOrders.of("3", RECENT));
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusTextCases")
+        @DisplayName("it updates status label")
+        void showsExpectedStatusText(String caseName, List<Order> orders, String expected) {
+            orders.forEach(repository::save);
 
             var vm = createViewModel();
             vm.refresh();
 
-            assertEquals("3 orders, 0 overdue", vm.statusTextProperty().get());
+            assertEquals(expected, vm.statusTextProperty().get());
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#sortingCases")
-        @DisplayName("it sorts orders by most recent date first")
+        @DisplayName("it sorts orders by most recent date")
         void sortsOrdersByDateDescending(String caseName, List<Order> input, List<String> expectedOrder) {
             input.forEach(repository::save);
 
@@ -123,7 +144,7 @@ class OrdersExplorerViewModelTest {
         }
 
         @Test
-        @DisplayName("reports updated pending order count after refresh")
+        @DisplayName("it reports updated pending order count")
         void pendingCountUpdated() {
             repository.save(MockOrders.of("1", OVERDUE));
 
@@ -139,7 +160,7 @@ class OrdersExplorerViewModelTest {
     class WhenAnOrderIsOpened {
 
         @Test
-        @DisplayName("it displays the order")
+        @DisplayName("it displays the selected order")
         void navigationCallbackInvoked() {
             var order = MockOrders.of("1", RECENT);
             repository.save(order);
@@ -151,12 +172,34 @@ class OrdersExplorerViewModelTest {
         }
 
         @Test
-        @DisplayName("does nothing when no order found")
+        @DisplayName("it does nothing when no order selected")
         void navigationCallbackNotInvokedForNull() {
             var vm = createViewModel();
             vm.openOrder(null);
 
             host.assertNoOrderWasShown();
+        }
+    }
+
+    @Nested
+    @DisplayName("when refreshed multiple times")
+    class WhenRefreshedMultipleTimes {
+
+        @Test
+        @DisplayName("it does not retain stale order state")
+        void remainsConsistentAcrossMultipleRefreshCycles() {
+            repository.save(MockOrders.of("1", RECENT));
+            var vm = createViewModel();
+
+            vm.refresh();
+
+            repository.save(MockOrders.of("2", OVERDUE));
+            vm.refresh();
+
+            assertEquals(
+                List.of("1", "2"),
+                vm.getOrders().stream().map(Order::id).toList()
+            );
         }
     }
 }
