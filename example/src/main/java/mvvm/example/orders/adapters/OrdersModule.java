@@ -4,7 +4,8 @@ import mvvm.example.core.view.ViewLocator;
 import mvvm.example.core.viewmodel.ViewModelRouter;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.domain.OrderService;
+import mvvm.example.orders.domain.CopyOrderService;
+import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.editor.OrderEditorHost;
 import mvvm.example.orders.editor.OrderEditorService;
 import mvvm.example.orders.editor.OrderEditorView;
@@ -18,12 +19,14 @@ import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 
 public class OrdersModule {
 
-    private final OrderService orderService;
+    private final OrderRepository orderRepository;
+    private final CopyOrderService orderService;
     private final OrderContext orderContext;
     private final ViewModelRouter viewModelRouter;
 
     public OrdersModule(ViewLocator viewLocator, ViewModelRouter viewModelRouter) {
-        this.orderService = new OrderService(new InMemoryOrderRepository());
+        this.orderRepository = new InMemoryOrderRepository();
+        this.orderService = new CopyOrderService(this.orderRepository);
         this.orderContext = new OrderContext();
         this.viewModelRouter = viewModelRouter;
 
@@ -42,7 +45,7 @@ public class OrdersModule {
 
     public OrdersExplorerViewModel orders() {
         return new OrdersExplorerViewModel(
-            orderService::fetchAll,
+            orderRepository::findAll,
             new OrdersExplorerHost() {
                 @Override public void showOrderDetails(Order order) { viewModelRouter.dispatch(orderEditor(order)); }
                 @Override public void setPendingOrderCount(int count) { orderContext.setCount(count); }
@@ -54,9 +57,9 @@ public class OrdersModule {
         return new OrderEditorViewModel(
             order,
             new OrderEditorService() {
-                @Override public void saveOrder(Order order) { orderService.save(order); }
+                @Override public void saveOrder(Order order) { orderRepository.save(order); }
                 @Override public Order copyOrder(String orderId) { return orderService.copy(orderId); }
-                @Override public void deleteOrder(String orderId) { orderService.delete(orderId); }
+                @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { viewModelRouter.dispatch(orders()); }

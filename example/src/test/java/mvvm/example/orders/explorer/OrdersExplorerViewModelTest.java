@@ -1,14 +1,13 @@
 package mvvm.example.orders.explorer;
 
+import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.StubOrderRepository;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.domain.OrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,53 +15,18 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("OrdersExplorerViewModel")
 class OrdersExplorerViewModelTest {
 
-    public static class MockOrdersExplorerHost implements OrdersExplorerHost {
-
-        private Order shownOrder;
-        private Integer pendingOrderCount;
-
-        @Override
-        public void showOrderDetails(Order order) {
-            shownOrder = order;
-        }
-
-        @Override
-        public void setPendingOrderCount(int count) {
-            pendingOrderCount = count;
-        }
-
-        public void assertOrderWasShown(Order order) {
-            assertEquals(order, shownOrder);
-        }
-
-        public void assertPendingOrderCount(int count) {
-            assertEquals(count, pendingOrderCount);
-        }
-    }
-
     private static final LocalDate RECENT = LocalDate.now().minusDays(1);
     private static final LocalDate OLDER  = LocalDate.now().minusDays(10);
     private static final LocalDate OVERDUE = LocalDate.now().minusDays(31);
 
-    private static Order order(String id, LocalDate date) {
-        return new Order(id, "Acme Ltd", date, "REF-" + id, List.of());
+    private static StubOrderRepository repositoryWith(Order... orders) {
+        return new StubOrderRepository(orders);
     }
 
-    private static OrderService serviceWith(Order... orders) {
-        return new OrderService(new StubOrderRepository(orders));
-    }
-
-    private static OrdersExplorerHost host() {
+    private static OrdersExplorerHost nullHost() {
         return new OrdersExplorerHost() {
-            @Override
-            public void showOrderDetails(Order order) {
-
-            }
-
-            @Override
-            public void setPendingOrderCount(int count) {
-
-            }
+            @Override public void showOrderDetails(Order order) {}
+            @Override public void setPendingOrderCount(int count) {}
         };
     }
 
@@ -74,8 +38,8 @@ class OrdersExplorerViewModelTest {
         @DisplayName("orders are loaded immediately")
         void ordersLoadedImmediately() {
             var vm = new OrdersExplorerViewModel(
-                () -> serviceWith(order("1", RECENT)).fetchAll(),
-                host()
+                () -> repositoryWith(MockOrders.of("1", RECENT)).findAll(),
+                nullHost()
             );
 
             assertEquals(1, vm.getOrders().size());
@@ -85,8 +49,8 @@ class OrdersExplorerViewModelTest {
         @DisplayName("the status text shows the total and overdue order counts")
         void statusTextShowsCountsOnCreation() {
             var vm = new OrdersExplorerViewModel(
-                () -> serviceWith(order("1", RECENT), order("2", OVERDUE)).fetchAll(),
-                host()
+                () -> repositoryWith(MockOrders.of("1", RECENT), MockOrders.of("2", OVERDUE)).findAll(),
+                nullHost()
             );
 
             assertEquals("2 orders, 1 overdue", vm.statusTextProperty().get());
@@ -97,7 +61,7 @@ class OrdersExplorerViewModelTest {
         void pendingCountUpdatedOnCreation() {
             var host = new MockOrdersExplorerHost();
             new OrdersExplorerViewModel(
-                () -> serviceWith(order("1", OVERDUE), order("2", OVERDUE)).fetchAll(),
+                () -> repositoryWith(MockOrders.of("1", OVERDUE), MockOrders.of("2", OVERDUE)).findAll(),
                 host
             );
 
@@ -113,8 +77,8 @@ class OrdersExplorerViewModelTest {
         @DisplayName("orders are reloaded from the service")
         void ordersReloaded() {
             var vm = new OrdersExplorerViewModel(
-                () -> serviceWith().fetchAll(),
-                host()
+                () -> repositoryWith().findAll(),
+                nullHost()
             );
 
             vm.refresh();
@@ -125,15 +89,15 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("the status text is updated to reflect the new order list")
         void statusTextUpdated() {
-            var repo = new StubOrderRepository();
+            var repo = repositoryWith();
             var vm = new OrdersExplorerViewModel(
-                () -> new OrderService(repo).fetchAll(),
-                host()
+                repo::findAll,
+                nullHost()
             );
 
-            repo.save(order("1", RECENT));
-            repo.save(order("2", RECENT));
-            repo.save(order("3", RECENT));
+            repo.save(MockOrders.of("1", RECENT));
+            repo.save(MockOrders.of("2", RECENT));
+            repo.save(MockOrders.of("3", RECENT));
 
             vm.refresh();
 
@@ -144,8 +108,8 @@ class OrdersExplorerViewModelTest {
         @DisplayName("orders are sorted with the most recent date first")
         void ordersSortedByDateDescending() {
             var vm = new OrdersExplorerViewModel(
-                () -> serviceWith(order("older", OLDER), order("recent", RECENT)).fetchAll(),
-                host()
+                () -> repositoryWith(MockOrders.of("older", OLDER), MockOrders.of("recent", RECENT)).findAll(),
+                nullHost()
             );
 
             assertEquals("recent", vm.getOrders().getFirst().id());
@@ -155,14 +119,14 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("the pending count on the context is updated")
         void pendingCountUpdated() {
-            var repo = new StubOrderRepository();
+            var repo = repositoryWith();
             var host = new MockOrdersExplorerHost();
             var vm = new OrdersExplorerViewModel(
-                () -> new OrderService(repo).fetchAll(),
+                repo::findAll,
                 host
             );
 
-            repo.save(order("1", OVERDUE));
+            repo.save(MockOrders.of("1", OVERDUE));
 
             vm.refresh();
 
@@ -178,9 +142,9 @@ class OrdersExplorerViewModelTest {
         @DisplayName("the navigation callback is invoked with the selected order")
         void navigationCallbackInvoked() {
             var host = new MockOrdersExplorerHost();
-            var order = order("1", RECENT);
+            var order = MockOrders.of("1", RECENT);
             var vm = new OrdersExplorerViewModel(
-                () -> serviceWith(order).fetchAll(),
+                () -> repositoryWith(order).findAll(),
                 host
             );
 
@@ -194,8 +158,8 @@ class OrdersExplorerViewModelTest {
         void navigationCallbackNotInvokedForNull() {
             var selected = new AtomicReference<Order>();
             var vm = new OrdersExplorerViewModel(
-                () -> serviceWith().fetchAll(),
-                host()
+                () -> repositoryWith().findAll(),
+                nullHost()
             );
 
             vm.openOrder(null);

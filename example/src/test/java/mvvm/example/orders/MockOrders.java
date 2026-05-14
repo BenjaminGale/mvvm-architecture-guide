@@ -13,6 +13,10 @@ public class MockOrders {
     private static final LocalDate A_DATE = LocalDate.of(2025, 1, 15);
     private static final LineItem A_LINE_ITEM = new LineItem("Widget", 1, BigDecimal.TEN);
 
+    public static Order of(String id, LocalDate date) {
+        return new Order(id, "Acme Ltd", date, "REF-" + id, List.of());
+    }
+
     public static Order validOrderWithLineItems() {
         return new Order("id-1", "Acme Ltd", A_DATE, "REF-001", List.of(A_LINE_ITEM));
     }
