@@ -244,3 +244,212 @@ This preserves clear boundaries between:
 - observable UI coordination,
 - application infrastructure,
 - and presentation composition.
+
+### 4.2 ViewModel construction boundaries
+
+Not all ViewModels are constructed in the same way.
+
+Some ViewModels are local implementation details of another ViewModel and can be constructed directly. Others participate in the wider application shell and require application-level dependencies and presentation decisions. Treating these two cases as equivalent leads to unnecessary coupling and dependency leakage.
+
+The distinction is not simply parent versus child ViewModels. The important distinction is whether construction crosses an application boundary.
+
+This chapter refers to these two categories as:
+
+- local composition ViewModels,
+- and hosted ViewModels.
+
+#### 4.2.1 Local composition ViewModels
+
+A local composition ViewModel represents a subsection of another ViewModel's presentation state. It is an internal implementation detail of the parent ViewModel and exists entirely within the parent's presentation scope.
+
+Typical examples include:
+
+- form sections,
+- editable tables,
+- inspectors,
+- filter panels,
+- and reusable UI fragments.
+
+A local composition ViewModel:
+
+- is constructed directly by its parent,
+- uses state already owned by the parent,
+- introduces no new application dependencies,
+- and is rendered only within the parent view's layout.
+
+```java
+public class OrderEditorViewModel {
+
+    private final OrderHeaderViewModel header;
+    private final LineItemsViewModel lineItems;
+
+    public OrderEditorViewModel(Order order) {
+
+        this.header =
+            new OrderHeaderViewModel(order);
+
+        this.lineItems =
+            new LineItemsViewModel(order.lineItems());
+    }
+
+    public OrderHeaderViewModel getHeader() {
+        return header;
+    }
+
+    public LineItemsViewModel getLineItems() {
+        return lineItems;
+    }
+}
+```
+
+This construction is architecturally safe because:
+
+- the parent already owns the relevant state,
+- no application infrastructure is required,
+- and no presentation decision is implied.
+
+The parent view composes the resulting sub-views directly into its own layout:
+
+The sub-ViewModels do not participate in application navigation and are not independently hosted by the application shell.
+
+#### 4.2.2 Hosted ViewModels
+
+A hosted ViewModel participates in the wider application environment.
+
+Examples include:
+
+- screens,
+- dialogs,
+- workspaces,
+- tabs,
+- overlays,
+- and docked panels.
+
+Hosted ViewModels frequently require:
+
+- service interfaces,
+- host interfaces,
+- shared contexts,
+- application-scoped state,
+- or interaction requests.
+
+Unlike local composition ViewModels, hosted ViewModels are not constructed directly by another ViewModel.
+
+```java
+public class OrdersExplorerViewModel {
+
+    private final OrdersExplorerHost host;
+
+    public void openOrder(Order order) {
+        if (order != null) {
+            host.showOrderDetails(order);
+        }
+    }
+}
+```
+
+The current ViewModel communicates intent through its host, but does not construct the next ViewModel itself.
+
+This keeps the current ViewModel independent from:
+
+- the dependencies required by the hosted ViewModel,
+- the application's presentation infrastructure,
+- and decisions about where or how the interaction appears.
+
+#### 4.2.3 Why hosted ViewModels are not constructed directly
+
+Constructing hosted ViewModels directly causes responsibilities to leak across architectural boundaries.
+
+Consider a ViewModel that directly constructs another hosted ViewModel:
+
+```java
+public void openOrder(Order order) {
+
+    var vm = new OrderDetailsViewModel(
+        orderService,
+        workspaceHost,
+        dialogHost,
+        ...
+    );
+
+    ...
+}
+```
+
+The current ViewModel must now acquire dependencies it does not itself use solely so they can be passed into another constructor.
+
+As applications grow this causes:
+
+- constructor fan-out,
+- infrastructure leakage,
+- tighter coupling between unrelated features,
+- and ViewModels that exist primarily to forward dependencies elsewhere.
+
+It also couples the current ViewModel to presentation decisions it should not own.
+
+The ViewModel does not know whether the interaction should:
+
+- open in a dialog,
+- activate a workspace,
+- reuse an existing tab,
+- or appear inline.
+
+Those are hosting concerns.
+
+Hosted ViewModels should therefore be constructed by the hosting application rather than by other ViewModels directly.
+
+#### 4.2.4 Hosts as the application boundary
+
+Host interfaces form the boundary between the ViewModel layer and the hosting application.
+
+A host exposes application capabilities relevant to a particular ViewModel:
+
+```java
+public interface OrdersExplorerHost {
+    void showOrderDetails(Order order);
+    void showCreateOrder();
+}
+```
+
+The ViewModel communicates intent through the host:
+
+```java
+public void openOrder(Order order) {
+
+    if (order != null) {
+        host.showOrderDetails(order);
+    }
+}
+```
+
+The host implementation — typically wired in the composition root or application shell — performs the actual work:
+
+- constructing hosted ViewModels,
+- resolving dependencies,
+- choosing presentation behaviour,
+- and coordinating the surrounding application.
+
+This keeps ViewModels focused on:
+
+- observable state,
+- user interaction,
+- and presentation-oriented coordination.
+
+Host interfaces should remain capability-oriented rather than infrastructure-oriented.
+
+For example:
+
+```java
+host.showOrderDetails(order);
+host.showCreateOrder();
+```
+
+is preferable to exposing generic infrastructure operations such as:
+
+```java
+router.navigate(...);
+dialogService.show(...);
+workspaceManager.open(...);
+```
+
+The ViewModel should describe application intent, not infrastructure mechanics.
