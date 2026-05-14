@@ -10,16 +10,17 @@ The approach presented here is intentionally strict. The architectural constrain
 
 ## Contents
 
-- [1.1 What is MVVM](#11-what-is-mvvm)
-- [1.2 Why use MVVM](#12-why-use-mvvm)
-- [1.3 Core architectural guidelines](#13-core-architectural-guidelines)
-    - [1.3.1 Keep ViewModels narrowly focused](#131-keep-viewmodels-narrowly-focused)
-    - [1.3.2 Depend only on required behaviour](#132-depend-only-on-required-behaviour)
-    - [1.3.3 Keep navigation independent from presentation](#133-keep-navigation-independent-from-presentation)
-    - [1.3.4 Prefer composition over inheritance](#134-prefer-composition-over-inheritance)
-    - [1.3.5 Keep command logic out of ViewModels](#135-keep-command-logic-out-of-viewmodels)
-    - [1.3.6 Design for practical testability](#136-design-for-practical-testability)
-- [1.4 Design goals](#14-design-goals)
+* [1.1 What is MVVM](#11-what-is-mvvm)
+* [1.2 Why use MVVM](#12-why-use-mvvm)
+* [1.3 Core architectural guidelines](#13-core-architectural-guidelines)
+
+  * [1.3.1 Keep ViewModels narrowly focused](#131-keep-viewmodels-narrowly-focused)
+  * [1.3.2 Depend only on required behaviour](#132-depend-only-on-required-behaviour)
+  * [1.3.3 Keep navigation independent of presentation](#133-keep-navigation-independent-from-presentation)
+  * [1.3.4 Prefer composition over inheritance](#134-prefer-composition-over-inheritance)
+  * [1.3.5 Keep command logic out of ViewModels](#135-keep-command-logic-out-of-viewmodels)
+  * [1.3.6 Design for practical testability](#136-design-for-practical-testability)
+* [1.4 Design goals](#14-design-goals)
 
 ---
 
@@ -104,7 +105,7 @@ The result is a ViewModel that remains a thin presentation abstraction rather th
 
 ---
 
-## 1.3.3 Keep navigation independent from presentation
+## 1.3.3 Keep navigation independent of presentation
 
 ViewModels should express workflow intent rather than presentation mechanics.
 
