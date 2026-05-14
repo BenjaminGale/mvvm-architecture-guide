@@ -1,93 +1,178 @@
 # 1. Introduction
 
-This document describes a practical approach to implementing the Model-View-ViewModel (MVVM) pattern. It covers the core building blocks as well as navigation, view construction, and communication between application areas.
+This document describes a practical approach to implementing the Model-View-ViewModel (MVVM) pattern.
 
-The sample code is written in Java with JavaFX as the chosen view technology however the patterns can be applied to any technology that provides a property binding system suitable for use with the MVVM pattern.
+The examples use Java (with JavaFX as the view technology), however the architectural principles are independent of any particular framework and can be applied to any UI technology that provides a suitable property binding mechanism (e.g. WPF).
+
+The focus of this document is not simply how to structure Views and ViewModels, but how to build applications that remain maintainable as they grow. Particular attention is given to dependency management, navigation, composition, testability, and keeping responsibilities clearly separated between layers.
+
+The approach presented here is intentionally strict. The architectural constraints are designed to prevent common forms of coupling that tend to emerge gradually in large MVVM applications. These constraints are treated as invariants rather than guidelines so the overall structure remains consistent as new screens and workflows are added.
 
 ## Contents
 
 - [1.1 What is MVVM](#11-what-is-mvvm)
 - [1.2 Why use MVVM](#12-why-use-mvvm)
-- [1.3 Common MVVM problems](#13-common-mvvm-problems)
-  - [1.3.1 ViewModels with too many responsibilities](#131-viewmodels-with-too-many-responsibilities)
-  - [1.3.2 Services injected directly into ViewModels](#132-services-injected-directly-into-viewmodels)
-  - [1.3.3 Navigation coupled to presentation](#133-navigation-coupled-to-presentation)
-  - [1.3.4 Inheritance used to share logic](#134-inheritance-used-to-share-logic)
-  - [1.3.5 Fat ViewModels from delegate commands](#135-fat-viewmodels-from-delegate-commands)
-  - [1.3.6 Testability claimed but not demonstrated](#136-testability-claimed-but-not-demonstrated)
+- [1.3 Core architectural guidelines](#13-core-architectural-guidelines)
+    - [1.3.1 Keep ViewModels narrowly focused](#131-keep-viewmodels-narrowly-focused)
+    - [1.3.2 Depend only on required behaviour](#132-depend-only-on-required-behaviour)
+    - [1.3.3 Keep navigation independent from presentation](#133-keep-navigation-independent-from-presentation)
+    - [1.3.4 Prefer composition over inheritance](#134-prefer-composition-over-inheritance)
+    - [1.3.5 Keep command logic out of ViewModels](#135-keep-command-logic-out-of-viewmodels)
+    - [1.3.6 Design for practical testability](#136-design-for-practical-testability)
 - [1.4 Design goals](#14-design-goals)
 
-## 1.1 What is MVVM
+---
 
-The MVVM pattern divides an application into four layers with distinct, non-overlapping responsibilities:
+# 1.1 What is MVVM
 
-- **Model:** Represents the application's core domain concepts. Encapsulates data, business logic, and validation rules. Has no knowledge of the UI or how data is fetched or persisted.
-- **ViewModel:** An abstraction of a View. Exposes state as observable properties for the View to bind to, and provides methods the View calls in response to user input. Has no knowledge of how the View is rendered or where its data originates.
-- **View:** Represents the UI. Binds to the ViewModel's observable properties so the display stays in sync with state, and delegates user interactions back to the ViewModel. Has no knowledge of domain logic or data sources.
+The MVVM pattern divides an application into three layers with distinct, non-overlapping responsibilities.
 
-The three-layer description of MVVM above is common but undersells the role of the service layer. This document treats services as a separate layer throughout.
+## Model
 
-- **Service:** The data access layer. Retrieves and persists Models on behalf of the rest of the application. Has no knowledge of the UI or ViewModel layer.
+Represents the application's core domain concepts.
 
-## 1.2 Why use MVVM
+Models encapsulate data, business rules, validation, and domain behaviour. They have no knowledge of the UI, persistence mechanisms, or presentation concerns.
 
-The primary benefit is a strict, one-way dependency graph: Views depend on ViewModels, ViewModels depend on use cases and services, services depend on nothing above them. This is enforced structurally — a ViewModel that holds no UI framework types cannot reach into the view layer regardless of developer intent.
+This layer also includes services responsible for retrieving, persisting, and coordinating Models. Services encapsulate infrastructure concerns such as repositories, APIs, messaging, and external systems while remaining independent from the View and ViewModel layers.
 
-This separation makes ViewModels directly testable. They contain no UI types and make no assumptions about presentation context, so they can be exercised in plain unit tests without launching a UI runtime.
+## ViewModel
 
-The pattern scales predictably. An application can grow from a handful of screens to several dozen without the architecture changing shape — each screen follows the same structure. Adding a screen does not require modifying existing classes.
+An abstraction of a View.
 
-## 1.3 Common MVVM problems
+The ViewModel exposes observable state for the View to bind to and provides operations the View invokes in response to user interaction. A ViewModel contains no rendering logic and has no knowledge of how the View is constructed or displayed.
 
-MVVM is widely adopted but frequently misapplied. The problems described below are characteristic of naive implementations and become more acute as applications grow. The problems identified here provide context for the design decisions made throughout this document.
+The ViewModel exists to model presentation state and interaction flow, not business logic or infrastructure concerns.
 
-### 1.3.1 ViewModels with too many responsibilities
+## View
 
-In a typical MVVM implementation the ViewModel accumulates responsibilities incrementally. Including but not limited to:
+Represents the user interface.
 
-- Property change notifications.
-- Calculated property updates.
-- Input validation.
-- Service calls.
-- Data loading.
-- Navigation management.
-- ViewModel construction.
+The View binds to observable state exposed by the ViewModel and delegates user interaction back to the ViewModel. The View contains presentation concerns only and has no knowledge of domain logic or data access.
 
-The class begins as a focused abstraction and becomes a god object. Decomposing it into smaller ViewModels is a partial remedy — sub-ViewModels often require the same service dependencies so the injection problem multiplies rather than diminishes.
+---
 
-### 1.3.2 Services injected directly into ViewModels
+# 1.2 Why use MVVM
 
-The standard response to ViewModel bloat is to inject service interfaces which introduces a set of compounding problems:
+The primary benefit of MVVM is the establishment of a strict one-way dependency structure.
 
-- A single large service interface with many methods is an Interface Segregation Principle violation. The ViewModel depends on methods it does not use and testing requires mocking the entire interface even when only one method is exercised.
-- Splitting a service into multiple smaller interfaces increases the number of constructor arguments. A ViewModel with five injected interfaces is difficult to construct in tests and difficult to read in production.
-- Either approach couples the ViewModel to service logic — even via an interface. This makes it difficult to reuse the ViewModel in a different context because the services it calls are baked into its contract.
-- ViewModels should not know where their data comes from. A ViewModel that calls `orderService.save()` is making an assumption about the existence and shape of a save operation. That assumption should not live in presentation-layer code.
+Views depend on ViewModels, ViewModels depend on application logic and services, and services depend on nothing above them. This separation allows each layer to evolve independently while keeping responsibilities explicit.
 
-### 1.3.3 Navigation coupled to presentation
+Most importantly, MVVM provides a mechanism for separating presentation concerns from application behaviour. When enforced consistently, this separation reduces coupling, improves maintainability, and keeps UI code manageable as complexity increases.
 
-A common pattern is to inject a navigation or dialog service into a ViewModel so it can initiate transitions or prompt the user. The naming reveals the flaw: `IDialogService.showDialog()` couples a request for information to a specific presentation mechanism. If that dialog is later replaced by an inline panel, every ViewModel that called `showDialog()` requires modification. Presentation decisions are not the ViewModel's concern.
 
-### 1.3.4 Inheritance used to share logic
+Because ViewModels contain no UI framework types or rendering concerns, they can be tested directly in isolation without launching a UI runtime. State changes and interaction behaviour can be verified using ordinary unit tests.
 
-A common response to repeated ViewModel logic is to push it into a base class. Inheritance is the wrong mechanism because it should be used to model 'is-a' relationships. Using it to share utility logic produces fragile hierarchies where a change to the base class has unpredictable effects on all subclasses and where subclasses are coupled to implementation details they did not choose.
+The pattern also scales predictably. Applications can grow from a small number of screens to large multi-area systems without changing the architectural model. Each screen follows the same structure and new functionality can be introduced without modifying unrelated components.
 
-### 1.3.5 Fat ViewModels from delegate commands
+---
 
-The delegate command pattern (where a ViewModel exposes an `ICommand` implemented as a delegate that calls back into the ViewModel) is a common source of bloat. The command logic lives in the ViewModel, the service dependencies needed to execute the command are injected into the ViewModel, and the ViewModel ends up holding everything. Each new command makes the ViewModel larger and its constructor longer.
+# 1.3 Core architectural guidelines
 
-### 1.3.6 Testability claimed but not demonstrated
+The following guidelines define the architectural constraints used throughout this document.
 
-MVVM is routinely justified on the grounds of testability, yet the injection patterns described above make tests expensive to write and maintain. A ViewModel with several injected interfaces requires substantial mock infrastructure before a single assertion can be made. The resulting tests are brittle. They are coupled to implementation details rather than observable behaviour and fail under refactoring that does not alter the contract. Genuine testability requires that ViewModels be constructable with minimal setup and verifiable by asserting property state directly.
+These constraints exist to prevent forms of coupling that commonly emerge in large MVVM applications over time.
 
-In other cases, tests are omitted entirely from any discussion of the MVVM pattern apart from a passing mention.
+Collectively, they determine whether an application remains maintainable as screens, workflows, and dependencies increase.
 
-## 1.4 Design goals
+## 1.3.1 Keep ViewModels narrowly focused
 
-These are invariants, not guidelines. Violating any one introduces a special case that erodes the architecture over time.
+A ViewModel should act only as an abstraction of a View.
 
-- Every View is constructed with exactly one ViewModel.
+Its responsibility is to expose observable state and respond to user interaction. It should not become responsible for navigation, dependency construction, persistence coordination, workflow orchestration, or unrelated application logic.
+
+As applications grow, ViewModels naturally accumulate responsibilities unless explicit boundaries are maintained. This often begins incrementally through additional commands, validation rules, or service interactions until the ViewModel effectively becomes a general-purpose coordinator.
+
+Keeping ViewModels narrowly focused preserves clear responsibility boundaries and allows screens to evolve independently. Smaller ViewModels are easier to reason about, easier to test, and less likely to become coupled to unrelated application concerns.
+
+A ViewModel should remain primarily concerned with presentation state and interaction flow.
+
+---
+
+## 1.3.2 Depend only on required behaviour
+
+ViewModels should depend only on the behaviour they directly use.
+
+Injecting broad service interfaces into ViewModels creates unnecessary coupling between the presentation layer and application logic. Large interfaces force ViewModels to depend on operations they do not use, while splitting those interfaces into many smaller services often produces constructors with excessive dependencies.
+
+A ViewModel should not coordinate persistence directly or make assumptions about operations such as save, delete, reload, or synchronization. Those concerns belong to application-level use cases or services.
+
+Instead, ViewModels should receive narrowly scoped collaborators representing the specific behaviour required by the screen. Dependencies should remain explicit and minimal.
+
+This approach reduces construction complexity, improves reuse across different contexts, and prevents ViewModels from becoming orchestration layers.
+
+The result is a ViewModel that remains a thin presentation abstraction rather than a container for application infrastructure.
+
+---
+
+## 1.3.3 Keep navigation independent from presentation
+
+ViewModels should express workflow intent rather than presentation mechanics.
+
+A ViewModel may need to request confirmation, collect additional information, or initiate a transition to another application area. However, it should not assume how those interactions are presented to the user.
+
+Interfaces that provide methods such as `showDialog()`, `openWindow()`, or `navigateToScreen()` tightly couple application flow to a specific UI implementation. Replacing a dialog with an inline panel, embedded workflow, or different navigation structure should not require changes to ViewModels.
+
+Presentation decisions belong to the composition and view layers where screens, layouts, and transitions are assembled.
+
+Separating workflow intent from presentation structure allows the UI to evolve independently from application behaviour and prevents presentation concerns from leaking upward into ViewModels.
+
+---
+
+## 1.3.4 Prefer composition over inheritance
+
+Shared ViewModel behaviour should generally be extracted into collaborating components rather than base classes.
+
+Inheritance introduces implicit coupling between ViewModels that may otherwise be unrelated. Over time, base classes accumulate utility behaviour, lifecycle assumptions, and hidden dependencies that subclasses inherit regardless of whether they require them.
+
+This makes behaviour harder to reason about and increases the risk that changes to shared infrastructure produce unintended side effects throughout the application.
+
+Composition keeps dependencies explicit. Behaviour can be introduced where required without forcing unrelated ViewModels into the same hierarchy.
+
+Using composition also improves testability because collaborating components can be tested independently and substituted without affecting unrelated classes.
+
+Inheritance should model genuine "is-a" relationships rather than act as a mechanism for code reuse.
+
+---
+
+## 1.3.5 Keep command logic out of ViewModels
+
+Commands should translate user interaction into application behaviour, not act as containers for business logic.
+
+When command handlers are implemented directly inside a ViewModel, the dependencies required by those handlers accumulate in the ViewModel constructor. Over time the ViewModel becomes responsible for coordination, validation, persistence, and workflow management in addition to state exposure.
+
+This causes command-heavy screens to grow disproportionately and makes ViewModels increasingly difficult to construct, test, and maintain.
+
+Command behaviour should instead delegate meaningful work to dedicated application services. The ViewModel remains responsible for interaction state while the application layer performs the underlying operation.
+
+This keeps command implementations small, prevents dependency accumulation, and preserves the ViewModel's role as a presentation abstraction.
+
+---
+
+## 1.3.6 Design for practical testability
+
+Testability should be an observable property of the architecture rather than an abstract claim.
+
+A ViewModel should be constructable with minimal setup and verifiable through observable state changes. Tests should focus on externally visible behaviour rather than implementation details or internal method calls.
+
+Heavy dependency injection, broad service interfaces, and tightly coupled infrastructure increase the amount of mocking required before meaningful assertions can be made. This produces brittle tests that are difficult to read and expensive to maintain.
+
+Well-structured ViewModels require only the dependencies directly relevant to the behaviour under test. This keeps tests small, focused, and resilient to refactoring.
+
+The goal is not merely that tests are possible, but that writing and maintaining them remains practical as the application grows.
+
+---
+
+# 1.4 Design goals
+
+The following constraints are treated as architectural invariants throughout this document.
+
+Violating any one introduces special cases that weaken the consistency of the application structure over time.
+
+- Every View is bound to exactly one ViewModel.
 - ViewModels have no knowledge of Views or how they are constructed.
 - Each ViewModel holds only the dependencies it directly uses.
-- Nothing creates its own dependencies — everything is injected through the constructor.
-- All construction and wiring lives in a single composition root, which is the complete map of every screen and transition.
+- Nothing creates its own dependencies — all construction is performed externally.
+- All object construction and wiring exists in a single composition root.
+- The composition root is the complete map of screens, workflows, and transitions within the application.
+- Presentation concerns remain isolated from domain and application logic.
+- Application workflows are expressed independently from UI implementation details.
