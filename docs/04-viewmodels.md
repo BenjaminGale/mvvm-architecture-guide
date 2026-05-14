@@ -694,3 +694,186 @@ A useful rule is:
 
 * if the ViewModel exists only within the parent's layout, local composition is appropriate,
 * if the ViewModel participates in application hosting or navigation, construction belongs to the hosting application.
+
+---
+
+### 4.4 Shared observable state
+
+Not all ViewModel communication requires direct interaction.
+
+In many cases one ViewModel simply exposes observable state while another consumes it. A sidebar may display a pending order count derived from the currently active workspace. A toolbar may enable or disable actions based on the active editor. A status bar may reflect the current connection state.
+
+These relationships are fundamentally reactive rather than imperative:
+
+- one ViewModel publishes observable state,
+- another observes or binds to it.
+
+Several mechanisms can be used depending on the ownership and lifetime of the shared state.
+
+#### 4.4.1 Composition-time property binding
+
+The simplest form of shared state is direct property binding performed during composition.
+
+A ViewModel exposes observable state normally:
+
+```java
+public class OrdersExplorerViewModel {
+
+    private final IntegerProperty pendingOrderCount =
+        new SimpleIntegerProperty();
+
+    public ReadOnlyIntegerProperty pendingOrderCountProperty() {
+        return pendingOrderCount;
+    }
+
+    public void refresh() {
+
+        var result = service.fetchAllOrders();
+
+        pendingOrderCount.set(
+            (int) result.stream()
+                .filter(Order::isOverdue)
+                .count()
+        );
+    }
+}
+```
+
+Another ViewModel exposes a compatible property:
+
+```java
+public class SidebarViewModel {
+
+    private final IntegerProperty pendingOrderCount =
+        new SimpleIntegerProperty();
+
+    public IntegerProperty pendingOrderCountProperty() {
+        return pendingOrderCount;
+    }
+}
+```
+
+The relationship between them is then established in the composition root:
+
+```java
+sidebarVm.pendingOrderCountProperty()
+    .bind(explorerVm.pendingOrderCountProperty());
+```
+
+Neither ViewModel knows the other exists.
+
+This is often the cleanest approach when:
+
+- ownership of the state is clear,
+- the relationship is localised,
+- and the lifetime of the state belongs naturally to one ViewModel.
+
+The resulting communication is:
+
+- declarative,
+- reactive,
+- and infrastructure-free.
+
+#### 4.4.2 Context objects
+
+Sometimes shared state does not belong naturally to a single ViewModel.
+
+For example:
+
+- multiple workspaces may need access to the same selection,
+- application-wide notifications may need to be observed globally,
+- several unrelated ViewModels may need coordinated state,
+- or the state may outlive any single ViewModel.
+
+In these situations a dedicated context object can act as a shared observable state container.
+
+```java
+public class WorkspaceContext {
+
+    private final ObjectProperty<WorkspaceViewModel> activeWorkspace =
+        new SimpleObjectProperty<>();
+
+    public ObjectProperty<WorkspaceViewModel> activeWorkspaceProperty() {
+        return activeWorkspace;
+    }
+}
+```
+
+The context itself contains observable state but generally little or no behaviour. It exists to provide:
+
+- shared ownership,
+- stable lifetime,
+- and a central observable coordination point.
+
+ViewModels are bound to a context object in the composition root.
+
+Unlike direct ViewModel references:
+
+- relationships remain indirect,
+- and ViewModels remain decoupled.
+
+#### 4.4.3 Local and application contexts
+
+Contexts can exist at different scopes.
+
+A local context coordinates state shared between related ViewModels within a feature area:
+
+```java
+// This context will only be shared between viewModels that describe
+// the orders section of the application.
+OrderEditorContext
+```
+
+An application context represents longer-lived application concepts:
+
+```java
+// These contexts may be used by any viewModel in the application.
+WorkspaceContext
+MessageBoxContext
+UserSessionContext
+```
+
+Application contexts often correspond to concepts managed by the application shell itself:
+
+- active workspaces,
+- notifications,
+- authentication state,
+- theme state,
+- or global selection.
+
+Contexts should remain focused around a coherent area of shared state.
+
+A single global state container such as:
+
+```java
+ApplicationState
+```
+
+typically becomes a god object over time and should generally be avoided.
+
+#### 4.4.4 Contexts versus ViewModels
+
+Contexts and ViewModels are closely related concepts because both expose observable state.
+
+The distinction is primarily about responsibility and ownership.
+
+A ViewModel:
+
+- coordinates UI behaviour,
+- derives presentation state,
+- and represents a specific screen or UI area.
+
+A context:
+
+- represents shared observable state,
+- has no presentation responsibility,
+- and exists independently from any particular view.
+
+In practice the distinction is sometimes subtle. Small contexts can resemble miniature ViewModels, particularly when they expose a handful of observable properties and minimal behaviour.
+
+For this reason contexts are best understood as shared reactive state objects rather than as a completely separate architectural layer.
+
+A useful guideline is:
+
+- if the object primarily coordinates UI behaviour, it is likely a ViewModel,
+- if the object primarily exists to share observable state, it is likely a context.
