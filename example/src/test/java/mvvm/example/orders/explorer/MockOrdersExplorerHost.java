@@ -2,7 +2,7 @@ package mvvm.example.orders.explorer;
 
 import mvvm.example.orders.domain.Order;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MockOrdersExplorerHost implements OrdersExplorerHost {
 
@@ -18,6 +18,10 @@ public class MockOrdersExplorerHost implements OrdersExplorerHost {
 
     public void assertOrderWasShown(Order order) {
         assertEquals(order, shownOrder);
+    }
+
+    public void assertNoOrderWasShown() {
+        assertNull(shownOrder);
     }
 
     public void assertPendingOrderCount(int count) {
