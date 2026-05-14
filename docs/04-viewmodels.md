@@ -14,6 +14,8 @@ A ViewModel does not own presentation concerns. It does not construct views, dec
 
 Together these objects form the reactive coordination boundary between the view layer and the rest of the application.
 
+---
+
 ## Contents
 
 - [4.1 Responsibilities of a ViewModel](#41-responsibilities-of-a-viewmodel)
@@ -42,6 +44,8 @@ Together these objects form the reactive coordination boundary between the view 
   - [4.6.2 Action](#462-action)
   - [4.6.3 AsyncAction](#463-asyncaction)
   - [4.6.4 Binding Actions in views](#464-binding-actions-in-views)
+
+---
 
 ### 4.1 Responsibilities of a ViewModel
 
@@ -453,3 +457,240 @@ workspaceManager.open(...);
 ```
 
 The ViewModel should describe application intent, not infrastructure mechanics.
+
+---
+
+### 4.3 Decomposing ViewModels
+
+As screens grow in complexity, ViewModels accumulate:
+
+- validation rules,
+- editable state,
+- selection state,
+- derived properties,
+- table coordination,
+- filtering,
+- and interaction logic.
+
+Keeping all of this inside a single ViewModel quickly produces large coordination objects that are difficult to understand and modify.
+
+ViewModel decomposition addresses this by separating distinct areas of presentation behaviour into smaller ViewModels that are composed together.
+
+The goal is not arbitrary fragmentation. A ViewModel should generally represent a coherent area of UI behaviour. Decomposition becomes valuable when a screen contains distinct subsections with their own state, rules or interactions.
+
+#### 4.3.1 Sub-ViewModels
+
+A sub-ViewModel encapsulates the state and behaviour of a distinct subsection of a larger screen.
+
+Typical candidates include:
+
+- form sections,
+- editable tables,
+- side panels,
+- inspectors,
+- search/filter controls,
+- and reusable composite controls.
+
+Each sub-ViewModel owns:
+
+- its own observable state,
+- its own validation rules,
+- and its own derived properties.
+
+For example, the header section of an order editor may manage customer information independently from the line items section:
+
+```java
+public class OrderHeaderViewModel {
+
+    private final StringProperty customerName =
+        new SimpleStringProperty();
+
+    private final ObjectProperty<LocalDate> orderDate =
+        new SimpleObjectProperty<>();
+
+    private final StringProperty reference =
+        new SimpleStringProperty();
+
+    private final BooleanProperty valid =
+        new SimpleBooleanProperty(false);
+
+    public OrderHeaderViewModel(Order order) {
+        customerName.set(order.customerName());
+        orderDate.set(order.date());
+        reference.set(order.reference());
+
+        customerName.addListener(obs -> validate());
+        orderDate.addListener(obs -> validate());
+        reference.addListener(obs -> validate());
+
+        validate();
+    }
+
+    private void validate() {
+        valid.set(
+            customerName.get() != null &&
+            !customerName.get().isBlank() &&
+
+            orderDate.get() != null &&
+
+            reference.get() != null &&
+            !reference.get().isBlank()
+        );
+    }
+
+    public ReadOnlyBooleanProperty validProperty() {
+        return valid;
+    }
+
+    public OrderHeader buildHeader() {
+        return new OrderHeader(
+            customerName.get(),
+            orderDate.get(),
+            reference.get()
+        );
+    }
+}
+```
+
+A separate ViewModel owns the editable line items section:
+
+```java id="9tt5u4"
+public class LineItemsViewModel {
+
+    private final ObservableList<LineItemRow> rows =
+        FXCollections.observableArrayList();
+
+    private final BooleanProperty valid =
+        new SimpleBooleanProperty(false);
+
+    public LineItemsViewModel(List<LineItem> items) {
+
+        rows.setAll(
+            items.stream()
+                .map(LineItemRow::new)
+                .toList()
+        );
+
+        rows.addListener(
+            (ListChangeListener<LineItemRow>) c -> validate()
+        );
+
+        validate();
+    }
+
+    private void validate() {
+
+        valid.set(
+            !rows.isEmpty() &&
+            rows.stream().noneMatch(row ->
+                row.descriptionProperty().get().isBlank()
+            )
+        );
+    }
+
+    public ReadOnlyBooleanProperty validProperty() {
+        return valid;
+    }
+
+    public List<LineItem> buildLineItems() {
+
+        return rows.stream()
+            .map(LineItemRow::toLineItem)
+            .toList();
+    }
+}
+```
+
+The parent ViewModel coordinates these sections rather than owning all behaviour directly.
+
+#### 4.3.2 Composing validity and derived state
+
+A parent ViewModel should compose state from its sub-ViewModels rather than duplicating their rules.
+
+Each sub-ViewModel owns the definition of what makes its subsection valid. The parent combines these observable states into higher-level derived state:
+
+```java
+public class OrderEditorViewModel {
+
+    private final OrderHeaderViewModel header;
+    private final LineItemsViewModel lineItems;
+
+    private final BooleanProperty canSave =
+        new SimpleBooleanProperty(false);
+
+    public OrderEditorViewModel(Order order) {
+
+        this.header =
+            new OrderHeaderViewModel(order);
+
+        this.lineItems =
+            new LineItemsViewModel(order.lineItems());
+
+        canSave.bind(
+            header.validProperty()
+                .and(lineItems.validProperty())
+        );
+    }
+
+    public ReadOnlyBooleanProperty canSaveProperty() {
+        return canSave;
+    }
+}
+```
+
+The parent does not know:
+
+- how the header validates itself,
+- how line item validity is determined,
+- or what rules each section applies internally.
+
+It only coordinates the resulting observable state.
+
+This separation is important because it prevents:
+
+- duplicated validation logic,
+- large monolithic ViewModels,
+- and hidden coupling between unrelated subsections.
+
+The resulting structure is highly compositional:
+
+- child ViewModels own local rules,
+- the parent composes larger behaviour from them.
+
+#### 4.3.3 Local decomposition versus navigation
+
+Sub-ViewModels are local composition objects, not navigated application features.
+
+This distinction is important because the construction rules are different.
+
+A sub-ViewModel:
+
+- exists entirely within the parent's presentation scope,
+- uses state already owned by the parent,
+- and introduces no new application dependencies.
+
+For this reason it is safe for the parent ViewModel to construct sub-ViewModels directly:
+
+```java
+this.header =
+    new OrderHeaderViewModel(order);
+```
+
+Hosted ViewModels are different.
+
+A hosted ViewModel may require:
+
+- services,
+- hosts,
+- application contexts,
+- requests,
+- or application-level presentation coordination.
+
+Those ViewModels are constructed by the hosting application rather than by another ViewModel directly.
+
+This distinction helps avoid a common MVVM failure mode where ViewModels become tightly coupled because they construct one another recursively and accumulate dependencies solely to forward them onwards.
+
+A useful rule is:
+
+* if the ViewModel exists only within the parent's layout, local composition is appropriate,
+* if the ViewModel participates in application hosting or navigation, construction belongs to the hosting application.
