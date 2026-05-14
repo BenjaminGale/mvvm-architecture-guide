@@ -877,3 +877,205 @@ A useful guideline is:
 
 - if the object primarily coordinates UI behaviour, it is likely a ViewModel,
 - if the object primarily exists to share observable state, it is likely a context.
+
+---
+
+### 4.5 Request objects
+
+Some hosted interactions require more than a simple notification that something should happen.
+
+For example:
+
+- a dialog may need initial state,
+- a picker may need configuration,
+- a hosted interaction may need to return a result,
+- or multiple incremental updates may need to flow between ViewModels.
+
+In these situations a request object acts as an interaction contract between the initiating ViewModel and the hosted interaction.
+
+A request is:
+
+- short-lived,
+- interaction-scoped,
+- and typically created immediately before the interaction is hosted.
+
+Unlike contexts, requests do not represent long-lived shared application state. They exist only for the duration of a specific interaction.
+
+#### 4.5.1 Request objects as interaction contracts
+
+A request object packages together:
+
+- the input required by the hosted interaction,
+- and the communication channel used to return information.
+
+For example, editing a line item in a dialog may require:
+
+- the original item,
+- and a mechanism to return the edited result.
+
+```java
+public class EditLineItemRequest {
+
+    private final LineItem item;
+    private final Listener listener;
+
+    public EditLineItemRequest(
+        LineItem item,
+        Listener listener
+    ) {
+        this.item = item;
+        this.listener = listener;
+    }
+
+    public LineItem getItem() {
+        return item;
+    }
+
+    public void confirm(LineItem updated) {
+        listener.confirmed(updated);
+    }
+
+    public interface Listener {
+        void confirmed(LineItem updated);
+    }
+}
+```
+
+The initiating ViewModel creates the request inline:
+
+```java
+public class OrderEditorViewModel {
+
+    private final OrderEditorHost host;
+
+    public void editLineItem(LineItem item) {
+
+        host.showEditLineItemDialog(
+            new EditLineItemRequest(
+                item,
+                this::applyEdit
+            )
+        );
+    }
+
+    private void applyEdit(LineItem updated) {
+        ...
+    }
+}
+```
+
+The initiating ViewModel does not know:
+
+- how the dialog is presented,
+- which ViewModel is constructed,
+- or how the hosting application manages the interaction.
+
+It only defines the interaction contract.
+
+#### 4.5.2 Returning results from hosted interactions
+
+The hosted ViewModel receives the request and communicates back through it.
+
+```java
+public class EditLineItemViewModel {
+
+    private final EditLineItemRequest request;
+
+    private final StringProperty description =
+        new SimpleStringProperty();
+
+    private final IntegerProperty quantity =
+        new SimpleIntegerProperty();
+
+    public EditLineItemViewModel(
+        EditLineItemRequest request
+    ) {
+
+        this.request = request;
+
+        description.set(request.getItem().description());
+        quantity.set(request.getItem().quantity());
+    }
+
+    public void confirm() {
+        request.confirm(
+            new LineItem(
+                description.get(),
+                quantity.get(),
+                request.getItem().unitPrice()
+            )
+        );
+    }
+}
+```
+
+The hosted ViewModel has no knowledge of:
+
+- who initiated the interaction,
+- what happens after confirmation,
+- or how the result is consumed.
+
+This keeps the interaction loosely coupled while still supporting bidirectional communication.
+
+#### 4.5.3 Observable request state
+
+Some interactions require ongoing communication rather than a single completion callback.
+
+For example:
+
+- live previews,
+- incremental validation,
+- progress reporting,
+- or selection synchronisation.
+
+In these cases a request may expose observable state directly:
+
+```java
+public class ColourPickerRequest {
+
+    private final ObjectProperty<Color> selectedColour =
+        new SimpleObjectProperty<>();
+
+    public ObjectProperty<Color> selectedColourProperty() {
+        return selectedColour;
+    }
+}
+```
+
+The initiating ViewModel can observe changes reactively:
+
+```java
+request.selectedColourProperty()
+    .addListener((obs, oldColour, newColour) -> {
+        previewColour.set(newColour);
+    });
+```
+
+The hosted interaction updates the request state directly:
+
+```java
+request.selectedColourProperty().set(currentSelection);
+```
+
+This allows requests to support richer reactive interaction patterns while remaining scoped to a single hosted interaction.
+
+#### 4.5.4 Requests versus contexts
+
+Requests and contexts both facilitate communication between ViewModels, but they solve different problems.
+
+A context:
+
+- represents long-lived shared observable state,
+- typically exists independently of any single interaction,
+- and may be shared by many ViewModels simultaneously.
+
+A request:
+
+- represents a single interaction contract,
+- is created at the point of invocation,
+- and is typically discarded when the interaction completes.
+
+A useful distinction is:
+
+- contexts model shared application state,
+- requests model temporary interaction state.
