@@ -20,6 +20,8 @@ public class OrderEditorViewModel {
     private final Order order;
     private final OrderHeaderViewModel header;
     private final LineItemsViewModel lineItems;
+
+    private final OrderEditorService service;
     private final OrderEditorHost host;
 
     public OrderEditorViewModel(
@@ -28,25 +30,31 @@ public class OrderEditorViewModel {
         OrderEditorHost host
     ) {
         this.order = order;
+        this.service = service;
         this.host = host;
         this.header = new OrderHeaderViewModel(order);
         this.lineItems = new LineItemsViewModel(order.lineItems(), this::editRow);
 
-        this.save = new AsyncAction(() ->
-           CompletableFuture.supplyAsync(() -> {
-                service.saveOrder(buildUpdatedOrder());
-                return host::returnToList;
-           }), Bindings.and(header.validProperty(), lineItems.validProperty()));
+        this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));
+        this.delete = new Action(this::onDelete);
+        this.copy = new Action(this::onCopy);
+    }
 
-        this.delete = new Action(() -> {
-            service.deleteOrder(order.id());
-            host.returnToList();
+    private CompletableFuture<Runnable> onSave() {
+        return CompletableFuture.supplyAsync(() -> {
+            service.saveOrder(buildUpdatedOrder());
+            return host::returnToList;
         });
+    }
 
-        this.copy = new Action(() -> {
-            var copied = service.copyOrder(order.id());
-            host.openOrder(copied);
-        });
+    private void onDelete() {
+        service.deleteOrder(order.id());
+        host.returnToList();
+    }
+
+    private void onCopy() {
+        var copied = service.copyOrder(order.id());
+        host.openOrder(copied);
     }
 
     private void editRow(LineItemRowViewModel row) {
