@@ -176,11 +176,3 @@ public class OrderService {
     }
 }
 ```
-
-ViewModel-facing service interfaces
-
-ViewModels do not depend directly on individual services. Instead, they depend on cohesive service interfaces that expose UI-relevant operations in an aggregated form.
-
-These interfaces may coordinate multiple services internally and are designed to reduce dependency fan-out at the ViewModel layer. This aggregation layer is intentionally lightweight and is not treated as a separate architectural tier.
-
-As a result, ViewModels consume a small number of focused interfaces representing application capabilities rather than individual domain services.
