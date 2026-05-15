@@ -14,5 +14,4 @@ A guide to implementing the Model-View-ViewModel (MVVM) architectural pattern. I
 - [6. Bootstrapping](docs/06-bootstrapping.md)
 - [7. Code organisation](docs/07-code-organisation.md)
 - [8. Testing](docs/08-testing.md)
-- [9. Architecture review](docs/09-architecture-review.md)
-- [10. Glossary](docs/10-glossary.md)
+- [9. Glossary](docs/09-glossary.md)
