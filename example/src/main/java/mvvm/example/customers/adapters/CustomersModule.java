@@ -22,17 +22,17 @@ public class CustomersModule {
         appContext.viewLocator().register(CustomerDetailViewModel.class, CustomerDetailView::new);
     }
 
-    public CustomersExplorerViewModel customers() {
+    public CustomersExplorerViewModel customersExplorerViewModel() {
         return new CustomersExplorerViewModel(
             customerService,
-            customer -> workspaces.show(customerDetail(customer))
+            customer -> workspaces.show(customerDetailViewModel(customer))
         );
     }
 
-    private CustomerDetailViewModel customerDetail(Customer customer) {
+    private CustomerDetailViewModel customerDetailViewModel(Customer customer) {
         return new CustomerDetailViewModel(
             customer,
-            () -> workspaces.show(customers())
+            () -> workspaces.show(customersExplorerViewModel())
         );
     }
 }

@@ -8,7 +8,7 @@ public class SettingsModule {
         appContext.viewLocator().register(SettingsViewModel.class, SettingsView::new);
     }
 
-    public SettingsViewModel settings(Runnable onBack) {
+    public SettingsViewModel settingsViewModel(Runnable onBack) {
         return new SettingsViewModel(onBack);
     }
 }

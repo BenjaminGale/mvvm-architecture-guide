@@ -43,17 +43,17 @@ public class OrdersModule {
         return orderContext;
     }
 
-    public OrdersExplorerViewModel orders() {
+    public OrdersExplorerViewModel ordersExplorerViewModel() {
         return new OrdersExplorerViewModel(
             orderRepository::findAll,
             new OrdersExplorerHost() {
-                @Override public void showOrderDetails(Order order) { workspaces.show(orderEditor(order)); }
+                @Override public void showOrderDetails(Order order) { workspaces.show(orderEditorViewModel(order)); }
                 @Override public void setPendingOrderCount(int count) { orderContext.setCount(count); }
             }
         );
     }
 
-    private OrderEditorViewModel orderEditor(Order order) {
+    private OrderEditorViewModel orderEditorViewModel(Order order) {
         return new OrderEditorViewModel(
             order,
             new OrderEditorService() {
@@ -62,13 +62,13 @@ public class OrdersModule {
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
-                @Override public void returnToList() { workspaces.show(orders()); }
-                @Override public void openOrder(Order copied) { workspaces.show(orderEditor(copied)); }
-                @Override public void showItemEditor(EditItemRequest request) { appContext.dialogManager().show(editItem(request)); }
+                @Override public void returnToList() { workspaces.show(ordersExplorerViewModel()); }
+                @Override public void openOrder(Order copied) { workspaces.show(orderEditorViewModel(copied)); }
+                @Override public void showItemEditor(EditItemRequest request) { appContext.dialogManager().show(editItemViewModel(request)); }
             });
     }
 
-    private EditItemViewModel editItem(EditItemRequest request) {
+    private EditItemViewModel editItemViewModel(EditItemRequest request) {
         return new EditItemViewModel(request);
     }
 }
