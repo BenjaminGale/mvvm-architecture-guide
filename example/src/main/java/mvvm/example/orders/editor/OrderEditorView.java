@@ -1,6 +1,5 @@
 package mvvm.example.orders.editor;
 
-import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
@@ -9,6 +8,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import mvvm.example.core.view.Buttons;
 import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.lineitems.LineItemsView;
 
@@ -37,13 +37,8 @@ public class OrderEditorView extends BorderPane {
         setTop(toolbar);
         setCenter(center);
 
-        saveBtn.disableProperty().bind(viewModel.save.canExecuteProperty().not());
-        saveBtn.setOnAction(e -> viewModel.save.executeAsync(Platform::runLater));
-
-        copyBtn.disableProperty().bind(viewModel.copy.canExecuteProperty().not());
-        copyBtn.setOnAction(e -> viewModel.copy.execute());
-
-        deleteBtn.disableProperty().bind(viewModel.delete.canExecuteProperty().not());
-        deleteBtn.setOnAction(e -> viewModel.delete.execute());
+        Buttons.bind(saveBtn, viewModel.save);
+        Buttons.bind(copyBtn, viewModel.copy);
+        Buttons.bind(deleteBtn, viewModel.delete);
     }
 }
