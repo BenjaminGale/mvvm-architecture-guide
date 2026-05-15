@@ -1,10 +1,12 @@
 package mvvm.example.customers.explorer;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
+import mvvm.example.core.view.controls.Controls;
 import mvvm.example.core.view.controls.TableViews;
 import mvvm.example.customers.domain.Customer;
 
@@ -22,6 +24,8 @@ public class CustomersExplorerView extends BorderPane {
         setCenter(table);
 
         TableViews.onActivate(table, viewModel::openCustomer);
+
+        Controls.focusOnShow(table);
     }
 
     private TableColumn<Customer, String> nameColumn() {

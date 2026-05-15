@@ -9,6 +9,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import mvvm.example.core.view.controls.Controls;
 
 public class OrderHeaderView extends BorderPane {
 
@@ -45,5 +46,7 @@ public class OrderHeaderView extends BorderPane {
         customerNameField.textProperty().bindBidirectional(viewModel.customerNameProperty());
         orderDatePicker.valueProperty().bindBidirectional(viewModel.orderDateProperty());
         referenceField.textProperty().bindBidirectional(viewModel.referenceProperty());
+
+        Controls.focusOnShow(customerNameField);
     }
 }

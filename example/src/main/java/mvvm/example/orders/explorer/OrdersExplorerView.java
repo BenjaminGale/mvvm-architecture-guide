@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import mvvm.example.core.view.controls.Controls;
 import mvvm.example.core.view.controls.CurrencyTableCell;
 import mvvm.example.core.view.controls.TableViews;
 import mvvm.example.orders.domain.Order;
@@ -40,6 +41,8 @@ public class OrdersExplorerView extends BorderPane {
         refreshButton.setOnAction(e -> viewModel.refresh());
 
         TableViews.onActivate(table, viewModel::openOrder);
+
+        Controls.focusOnShow(table);
     }
 
     private TableColumn<Order, String> referenceColumn() {
