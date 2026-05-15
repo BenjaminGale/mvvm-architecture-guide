@@ -1,12 +1,14 @@
 package mvvm.example.shell.sidebar;
 
-import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import mvvm.example.core.view.controls.Labels;
 
 public class SidebarView extends VBox {
 
@@ -16,20 +18,17 @@ public class SidebarView extends VBox {
         setPrefWidth(180);
         setStyle("-fx-border-color: -fx-box-border; -fx-border-width: 0 1 0 0;");
 
-        var pendingBadge = new Label();
-        pendingBadge.textProperty().bind(
-            Bindings.format("(%s)", viewModel.pendingOrderCountProperty().asString())
-        );
+        var pendingBadge = Labels.badge(viewModel.pendingOrderCountProperty());
 
-        pendingBadge.visibleProperty().bind(
-            Bindings.greaterThan(viewModel.pendingOrderCountProperty(), 0)
-        );
+        var spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        var ordersContent = new HBox(new Label("Orders"), spacer, pendingBadge);
+        ordersContent.setAlignment(Pos.CENTER_LEFT);
 
-        var ordersBtn = new Button("Orders");
+        var ordersBtn = new Button();
+        ordersBtn.setGraphic(ordersContent);
         ordersBtn.setMaxWidth(Double.MAX_VALUE);
         ordersBtn.setAlignment(Pos.CENTER_LEFT);
-        ordersBtn.setGraphic(pendingBadge);
-        ordersBtn.setContentDisplay(ContentDisplay.RIGHT);
 
         var customersBtn = new Button("Customers");
         customersBtn.setMaxWidth(Double.MAX_VALUE);
