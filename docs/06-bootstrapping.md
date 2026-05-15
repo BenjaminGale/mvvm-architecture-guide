@@ -33,9 +33,8 @@ public class App extends Application {
         var shell = new ShellModule(stage);
         var orders = new OrdersModule(shell.appContext(), shell.workspaceContext());
         var customers = new CustomersModule(shell.appContext(), shell.workspaceContext());
-        var settings = new SettingsModule(shell.appContext());
 
-        var navigation = shell.navigation(orders, customers, settings);
+        var navigation = shell.navigation(orders, customers);
 
         shell.workspaceContext().show(orders.ordersExplorerViewModel());
 
@@ -78,25 +77,16 @@ public class ShellModule {
 `ShellModule.navigation` wires the sidebar callbacks. Each callback calls `workspaceContext.show` with a freshly constructed ViewModel, so navigating to the same screen twice yields independent instances:
 
 ```java
-public Navigation navigation(
-    OrdersModule orders,
-    CustomersModule customers,
-    SettingsModule settings
-) {
-    Runnable navigateToOrders =
-        () -> workspaceContext.show(orders.ordersExplorerViewModel());
-
+public Navigation navigation(OrdersModule orders, CustomersModule customers) {
     return new Navigation(
-        navigateToOrders,
+        () -> workspaceContext.show(orders.ordersExplorerViewModel()),
         () -> workspaceContext.show(customers.customersExplorerViewModel()),
-        () -> workspaceContext.show(settings.settingsViewModel(navigateToOrders))
     );
 }
 
 public record Navigation(
     Runnable navigateToOrders,
-    Runnable navigateToCustomers,
-    Runnable navigateToSettings
+    Runnable navigateToCustomers
 ) {}
 ```
 
@@ -108,8 +98,7 @@ public Parent mainView(OrderContext orderContext, Navigation navigation) {
         new SidebarViewModel(
             orderContext,
             navigation.navigateToOrders,
-            navigation.navigateToCustomers,
-            navigation.navigateToSettings
+            navigation.navigateToCustomers
         ),
         workspaceContext
     ));
@@ -152,7 +141,6 @@ The sample application is split into four modules:
 - **`ShellModule`** — navigation infrastructure (`AppContext`, `WorkspaceContext`), the main window layout, and the sidebar. This is created first and passes its shared objects to the domain modules.
 - **`OrdersModule`** — order explorer, order editor, and the line item edit dialog. Owns `OrderRepository`, `CopyOrderService`, and `OrderContext`.
 - **`CustomersModule`** — customer explorer and customer detail. Owns `CustomerService`.
-- **`SettingsModule`** — settings screen only. No domain services; accepts a back-navigation callback from `ShellModule` at the point of use.
 
 ### 6.4 Wiring it together
 
@@ -163,9 +151,8 @@ private Parent bootstrap(Stage stage) {
     var shell = new ShellModule(stage);
     var orders = new OrdersModule(shell.appContext(), shell.workspaceContext());
     var customers = new CustomersModule(shell.appContext(), shell.workspaceContext());
-    var settings = new SettingsModule(shell.appContext());
 
-    var navigation = shell.navigation(orders, customers, settings);
+    var navigation = shell.navigation(orders, customers);
 
     shell.workspaceContext().show(orders.ordersExplorerViewModel());
 

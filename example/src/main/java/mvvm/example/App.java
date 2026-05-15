@@ -6,7 +6,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import mvvm.example.customers.adapters.CustomersModule;
 import mvvm.example.orders.adapters.OrdersModule;
-import mvvm.example.settings.SettingsModule;
 import mvvm.example.shell.adapters.ShellModule;
 
 public class App extends Application {
@@ -24,12 +23,10 @@ public class App extends Application {
         var shell = new ShellModule(stage);
         var orders = new OrdersModule(shell.appContext(), shell.workspaceContext());
         var customers = new CustomersModule(shell.appContext(), shell.workspaceContext());
-        var settings = new SettingsModule(shell.appContext());
 
         var navigation = shell.navigation(
             orders,
-            customers,
-            settings
+            customers
         );
 
         shell.workspaceContext().show(orders.ordersExplorerViewModel());

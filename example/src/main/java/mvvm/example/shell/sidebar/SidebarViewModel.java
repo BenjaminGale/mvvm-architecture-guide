@@ -10,18 +10,15 @@ public class SidebarViewModel {
     private final IntegerProperty pendingOrderCount = new SimpleIntegerProperty();
     private final Runnable onOrders;
     private final Runnable onCustomers;
-    private final Runnable onSettings;
 
     public SidebarViewModel(
         PendingOrderCount orderContext,
         Runnable onOrders,
-        Runnable onCustomers,
-        Runnable onSettings
+        Runnable onCustomers
     ) {
         pendingOrderCount.bind(orderContext.pendingCountProperty());
         this.onOrders = onOrders;
         this.onCustomers = onCustomers;
-        this.onSettings = onSettings;
     }
 
     public ReadOnlyIntegerProperty pendingOrderCountProperty() {
@@ -30,5 +27,4 @@ public class SidebarViewModel {
 
     public void navigateToOrders() { onOrders.run(); }
     public void navigateToCustomers() { onCustomers.run(); }
-    public void navigateToSettings() { onSettings.run(); }
 }

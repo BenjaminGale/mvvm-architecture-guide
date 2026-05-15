@@ -8,7 +8,6 @@ import mvvm.example.core.view.ViewLocator;
 import mvvm.example.customers.adapters.CustomersModule;
 import mvvm.example.orders.adapters.OrdersModule;
 import mvvm.example.orders.context.OrderContext;
-import mvvm.example.settings.SettingsModule;
 import mvvm.example.shell.WorkspaceContext;
 import mvvm.example.shell.main.MainView;
 import mvvm.example.shell.main.MainViewModel;
@@ -50,32 +49,22 @@ public class ShellModule {
             new SidebarViewModel(
                 orderContext,
                 navigation.navigateToOrders,
-                navigation.navigateToCustomers,
-                navigation.navigateToSettings
+                navigation.navigateToCustomers
             ),
             workspaceContext
         );
     }
 
-    public Navigation navigation(
-        OrdersModule orders,
-        CustomersModule customers,
-        SettingsModule settings
-    ) {
-        Runnable navigateToOrders =
-            () -> workspaceContext.show(orders.ordersExplorerViewModel());
-
+    public Navigation navigation(OrdersModule orders, CustomersModule customers) {
         return new Navigation(
-            navigateToOrders,
-            () -> workspaceContext.show(customers.customersExplorerViewModel()),
-            () -> workspaceContext.show(settings.settingsViewModel(navigateToOrders))
+            () -> workspaceContext.show(orders.ordersExplorerViewModel()),
+            () -> workspaceContext.show(customers.customersExplorerViewModel())
         );
     }
 
     public record Navigation(
         Runnable navigateToOrders,
-        Runnable navigateToCustomers,
-        Runnable navigateToSettings
+        Runnable navigateToCustomers
     ) {
     }
 }

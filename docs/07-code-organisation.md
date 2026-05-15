@@ -19,12 +19,11 @@ com.example/
 ├── AppContext.java
 ├── orders/
 ├── customers/
-├── settings/
 ├── shell/
 └── core/
 ```
 
-- **Feature packages** (`orders`, `customers`, `settings`) contain everything needed to implement that feature, organised into sub-packages.
+- **Feature packages** (`orders`, `customers`) contain everything needed to implement that feature, organised into sub-packages.
 - **`shell`** — The application shell: the main window and sidebar. Treated as a feature like any other.
 - **`core`** — Reusable infrastructure types shared across all features, organised by layer.
 
@@ -123,15 +122,6 @@ customers/
     └── CustomersModule.java
 ```
 
-The `settings` feature is simple enough to remain mostly flat:
-
-```
-settings/
-├── SettingsViewModel.java
-├── SettingsView.java
-└── SettingsModule.java
-```
-
 The shell package separates its screens into sub-packages and includes its own adapters:
 
 ```
@@ -217,11 +207,6 @@ com.example/
 │   └── adapters/
 │       ├── InMemoryCustomerRepository.java
 │       └── CustomersModule.java
-│
-├── settings/
-│   ├── SettingsViewModel.java
-│   ├── SettingsView.java
-│   └── SettingsModule.java
 │
 ├── shell/
 │   ├── WorkspaceContext.java

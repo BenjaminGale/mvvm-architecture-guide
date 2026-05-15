@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SidebarViewModelTest {
 
     private static SidebarViewModel viewModelWith(OrderContext context) {
-        return new SidebarViewModel(context, () -> {}, () -> {}, () -> {});
+        return new SidebarViewModel(context, () -> {}, () -> {});
     }
 
     @Nested
@@ -51,7 +51,7 @@ class SidebarViewModelTest {
         @DisplayName("the orders callback is invoked when navigating to orders")
         void ordersCallbackInvoked() {
             var invoked = new AtomicBoolean(false);
-            var vm = new SidebarViewModel(new OrderContext(), () -> invoked.set(true), () -> {}, () -> {});
+            var vm = new SidebarViewModel(new OrderContext(), () -> invoked.set(true), () -> {});
 
             vm.navigateToOrders();
 
@@ -62,20 +62,9 @@ class SidebarViewModelTest {
         @DisplayName("the customers callback is invoked when navigating to customers")
         void customersCallbackInvoked() {
             var invoked = new AtomicBoolean(false);
-            var vm = new SidebarViewModel(new OrderContext(), () -> {}, () -> invoked.set(true), () -> {});
+            var vm = new SidebarViewModel(new OrderContext(), () -> {}, () -> invoked.set(true));
 
             vm.navigateToCustomers();
-
-            assertTrue(invoked.get());
-        }
-
-        @Test
-        @DisplayName("the settings callback is invoked when navigating to settings")
-        void settingsCallbackInvoked() {
-            var invoked = new AtomicBoolean(false);
-            var vm = new SidebarViewModel(new OrderContext(), () -> {}, () -> {}, () -> invoked.set(true));
-
-            vm.navigateToSettings();
 
             assertTrue(invoked.get());
         }
