@@ -16,7 +16,7 @@ public class CustomersExplorerViewModel {
     public CustomersExplorerViewModel(CustomerService customerService, Consumer<Customer> onCustomerSelected) {
         this.onCustomerSelected = onCustomerSelected;
 
-        var sorted = customerService.fetchAll()
+        var sorted = customerService.fetchActive()
             .stream()
             .sorted(Comparator.comparing(Customer::name))
             .toList();

@@ -1,6 +1,7 @@
 package mvvm.example.customers.detail;
 
 import mvvm.example.customers.domain.Customer;
+import mvvm.example.customers.domain.CustomerStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("CustomerDetailViewModel")
 class CustomerDetailViewModelTest {
 
-    private static final Customer A_CUSTOMER = new Customer("1", "Acme Ltd", "acme@example.com");
+    private static final Customer A_CUSTOMER = new Customer("1", "Acme Ltd", "acme@example.com", CustomerStatus.ACTIVE);
 
     @Nested
     @DisplayName("when navigating back")

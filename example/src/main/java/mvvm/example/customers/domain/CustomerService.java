@@ -15,6 +15,12 @@ public class CustomerService {
         return repository.findAll();
     }
 
+    public List<Customer> fetchActive() {
+        return repository.findAll().stream()
+            .filter(c -> c.status() == CustomerStatus.ACTIVE)
+            .toList();
+    }
+
     public Optional<Customer> findById(String id) {
         return repository.findById(id);
     }

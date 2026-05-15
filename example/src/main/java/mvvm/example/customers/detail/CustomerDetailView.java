@@ -16,10 +16,12 @@ public class CustomerDetailView extends BorderPane {
         form.setVgap(8);
         form.setPadding(new Insets(16));
 
-        form.add(new Label("Name"),  0, 0);
-        form.add(new Label(customer.name()),  1, 0);
+        form.add(new Label("Name"), 0, 0);
+        form.add(new Label(customer.name()), 1, 0);
         form.add(new Label("Email"), 0, 1);
         form.add(new Label(customer.email()), 1, 1);
+        form.add(new Label("Status"), 0, 2);
+        form.add(new Label(customer.status().displayName()), 1, 2);
 
         var backBtn = new Button("Back");
 

@@ -5,6 +5,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
 import mvvm.example.customers.domain.Customer;
+import mvvm.example.customers.domain.CustomerStatus;
 
 public class CustomersExplorerView extends StackPane {
 
@@ -14,6 +15,7 @@ public class CustomersExplorerView extends StackPane {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.getColumns().add(nameColumn());
         table.getColumns().add(emailColumn());
+        table.getColumns().add(statusColumn());
 
         getChildren().add(table);
 
@@ -30,6 +32,12 @@ public class CustomersExplorerView extends StackPane {
     private TableColumn<Customer, String> emailColumn() {
         var col = new TableColumn<Customer, String>("Email");
         col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().email()));
+        return col;
+    }
+
+    private TableColumn<Customer, String> statusColumn() {
+        var col = new TableColumn<Customer, String>("Status");
+        col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().status().displayName()));
         return col;
     }
 }

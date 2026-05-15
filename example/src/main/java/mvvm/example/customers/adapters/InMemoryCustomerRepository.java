@@ -2,6 +2,7 @@ package mvvm.example.customers.adapters;
 
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
+import mvvm.example.customers.domain.CustomerStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,16 +29,16 @@ public class InMemoryCustomerRepository implements CustomerRepository {
     }
 
     private void seed() {
-        add("Acme Corp",         "orders@acme.example");
-        add("Globex Inc",        "purchasing@globex.example");
-        add("Initech",           "supplies@initech.example");
-        add("Umbrella Ltd",      "procurement@umbrella.example");
-        add("Soylent Corp",      "orders@soylent.example");
-        add("Cyberdyne Systems", "supply@cyberdyne.example");
+        add("Acme Corp", "orders@acme.example", CustomerStatus.ACTIVE);
+        add("Globex Inc", "purchasing@globex.example", CustomerStatus.ACTIVE);
+        add("Initech", "supplies@initech.example", CustomerStatus.ACTIVE);
+        add("Umbrella Ltd", "procurement@umbrella.example", CustomerStatus.ACTIVE);
+        add("Soylent Corp", "orders@soylent.example", CustomerStatus.INACTIVE);
+        add("Cyberdyne Systems", "supply@cyberdyne.example", CustomerStatus.INACTIVE);
     }
 
-    private void add(String name, String email) {
-        var customer = new Customer(UUID.randomUUID().toString(), name, email);
+    private void add(String name, String email, CustomerStatus status) {
+        var customer = new Customer(UUID.randomUUID().toString(), name, email, status);
         store.put(customer.id(), customer);
     }
 }

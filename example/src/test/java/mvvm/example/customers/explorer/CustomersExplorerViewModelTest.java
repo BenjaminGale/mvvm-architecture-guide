@@ -3,6 +3,7 @@ package mvvm.example.customers.explorer;
 import mvvm.example.customers.StubCustomerRepository;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerService;
+import mvvm.example.customers.domain.CustomerStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class CustomersExplorerViewModelTest {
 
     private static Customer customer(String id, String name) {
-        return new Customer(id, name, name.toLowerCase().replace(" ", ".") + "@example.com");
+        return new Customer(id, name, name.toLowerCase().replace(" ", ".") + "@example.com", CustomerStatus.ACTIVE);
+    }
+
+    private static Customer inactiveCustomer(String id, String name) {
+        return new Customer(id, name, name.toLowerCase().replace(" ", ".") + "@example.com", CustomerStatus.INACTIVE);
     }
 
     private static CustomersExplorerViewModel viewModelWith(Customer... customers) {
@@ -42,6 +47,15 @@ class CustomersExplorerViewModelTest {
 
             assertEquals("Acme Ltd", vm.getCustomers().getFirst().name());
             assertEquals("Zebra Inc", vm.getCustomers().getLast().name());
+        }
+
+        @Test
+        @DisplayName("inactive customers are not shown")
+        void inactiveCustomersExcluded() {
+            var vm = viewModelWith(customer("1", "Acme Ltd"), inactiveCustomer("2", "Beta Corp"));
+
+            assertEquals(1, vm.getCustomers().size());
+            assertEquals("Acme Ltd", vm.getCustomers().getFirst().name());
         }
     }
 
