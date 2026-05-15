@@ -112,7 +112,7 @@ viewLocator.register(MainViewModel.class, vm -> new MainView(vm, viewLocator));
 
 ### 5.4 Navigation
 
-Navigation is the act of changing what the user sees. ViewModels never hold references to view-layer infrastructure. Instead they declare navigation intent through **host interfaces**, and the module wires up the implementation.
+Navigation is the act of changing what the user sees. ViewModels never hold references to view-layer infrastructure. Instead they declare navigation intent through **host interfaces**, and the module wires up the implementation. How the host implementation surfaces that intent in the view layer — whether through a shared context object, a direct callback, or some other mechanism — is application-specific and not prescribed by this architecture.
 
 #### Host interfaces
 
@@ -150,7 +150,7 @@ new OrdersExplorerViewModel(service, new OrdersExplorerHost() {
 
 #### WorkspaceContext
 
-`WorkspaceContext` is the mechanism for switching between views in the main workspace. It holds the currently active ViewModel as an observable property.
+The example application uses a `WorkspaceContext` to coordinate workspace navigation. This is an instance of the Context pattern described in section 4.4.2 — a shared observable state object with no presentation responsibility of its own. It holds the currently active ViewModel as an observable property, and the shell view listens to that property and resolves the view via the `ViewLocator`.
 
 ```java
 public class WorkspaceContext {
@@ -159,13 +159,14 @@ public class WorkspaceContext {
 }
 ```
 
-The view that owns the workspace region listens to `currentWorkspaceProperty`, resolves the new ViewModel via the `ViewLocator`, and replaces the workspace content:
-
 ```java
+// Inside the shell view
 workspaceContext.currentWorkspaceProperty().addListener((obs, old, vm) -> {
     workspace.getChildren().setAll(viewLocator.locate(vm));
 });
 ```
+
+This is one way to solve the problem. Other approaches — direct callbacks, event buses, or other observable mechanisms — can serve the same role. The architecture does not prescribe a particular mechanism; what it does prescribe is that ViewModels remain unaware of it.
 
 #### DialogManager
 
