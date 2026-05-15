@@ -4,9 +4,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import mvvm.example.core.view.CurrencyTableCell;
+import mvvm.example.core.view.TableViews;
 import mvvm.example.orders.domain.Order;
 
 import java.math.BigDecimal;
@@ -39,21 +39,7 @@ public class OrdersExplorerView extends BorderPane {
 
         refreshButton.setOnAction(e -> viewModel.refresh());
 
-        table.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ENTER)
-                viewModel.openOrder(table.getSelectionModel().getSelectedItem());
-        });
-
-        table.setRowFactory(tv -> {
-            var row = new TableRow<Order>();
-
-            row.setOnMouseClicked(e -> {
-                if (e.getClickCount() == 2 && !row.isEmpty())
-                    viewModel.openOrder(row.getItem());
-            });
-
-            return row;
-        });
+        TableViews.onActivate(table, viewModel::openOrder);
     }
 
     private TableColumn<Order, String> referenceColumn() {

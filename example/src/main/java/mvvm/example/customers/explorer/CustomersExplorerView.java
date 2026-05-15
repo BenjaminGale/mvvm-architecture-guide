@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
+import mvvm.example.core.view.TableViews;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
 
@@ -21,8 +22,7 @@ public class CustomersExplorerView extends BorderPane {
         BorderPane.setMargin(table, new Insets(8));
         setCenter(table);
 
-        table.getSelectionModel().selectedItemProperty()
-            .addListener((obs, old, selected) -> viewModel.openCustomer(selected));
+        TableViews.onActivate(table, viewModel::openCustomer);
     }
 
     private TableColumn<Customer, String> nameColumn() {
