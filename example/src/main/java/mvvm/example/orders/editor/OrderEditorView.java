@@ -8,13 +8,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import mvvm.example.core.view.ViewLocator;
 import mvvm.example.core.view.controls.Buttons;
-import mvvm.example.orders.editor.header.OrderHeaderView;
-import mvvm.example.orders.editor.lineitems.LineItemsView;
 
 public class OrderEditorView extends BorderPane {
 
-    public OrderEditorView(OrderEditorViewModel viewModel) {
+    public OrderEditorView(OrderEditorViewModel viewModel, ViewLocator<Region> viewLocator) {
         var saveBtn = new Button("Save");
         var copyBtn = new Button("Copy");
         var deleteBtn = new Button("Delete");
@@ -24,8 +23,8 @@ public class OrderEditorView extends BorderPane {
 
         var toolbar = new ToolBar(saveBtn, spacer, copyBtn, deleteBtn);
 
-        var headerView = new OrderHeaderView(viewModel.getHeader());
-        var lineItemsView = new LineItemsView(viewModel.getLineItems());
+        var headerView = viewLocator.locate(viewModel.getHeader());
+        var lineItemsView = viewLocator.locate(viewModel.getLineItems());
         VBox.setVgrow(lineItemsView, Priority.ALWAYS);
 
         var center = new VBox(

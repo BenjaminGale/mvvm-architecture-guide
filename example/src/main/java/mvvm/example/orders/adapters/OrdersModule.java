@@ -12,6 +12,10 @@ import mvvm.example.orders.editor.OrderEditorViewModel;
 import mvvm.example.orders.editor.edititem.EditItemRequest;
 import mvvm.example.orders.editor.edititem.EditItemView;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
+import mvvm.example.orders.editor.header.OrderHeaderView;
+import mvvm.example.orders.editor.header.OrderHeaderViewModel;
+import mvvm.example.orders.editor.lineitems.LineItemsView;
+import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
 import mvvm.example.orders.explorer.OrdersExplorerHost;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
@@ -35,7 +39,9 @@ public class OrdersModule {
         this.orderContext = new OrderContext();
 
         appContext.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
-        appContext.viewLocator().register(OrderEditorViewModel.class, OrderEditorView::new);
+        appContext.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
+        appContext.viewLocator().register(LineItemsViewModel.class, LineItemsView::new);
+        appContext.viewLocator().register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, appContext.viewLocator()));
         appContext.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
     }
 
