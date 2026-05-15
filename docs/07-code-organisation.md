@@ -16,6 +16,7 @@ Each top-level package corresponds to one feature. Two packages sit outside this
 ```
 com.example/
 ├── App.java
+├── AppContext.java
 ├── orders/
 ├── customers/
 ├── settings/
@@ -24,10 +25,10 @@ com.example/
 ```
 
 - **Feature packages** (`orders`, `customers`, `settings`) contain everything needed to implement that feature, organised into sub-packages.
-- **`shell`** — The application shell: the main window, sidebar, and dialog manager. Treated as a feature like any other.
+- **`shell`** — The application shell: the main window and sidebar. Treated as a feature like any other.
 - **`core`** — Reusable infrastructure types shared across all features, organised by layer.
 
-`App.java` sits at the root as the single composition root.
+`App.java` sits at the root as the single composition root. `AppContext.java` holds application-wide observable state shared across features.
 
 ### 7.2 Feature sub-packages
 
@@ -45,14 +46,14 @@ orders/
 └── adapters/
 ```
 
-**`domain`** contains the domain types, repository interface, and service. It has no dependency on JavaFX or any other UI framework:
+**`domain`** contains the domain types, repository interface, and services. It has no dependency on JavaFX or any other UI framework:
 
 ```
 orders/domain/
 ├── Order.java
 ├── LineItem.java
 ├── OrderRepository.java
-└── OrderService.java
+└── CopyOrderService.java
 ```
 
 **`context`** contains shared observable state that is written by one screen and read by another. These types depend on JavaFX properties and belong in a separate package from the pure domain:
@@ -64,12 +65,13 @@ orders/context/
 └── PendingOrderCounter.java
 ```
 
-**Screen sub-packages** each contain a ViewModel, View, and any use cases for that screen. Each independently navigable screen gets its own sub-package:
+**Screen sub-packages** each contain a ViewModel, View, and any supporting types for that screen. Each independently navigable screen gets its own sub-package:
 
 ```
 orders/explorer/
-├── LoadOrdersUseCase.java
-├── OrdersViewModel.java
+├── OrdersExplorerHost.java
+├── OrdersExplorerService.java
+├── OrdersExplorerViewModel.java
 └── OrdersExplorerView.java
 ```
 
@@ -77,17 +79,15 @@ Sub-ViewModels and sub-views that are part of a larger screen are nested under t
 
 ```
 orders/editor/
-├── CopyOrderUseCase.java
-├── DeleteOrderUseCase.java
-├── OrderEditorUseCases.java
-├── SaveOrderUseCase.java
+├── OrderEditorHost.java
+├── OrderEditorService.java
 ├── OrderEditorViewModel.java
 ├── OrderEditorView.java
 ├── header/
 │   ├── OrderHeaderViewModel.java
 │   └── OrderHeaderView.java
 ├── lineitems/
-│   ├── LineItemRow.java
+│   ├── LineItemRowViewModel.java
 │   ├── LineItemsViewModel.java
 │   └── LineItemsView.java
 └── edititem/
@@ -101,7 +101,7 @@ orders/editor/
 ```
 orders/adapters/
 ├── InMemoryOrderRepository.java
-└── OrderModule.java
+└── OrdersModule.java
 ```
 
 The `customers` feature follows the same structure, omitting `context` since it has no shared observable state:
@@ -113,25 +113,38 @@ customers/
 │   ├── CustomerRepository.java
 │   └── CustomerService.java
 ├── explorer/
-│   ├── CustomersViewModel.java
+│   ├── CustomersExplorerViewModel.java
 │   └── CustomersExplorerView.java
 ├── detail/
 │   ├── CustomerDetailViewModel.java
 │   └── CustomerDetailView.java
 └── adapters/
     ├── InMemoryCustomerRepository.java
-    └── CustomerModule.java
+    └── CustomersModule.java
 ```
 
-The shell package remains flat, as all its classes form a single cohesive unit:
+The `settings` feature is simple enough to remain mostly flat:
+
+```
+settings/
+├── SettingsViewModel.java
+├── SettingsView.java
+└── SettingsModule.java
+```
+
+The shell package separates its screens into sub-packages and includes its own adapters:
 
 ```
 shell/
-├── MainViewModel.java
-├── SidebarViewModel.java
-├── MainView.java
-├── SidebarView.java
-└── DialogManagerView.java
+├── WorkspaceContext.java
+├── main/
+│   ├── MainViewModel.java
+│   └── MainView.java
+├── sidebar/
+│   ├── SidebarViewModel.java
+│   └── SidebarView.java
+└── adapters/
+    └── ShellModule.java
 ```
 
 ### 7.3 Cross-cutting infrastructure
@@ -142,8 +155,9 @@ core/
 │   ├── Action.java
 │   └── AsyncAction.java
 └── view/
-    ├── ViewLocator.java
-    └── ViewRouter.java
+    ├── CurrencyTableCell.java
+    ├── DialogManager.java
+    └── ViewLocator.java
 ```
 
 ### 7.4 Complete package layout
@@ -152,42 +166,42 @@ core/
 com.example/
 │
 ├── App.java
+├── AppContext.java
 │
 ├── orders/
 │   ├── domain/
 │   │   ├── Order.java
 │   │   ├── LineItem.java
 │   │   ├── OrderRepository.java
-│   │   └── OrderService.java
+│   │   └── CopyOrderService.java
 │   ├── context/
 │   │   ├── OrderContext.java
 │   │   ├── PendingOrderCount.java
 │   │   └── PendingOrderCounter.java
 │   ├── explorer/
-│   │   ├── LoadOrdersUseCase.java
-│   │   ├── OrdersViewModel.java
+│   │   ├── OrdersExplorerHost.java
+│   │   ├── OrdersExplorerService.java
+│   │   ├── OrdersExplorerViewModel.java
 │   │   └── OrdersExplorerView.java
 │   ├── editor/
-│   │   ├── CopyOrderUseCase.java
-│   │   ├── DeleteOrderUseCase.java
-│   │   ├── OrderEditorUseCases.java
-│   │   ├── SaveOrderUseCase.java
+│   │   ├── OrderEditorHost.java
+│   │   ├── OrderEditorService.java
 │   │   ├── OrderEditorViewModel.java
 │   │   ├── OrderEditorView.java
 │   │   ├── header/
 │   │   │   ├── OrderHeaderViewModel.java
 │   │   │   └── OrderHeaderView.java
 │   │   ├── lineitems/
-│   │   │   ├── LineItemRow.java
+│   │   │   ├── LineItemRowViewModel.java
 │   │   │   ├── LineItemsViewModel.java
 │   │   │   └── LineItemsView.java
 │   │   └── edititem/
-│   │       ├── EditItemRequet.java
+│   │       ├── EditItemRequest.java
 │   │       ├── EditItemViewModel.java
 │   │       └── EditItemView.java
 │   └── adapters/
 │       ├── InMemoryOrderRepository.java
-│       └── OrderModule.java
+│       └── OrdersModule.java
 │
 ├── customers/
 │   ├── domain/
@@ -195,30 +209,36 @@ com.example/
 │   │   ├── CustomerRepository.java
 │   │   └── CustomerService.java
 │   ├── explorer/
-│   │   ├── CustomersViewModel.java
+│   │   ├── CustomersExplorerViewModel.java
 │   │   └── CustomersExplorerView.java
 │   ├── detail/
 │   │   ├── CustomerDetailViewModel.java
 │   │   └── CustomerDetailView.java
 │   └── adapters/
 │       ├── InMemoryCustomerRepository.java
-│       └── CustomerModule.java
+│       └── CustomersModule.java
 │
 ├── settings/
 │   ├── SettingsViewModel.java
-│   └── SettingsView.java
+│   ├── SettingsView.java
+│   └── SettingsModule.java
 │
 ├── shell/
-│   ├── MainViewModel.java
-│   ├── SidebarViewModel.java
-│   ├── MainView.java
-│   ├── SidebarView.java
-│   └── DialogManagerView.java
+│   ├── WorkspaceContext.java
+│   ├── main/
+│   │   ├── MainViewModel.java
+│   │   └── MainView.java
+│   ├── sidebar/
+│   │   ├── SidebarViewModel.java
+│   │   └── SidebarView.java
+│   └── adapters/
+│       └── ShellModule.java
 │
 └── core/
     ├── view/
-    │   ├── ViewLocator.java
-    │   └── ViewRouter.java
+    │   ├── CurrencyTableCell.java
+    │   ├── DialogManager.java
+    │   └── ViewLocator.java
     └── viewmodel/
         ├── Action.java
         └── AsyncAction.java
