@@ -2,10 +2,14 @@ package mvvm.example.orders.editor.lineitems;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import mvvm.example.core.view.CurrencyTableCell;
 
 import java.math.BigDecimal;
@@ -23,20 +27,22 @@ public class LineItemsView extends BorderPane {
 
         var addBtn = new Button("Add");
         var editBtn = new Button("Edit");
-        var removeBtn = new Button("Remove");
+        var deleteBtn = new Button("Delete");
 
-        var toolbar = new HBox(8, addBtn, editBtn, removeBtn);
-        toolbar.setPadding(new Insets(8, 0, 0, 0));
+        var spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        var headerToolbar = new ToolBar(new Label("Line Items"), spacer, addBtn, editBtn, deleteBtn);
 
+        BorderPane.setMargin(table, new Insets(8, 8, 8, 8));
+        setTop(headerToolbar);
         setCenter(table);
-        setBottom(toolbar);
 
         editBtn.disableProperty().bind(viewModel.selectedRowProperty().isNull());
-        removeBtn.disableProperty().bind(viewModel.canRemoveProperty().not());
+        deleteBtn.disableProperty().bind(viewModel.canRemoveProperty().not());
 
         addBtn.setOnAction(e -> viewModel.addRow());
         editBtn.setOnAction(e -> viewModel.editSelected());
-        removeBtn.setOnAction(e -> viewModel.removeSelected());
+        deleteBtn.setOnAction(e -> viewModel.removeSelected());
 
         table.getSelectionModel()
             .selectedItemProperty()

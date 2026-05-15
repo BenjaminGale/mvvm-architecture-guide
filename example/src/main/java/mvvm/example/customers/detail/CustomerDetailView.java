@@ -3,6 +3,7 @@ package mvvm.example.customers.detail;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
@@ -24,10 +25,11 @@ public class CustomerDetailView extends BorderPane {
         form.add(new Label(customer.status().displayName()), 1, 2);
 
         var backBtn = new Button("Back");
+        var toolbar = new ToolBar(backBtn);
+        toolbar.setPadding(new Insets(4));
 
         setCenter(form);
-        setBottom(backBtn);
-        BorderPane.setMargin(backBtn, new Insets(8));
+        setBottom(toolbar);
 
         backBtn.setOnAction(e -> viewModel.back());
     }

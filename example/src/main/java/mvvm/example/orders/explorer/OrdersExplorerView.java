@@ -6,7 +6,6 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import mvvm.example.core.view.CurrencyTableCell;
 import mvvm.example.orders.domain.Order;
 
@@ -32,9 +31,9 @@ public class OrdersExplorerView extends BorderPane {
         var statusLabel = new Label();
         statusLabel.textProperty().bind(viewModel.statusTextProperty());
 
-        var toolbar = new HBox(8, refreshButton, statusLabel);
-        toolbar.setPadding(new Insets(8));
+        var toolbar = new ToolBar(refreshButton, statusLabel);
 
+        BorderPane.setMargin(table, new Insets(8));
         setTop(toolbar);
         setCenter(table);
 

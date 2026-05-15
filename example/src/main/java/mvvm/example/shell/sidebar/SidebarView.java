@@ -14,6 +14,7 @@ public class SidebarView extends VBox {
         setPadding(new Insets(8));
         setSpacing(4);
         setPrefWidth(180);
+        setStyle("-fx-border-color: -fx-box-border; -fx-border-width: 0 1 0 0;");
 
         var pendingBadge = new Label();
         pendingBadge.textProperty().bind(

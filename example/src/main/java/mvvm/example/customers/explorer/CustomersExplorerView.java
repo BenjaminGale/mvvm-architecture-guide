@@ -1,13 +1,14 @@
 package mvvm.example.customers.explorer;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Insets;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.BorderPane;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
 
-public class CustomersExplorerView extends StackPane {
+public class CustomersExplorerView extends BorderPane {
 
     public CustomersExplorerView(CustomersExplorerViewModel viewModel) {
         var table = new TableView<Customer>();
@@ -17,7 +18,8 @@ public class CustomersExplorerView extends StackPane {
         table.getColumns().add(emailColumn());
         table.getColumns().add(statusColumn());
 
-        getChildren().add(table);
+        BorderPane.setMargin(table, new Insets(8));
+        setCenter(table);
 
         table.getSelectionModel().selectedItemProperty()
             .addListener((obs, old, selected) -> viewModel.openCustomer(selected));

@@ -4,34 +4,43 @@ import javafx.geometry.Insets;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToolBar;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-public class OrderHeaderView extends GridPane {
+public class OrderHeaderView extends BorderPane {
 
     public OrderHeaderView(OrderHeaderViewModel viewModel) {
-        setHgap(8);
-        setVgap(8);
-        setPadding(new Insets(8));
-
         var customerNameField = new TextField();
         var orderDatePicker = new DatePicker();
         var referenceField = new TextField();
 
-        add(new Label("Customer"), 0, 0);
-        add(customerNameField, 1, 0);
+        var form = new GridPane();
+        form.setHgap(8);
+        form.setVgap(8);
+        form.setPadding(new Insets(8));
 
-        add(new Label("Date"), 0, 1);
-        add(orderDatePicker, 1, 1);
+        form.add(new Label("Customer"), 0, 0);
+        form.add(customerNameField, 1, 0);
 
-        add(new Label("Reference"), 0, 2);
-        add(referenceField, 1, 2);
+        form.add(new Label("Date"), 0, 1);
+        form.add(orderDatePicker, 1, 1);
+
+        form.add(new Label("Reference"), 0, 2);
+        form.add(referenceField, 1, 2);
 
         var labelCol = new ColumnConstraints();
         var fieldCol = new ColumnConstraints();
         fieldCol.setHgrow(Priority.ALWAYS);
-        getColumnConstraints().addAll(labelCol, fieldCol);
+        form.getColumnConstraints().addAll(labelCol, fieldCol);
+
+        var toolbar = new ToolBar(new Label("Order Header"));
+        toolbar.setPadding(new Insets(4));
+
+        setTop(toolbar);
+        setCenter(form);
 
         customerNameField.textProperty().bindBidirectional(viewModel.customerNameProperty());
         orderDatePicker.valueProperty().bindBidirectional(viewModel.orderDateProperty());
