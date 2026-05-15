@@ -8,7 +8,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import mvvm.example.core.view.Buttons;
+import mvvm.example.core.view.controls.Buttons;
 import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.lineitems.LineItemsView;
 

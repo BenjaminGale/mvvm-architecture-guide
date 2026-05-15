@@ -10,7 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import mvvm.example.core.view.CurrencyTableCell;
+import mvvm.example.core.view.controls.CurrencyTableCell;
 
 import java.math.BigDecimal;
 

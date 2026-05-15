@@ -1,4 +1,4 @@
-package mvvm.example.core.view;
+package mvvm.example.core.view.controls;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;

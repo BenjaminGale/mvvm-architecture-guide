@@ -5,8 +5,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import mvvm.example.core.view.CurrencyTableCell;
-import mvvm.example.core.view.TableViews;
+import mvvm.example.core.view.controls.CurrencyTableCell;
+import mvvm.example.core.view.controls.TableViews;
 import mvvm.example.orders.domain.Order;
 
 import java.math.BigDecimal;
