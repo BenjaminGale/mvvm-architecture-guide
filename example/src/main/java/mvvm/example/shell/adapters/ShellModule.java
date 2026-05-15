@@ -5,7 +5,10 @@ import javafx.stage.Window;
 import mvvm.example.AppContext;
 import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewLocator;
+import mvvm.example.customers.adapters.CustomersModule;
+import mvvm.example.orders.adapters.OrdersModule;
 import mvvm.example.orders.context.OrderContext;
+import mvvm.example.settings.SettingsModule;
 import mvvm.example.shell.WorkspaceContext;
 import mvvm.example.shell.main.MainView;
 import mvvm.example.shell.main.MainViewModel;
@@ -38,11 +41,11 @@ public class ShellModule {
         return workspaceContext;
     }
 
-    public Parent mainView(OrderContext orderContext, NavigationContext navigation) {
+    public Parent mainView(OrderContext orderContext, Navigation navigation) {
         return appContext.viewLocator().locate(mainViewModel(orderContext, navigation));
     }
 
-    private MainViewModel mainViewModel(OrderContext orderContext, NavigationContext navigation) {
+    private MainViewModel mainViewModel(OrderContext orderContext, Navigation navigation) {
         return new MainViewModel(
             new SidebarViewModel(
                 orderContext,
@@ -54,7 +57,22 @@ public class ShellModule {
         );
     }
 
-    public record NavigationContext(
+    public Navigation navigation(
+        OrdersModule orders,
+        CustomersModule customers,
+        SettingsModule settings
+    ) {
+        Runnable navigateToOrders =
+            () -> workspaceContext.show(orders.ordersExplorerViewModel());
+
+        return new Navigation(
+            navigateToOrders,
+            () -> workspaceContext.show(customers.customersExplorerViewModel()),
+            () -> workspaceContext.show(settings.settingsViewModel(navigateToOrders))
+        );
+    }
+
+    public record Navigation(
         Runnable navigateToOrders,
         Runnable navigateToCustomers,
         Runnable navigateToSettings
