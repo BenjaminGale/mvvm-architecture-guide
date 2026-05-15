@@ -1,17 +1,13 @@
 ## 6. Application bootstrapping
 
-This section covers the composition root — the single place in the codebase where services, use cases, ViewModels, and navigation callbacks are constructed and wired together. It shows how to structure the application startup class and how to scale it as the application grows using Flow classes.
+This section covers the composition root — the single place in the codebase where services, use cases, ViewModels, and navigation callbacks are constructed and wired together. It shows how to structure the application startup class and how to organise it using Module classes.
 
 ## Contents
 
 - [6.1 The role of App](#61-the-role-of-app)
-- [6.2 Infrastructure and registration](#62-infrastructure-and-registration)
-- [6.3 Composing the application](#63-composing-the-application)
-  - [6.3.1 Sidebar](#631-sidebar)
-  - [6.3.2 Orders flow](#632-orders-flow)
-  - [6.3.3 Customers flow](#633-customers-flow)
-  - [6.3.4 Settings](#634-settings)
-- [6.4 Scaling App with Modules](#64-scaling-app-with-modules)
+- [6.2 ShellModule](#62-shellmodule)
+- [6.3 Domain modules](#63-domain-modules)
+- [6.4 Wiring it together](#64-wiring-it-together)
 
 ### 6.1 The role of App
 
@@ -19,217 +15,164 @@ This section covers the composition root — the single place in the codebase wh
 
 > Here we show how to wire up the dependencies manually but this can easily be done with a dependency injection framework if you wish.
 
-### 6.2 Infrastructure and registration
-
-Services, shared context objects, the ViewRouter, and the `ViewLocator` are all created at startup. Every ViewModel-to-View mapping is registered in one block:
+`App.start` delegates immediately to a `bootstrap` method that creates modules in dependency order and returns the root view:
 
 ```java
 public class App extends Application {
 
-    private ViewRouter viewRouter;
-    private OrderService orderService;
-    private CustomerService customerService;
-    private OrderContext orderContext;
-
     @Override
     public void start(Stage stage) {
-        // Services
-        orderService    = new OrderService();
-        customerService = new CustomerService();
+        var mainView = bootstrap(stage);
 
-        // Shared observable state
-        orderContext = new OrderContext();
-
-        // Navigation infrastructure
-        var viewLocator = new ViewLocator();
-        viewLocator.register(SidebarViewModel.class, SidebarView::new);
-        viewLocator.register(OrdersViewModel.class, OrdersView::new);
-        viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
-        viewLocator.register(CustomersViewModel.class, CustomersView::new);
-        viewLocator.register(SettingsViewModel.class, SettingsView::new);
-
-        viewRouter = new ViewRouter(viewLocator);
-
-        // Build the application shell
-        var rootVm = new MainViewModel(sidebar());
-        var rootView = new MainView(rootVm, viewRouter);
-
-        stage.setScene(new Scene(rootView, 1024, 768));
+        stage.setTitle("Order Management");
+        stage.setScene(new Scene(mainView, 1024, 768));
         stage.show();
-
-        // Show the initial screen
-        viewRouter.route(orders());
-    }
-```
-
-### 6.3 Composing the application
-
-#### 5.3.1 Sidebar
-
-The sidebar is permanent — created once and held by `MainViewModel`. It receives the `OrderContext` so its badge counts stay reactive, and one callback per navigation destination:
-
-```java
-private SidebarViewModel sidebar() {
-        return new SidebarViewModel(
-            orderContext,
-            () -> viewRouter.route(orders()),
-            () -> viewRouter.route(customers()),
-            () -> viewRouter.route(settings())
-        );
-    }
-```
-
-#### 5.3.2 Orders flow
-
-> **Note: this section is out of date and needs updating.**
-
-The orders list navigates to the order editor. The editor receives three use cases, each constructed with its own service dependency and completion callback. Sub-ViewModels are constructed inside `OrderEditorViewModel` itself — the composition root does not need to know about them:
-
-```java
-private OrdersViewModel orders() {
-        return new OrdersViewModel(
-            new LoadOrdersUseCase(orderService),
-            orderContext,
-            order -> viewRouter.route(orderEditor(order))
-        );
     }
 
-    private OrderEditorViewModel orderEditor(Order order) {
-        var vm = new OrderEditorViewModel(
-            order,
-            new SaveOrderUseCase(orderService,
-                vm::buildUpdatedOrder,
-                () -> viewRouter.route(orders())),
-            new DeleteOrderUseCase(orderService,
-                () -> viewRouter.route(orders())),
-            new CopyOrderUseCase(orderService,
-                copy -> viewRouter.route(orderEditor(copy)))
-        );
-        return vm;
-    }
-```
+    private Parent bootstrap(Stage stage) {
+        var shell = new ShellModule(stage);
+        var orders = new OrdersModule(shell.appContext(), shell.workspaceContext());
+        var customers = new CustomersModule(shell.appContext(), shell.workspaceContext());
+        var settings = new SettingsModule(shell.appContext());
 
-#### 5.3.3 Customers flow
+        var navigation = shell.navigation(orders, customers, settings);
 
-```java
-private CustomersViewModel customers() {
-        return new CustomersViewModel(
-            customerService,
-            customer -> viewRouter.route(customerDetail(customer))
-        );
-    }
+        shell.workspaceContext().show(orders.ordersExplorerViewModel());
 
-    private CustomerDetailViewModel customerDetail(Customer customer) {
-        return new CustomerDetailViewModel(
-            customerService,
-            customer,
-            () -> viewRouter.route(customers())
-        );
-    }
-```
-
-#### 5.3.4 Settings
-
-```java
-private SettingsViewModel settings() {
-        return new SettingsViewModel(
-            () -> viewRouter.route(orders())
-        );
+        return shell.mainView(orders.orderContext(), navigation);
     }
 }
 ```
 
-> Each factory method produces a fresh ViewModel instance. Navigating to the same screen twice yields two independent instances; no state persists between visits unless held in a context object or service. As the application grows, related factory methods can be grouped into dedicated Module classes — an `OrderModule`, a `CustomerModule`. The method structure is unchanged; only the organisation differs.
+### 6.2 ShellModule
 
-### 6.4 Scaling App with Modules
+`ShellModule` owns the application's navigation infrastructure. Its constructor takes the JavaFX `Window` (needed to anchor dialogs) and creates two shared objects that every domain module receives:
 
-As the application grows, `App` acquires more factory methods. They remain individually simple — one method per screen — but their number grows. Modules are the natural way to organise them. Each Module owns its own infrastructure — creating its own services, repositories, and shared state — and registers its own ViewModel-to-View mappings. It exposes factory methods for the screens in its domain and nothing else.
+- **`AppContext`** — bundles a `ViewLocator` for workspace views and a `DialogManager` for dialog views. Every module registers its own ViewModel-to-View mappings here at construction time.
+- **`WorkspaceContext`** — holds the currently displayed workspace ViewModel as an observable property. Domain modules call `workspaceContext.show(viewModel)` to navigate between screens.
 
 ```java
-public class OrderModule {
+public class ShellModule {
 
-    private final OrderService orderService;
-    private final OrderContext orderContext;
-    private final ViewRouter   viewRouter;
+    private final AppContext appContext;
+    private final WorkspaceContext workspaceContext;
 
-    public OrderModule(ViewLocator viewLocator, ViewRouter viewRouter) {
-        this.orderService = new OrderService(new InMemoryOrderRepository());
-        this.orderContext  = new OrderContext();
-        this.viewRouter    = viewRouter;
-
-        viewLocator.register(OrdersViewModel.class,      OrdersExplorerView::new);
-        viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
-        viewLocator.register(EditItemViewModel.class,    EditItemView::new);
-    }
-
-    public OrderContext orderContext() {
-        return orderContext;
-    }
-
-    public OrdersViewModel orders() {
-        return new OrdersViewModel(
-            orderService::fetchAll,
-            orderContext,
-            order -> viewRouter.route(orderEditor(order))
+    public ShellModule(Window window) {
+        this.appContext = new AppContext(
+            new ViewLocator<>(),
+            new DialogManager(window, new ViewLocator<>())
         );
+
+        this.workspaceContext = new WorkspaceContext();
+
+        appContext.viewLocator().register(MainViewModel.class,
+            vm -> new MainView(vm, appContext.viewLocator()));
     }
 
-    private OrderEditorViewModel orderEditor(Order order) { ... }
+    public AppContext appContext() { return appContext; }
+    public WorkspaceContext workspaceContext() { return workspaceContext; }
+    ...
 }
 ```
 
-```java
-public class CustomerModule {
-
-    private final CustomerService customerService;
-    private final ViewRouter       viewRouter;
-
-    public CustomerModule(ViewLocator viewLocator, ViewRouter viewRouter) {
-        this.customerService = new CustomerService(new InMemoryCustomerRepository());
-        this.viewRouter       = viewRouter;
-
-        viewLocator.register(CustomersViewModel.class,      CustomersExplorerView::new);
-        viewLocator.register(CustomerDetailViewModel.class, CustomerDetailView::new);
-    }
-
-    public CustomersViewModel customers() {
-        return new CustomersViewModel(
-            customerService,
-            customer -> viewRouter.route(customerDetail(customer))
-        );
-    }
-
-    private CustomerDetailViewModel customerDetail(Customer customer) { ... }
-}
-```
-
-`App.start` is reduced to navigation infrastructure, creating modules, and registering views that belong to no specific module:
+`ShellModule.navigation` wires the sidebar callbacks. Each callback calls `workspaceContext.show` with a freshly constructed ViewModel, so navigating to the same screen twice yields independent instances:
 
 ```java
-@Override
-public void start(Stage stage) {
-    var viewLocator = new ViewLocator();
-    var viewRouter  = new ViewRouter(viewLocator);
+public Navigation navigation(
+    OrdersModule orders,
+    CustomersModule customers,
+    SettingsModule settings
+) {
+    Runnable navigateToOrders =
+        () -> workspaceContext.show(orders.ordersExplorerViewModel());
 
-    var orderModule    = new OrderModule(viewLocator, viewRouter);
-    var customerModule = new CustomerModule(viewLocator, viewRouter);
-
-    viewLocator.register(SettingsViewModel.class, SettingsView::new);
-
-    var sidebarVm = new SidebarViewModel(
-        orderModule.orderContext(),
-        () -> viewRouter.route(orderModule.orders()),
-        () -> viewRouter.route(customerModule.customers()),
-        () -> viewRouter.route(new SettingsViewModel(() -> viewRouter.route(orderModule.orders())))
+    return new Navigation(
+        navigateToOrders,
+        () -> workspaceContext.show(customers.customersExplorerViewModel()),
+        () -> workspaceContext.show(settings.settingsViewModel(navigateToOrders))
     );
+}
 
-    var rootView = new MainView(new MainViewModel(sidebarVm), viewRouter);
+public record Navigation(
+    Runnable navigateToOrders,
+    Runnable navigateToCustomers,
+    Runnable navigateToSettings
+) {}
+```
 
-    stage.setScene(new Scene(rootView, 1024, 768));
-    stage.show();
+`ShellModule.mainView` constructs `MainViewModel` — which embeds `SidebarViewModel` — and locates the corresponding view:
 
-    viewRouter.route(orderModule.orders());
+```java
+public Parent mainView(OrderContext orderContext, Navigation navigation) {
+    return appContext.viewLocator().locate(new MainViewModel(
+        new SidebarViewModel(
+            orderContext,
+            navigation.navigateToOrders,
+            navigation.navigateToCustomers,
+            navigation.navigateToSettings
+        ),
+        workspaceContext
+    ));
 }
 ```
 
-Each Module is fully self-contained: `CustomerModule` has no knowledge of `OrderService` or `OrderContext`; `OrderModule` has no knowledge of `CustomerService`. Adding a new domain area means writing a new Module — `App` itself requires only one new line to create it.
+### 6.3 Domain modules
+
+As an application grows, `App` accumulates more factory methods. Modules are the natural way to organise them. Each module is self-contained: it creates its own services and repositories, registers its own ViewModel-to-View mappings with the shared `AppContext`, and exposes factory methods for the screens in its domain.
+
+```java
+public class OrdersModule {
+
+    private final WorkspaceContext workspaces;
+    private final OrderRepository orderRepository;
+    private final OrderContext orderContext;
+
+    public OrdersModule(AppContext appContext, WorkspaceContext workspaces) {
+        this.workspaces = workspaces;
+        this.orderRepository = new InMemoryOrderRepository();
+        this.orderContext = new OrderContext();
+
+        appContext.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
+        appContext.viewLocator().register(OrderEditorViewModel.class, OrderEditorView::new);
+        appContext.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
+    }
+
+    public OrderContext orderContext() { return orderContext; }
+
+    public OrdersExplorerViewModel ordersExplorerViewModel() { ... }
+
+    private OrderEditorViewModel orderEditorViewModel(Order order) { ... }
+}
+```
+
+The constructor does three things: creates the module's own infrastructure, registers its views, and stores any dependencies needed by the factory methods. Public factory methods are the entry points exposed to `App`; private ones handle internal navigation within the domain.
+
+The sample application is split into four modules:
+
+- **`ShellModule`** — navigation infrastructure (`AppContext`, `WorkspaceContext`), the main window layout, and the sidebar. This is created first and passes its shared objects to the domain modules.
+- **`OrdersModule`** — order explorer, order editor, and the line item edit dialog. Owns `OrderRepository`, `CopyOrderService`, and `OrderContext`.
+- **`CustomersModule`** — customer explorer and customer detail. Owns `CustomerService`.
+- **`SettingsModule`** — settings screen only. No domain services; accepts a back-navigation callback from `ShellModule` at the point of use.
+
+### 6.4 Wiring it together
+
+`App.bootstrap` creates modules in dependency order, wires navigation, sets the initial screen, and returns the root view:
+
+```java
+private Parent bootstrap(Stage stage) {
+    var shell = new ShellModule(stage);
+    var orders = new OrdersModule(shell.appContext(), shell.workspaceContext());
+    var customers = new CustomersModule(shell.appContext(), shell.workspaceContext());
+    var settings = new SettingsModule(shell.appContext());
+
+    var navigation = shell.navigation(orders, customers, settings);
+
+    shell.workspaceContext().show(orders.ordersExplorerViewModel());
+
+    return shell.mainView(orders.orderContext(), navigation);
+}
+```
+
+Each module is fully self-contained: `CustomersModule` has no knowledge of `OrderService` or `OrderContext`; `OrdersModule` has no knowledge of `CustomerService`. Adding a new domain area means writing a new Module — `App` itself requires only one new line to create it.
+
+Each factory method produces a fresh ViewModel instance. No state persists between visits to a screen unless it is held in a context object or service.
