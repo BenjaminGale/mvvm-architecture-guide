@@ -5,14 +5,14 @@ This section covers the view layer, describing how views are constructed and con
 ## Contents
 
 - [5.1 View types](#51-view-types)
-  - [Construction patterns for Views](#construction-patterns-for-views)
+  - [5.1.1 Construction patterns for Views](#511-construction-patterns-for-views)
 - [5.2 View classes](#52-view-classes)
 - [5.3 The ViewLocator](#53-the-viewlocator)
 - [5.4 Navigation](#54-navigation)
-  - [Host interfaces](#host-interfaces)
-  - [WorkspaceContext](#workspacecontext)
-  - [DialogManager](#dialogmanager)
-  - [AppContext](#appcontext)
+  - [5.4.1 Host interfaces](#541-host-interfaces)
+  - [5.4.2 WorkspaceContext](#542-workspacecontext)
+  - [5.4.3 DialogManager](#543-dialogmanager)
+  - [5.4.4 AppContext](#544-appcontext)
 - [5.5 Presentation decisions belong to the View](#55-presentation-decisions-belong-to-the-view)
 - [5.6 Adding a new screen](#56-adding-a-new-screen)
 
@@ -26,7 +26,7 @@ This architecture distinguishes between two kinds of view class.
 
 **Component** — A reusable chunk of UI with no ViewModel. Components accept plain data or observable values and contain no application logic. A status badge, a loading indicator, or a formatted label are typical examples.
 
-#### Construction patterns for Views
+#### 5.1.1 Construction patterns for Views
 
 Views are wired in one of two ways depending on how their ViewModel is provided.
 
@@ -114,7 +114,7 @@ viewLocator.register(MainViewModel.class, vm -> new MainView(vm, viewLocator));
 
 Navigation is the act of changing what the user sees. ViewModels never hold references to view-layer infrastructure. Instead they declare navigation intent through **host interfaces**, and the module wires up the implementation. How the host implementation surfaces that intent in the view layer — whether through a shared context object, a direct callback, or some other mechanism — is application-specific and not prescribed by this architecture.
 
-#### Host interfaces
+#### 5.4.1 Host interfaces
 
 A host interface declares the navigation actions a ViewModel can trigger, expressed as domain operations rather than presentation concepts. The ViewModel calls the host; the module supplies an implementation that calls the appropriate view-layer infrastructure.
 
@@ -148,7 +148,7 @@ new OrdersExplorerViewModel(service, new OrdersExplorerHost() {
 });
 ```
 
-#### WorkspaceContext
+#### 5.4.2 WorkspaceContext
 
 The example application uses a `WorkspaceContext` to coordinate workspace navigation. This is an instance of the Context pattern described in section 4.4.2 — a shared observable state object with no presentation responsibility of its own. It holds the currently active ViewModel as an observable property, and the shell view listens to that property and resolves the view via the `ViewLocator`.
 
@@ -168,7 +168,7 @@ workspaceContext.currentWorkspaceProperty().addListener((obs, old, vm) -> {
 
 This is one way to solve the problem. Other approaches — direct callbacks, event buses, or other observable mechanisms — can serve the same role. The architecture does not prescribe a particular mechanism; what it does prescribe is that ViewModels remain unaware of it.
 
-#### DialogManager
+#### 5.4.3 DialogManager
 
 `DialogManager` handles modal dialog presentation. It wraps its own `ViewLocator<Dialog<Runnable>>` and manages dialog lifecycle — owner, modality, and showing.
 
@@ -199,7 +199,7 @@ public interface OrderEditorHost {
 }
 ```
 
-#### AppContext
+#### 5.4.4 AppContext
 
 `AppContext` is a record that groups the shared view-layer infrastructure available to all modules — the workspace `ViewLocator` and the `DialogManager` — so modules do not receive them as separate constructor arguments.
 
