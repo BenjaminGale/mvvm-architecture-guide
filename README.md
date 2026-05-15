@@ -2,8 +2,6 @@
 
 A guide to implementing the Model-View-ViewModel (MVVM) architectural pattern. Includes a sample application and comprehensive documentation demonstrating the pattern in the context of a real world application.
 
-> **Work in progress:** the documentation is currently out of sync with the example application. The code reflects the latest design; the docs are being updated to match.
-
 ## Contents
 
 - [1. Introduction](docs/01-introduction.md)
