@@ -1,27 +1,29 @@
 package mvvm.example.core.view;
 
+import javafx.scene.control.Dialog;
 import javafx.stage.Modality;
 import javafx.stage.Window;
-import mvvm.example.core.viewmodel.AppHost;
+
+import java.util.function.Function;
 
 public class DialogManager {
 
     private final Window owner;
-    private final ViewLocator viewLocator;
-    private final AppHost host;
+    private final ViewLocator<Dialog<Runnable>> viewLocator;
 
-    public DialogManager(Window owner, ViewLocator viewLocator, AppHost host) {
-        this.owner       = owner;
+    public DialogManager(Window owner, ViewLocator<Dialog<Runnable>> viewLocator) {
+        this.owner = owner;
         this.viewLocator = viewLocator;
-        this.host        = host;
     }
 
-    public <VM> void register(Class<VM> vmClass) {
-        host.receive(vmClass, vm -> {
-            var dialog = viewLocator.locateDialog(vm);
-            dialog.initOwner(owner);
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.showAndWait().ifPresent(Runnable::run);
-        });
+    public <TViewModel> void register(Class<TViewModel> vmClass, Function<TViewModel, Dialog<Runnable>> viewFactory) {
+        viewLocator.register(vmClass, viewFactory);
+    }
+
+    public void show(Object viewModel) {
+        var dialog = viewLocator.locate(viewModel);
+        dialog.initOwner(owner);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.showAndWait().ifPresent(Runnable::run);
     }
 }

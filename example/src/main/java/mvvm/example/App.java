@@ -3,48 +3,36 @@ package mvvm.example;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import mvvm.example.core.view.DialogManager;
-import mvvm.example.core.view.ViewLocator;
-import mvvm.example.core.viewmodel.ViewModelRouter;
-import mvvm.example.customers.adapters.CustomerModule;
+import mvvm.example.customers.adapters.CustomersModule;
 import mvvm.example.orders.adapters.OrdersModule;
-import mvvm.example.orders.editor.edititem.EditItemViewModel;
 import mvvm.example.settings.SettingsModule;
-import mvvm.example.shell.main.MainView;
-import mvvm.example.shell.main.MainViewModel;
-import mvvm.example.shell.sidebar.SidebarViewModel;
+import mvvm.example.shell.adapters.ShellModule;
 
 public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-        var viewLocator = new ViewLocator();
-        var viewModelRouter = new ViewModelRouter();
+        var shellModule = new ShellModule(stage);
+        var ordersModule = new OrdersModule(shellModule.appContext(), shellModule.workspaceContext());
+        var customersModule = new CustomersModule(shellModule.appContext(), shellModule.workspaceContext());
+        var settingsModule = new SettingsModule(shellModule.appContext());
 
-        var dialogManager = new DialogManager(stage, viewLocator, viewModelRouter);
-        dialogManager.register(EditItemViewModel.class);
-
-        var orderModule = new OrdersModule(viewLocator, viewModelRouter);
-        var customerModule = new CustomerModule(viewLocator, viewModelRouter);
-        var settingsModule = new SettingsModule(viewLocator, viewModelRouter, orderModule::routeToOrders);
-
-        var mainViewModel = new MainViewModel(
-            new SidebarViewModel(
-                orderModule.orderContext(),
-                orderModule::routeToOrders,
-                customerModule::routeToCustomers,
-                settingsModule::routeToOrders
-            ),
-            viewModelRouter
+        // TODO: Need a better way of doing this...
+        var navigationContext = new ShellModule.NavigationContext(
+            () -> shellModule.workspaceContext().show(ordersModule.orders()),
+            () -> shellModule.workspaceContext().show(customersModule.customers()),
+            () -> shellModule.workspaceContext().show(
+                settingsModule.settings(
+                    () -> shellModule.workspaceContext().show(ordersModule.orders())
+                )
+            )
         );
 
-        var rootView = new MainView(mainViewModel, viewLocator);
+        shellModule.workspaceContext().show(ordersModule.orders());
+        var mainView = shellModule.mainView(ordersModule.orderContext(), navigationContext);
 
         stage.setTitle("Order Management");
-        stage.setScene(new Scene(rootView, 1024, 768));
+        stage.setScene(new Scene(mainView, 1024, 768));
         stage.show();
-
-        // Show initial screen
-        viewModelRouter.dispatch(orderModule.orders());
     }
 }

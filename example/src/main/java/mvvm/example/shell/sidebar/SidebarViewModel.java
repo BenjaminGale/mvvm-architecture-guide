@@ -28,7 +28,7 @@ public class SidebarViewModel {
         return pendingOrderCount;
     }
 
-    public void navigateToOrders()    { onOrders.run(); }
+    public void navigateToOrders() { onOrders.run(); }
     public void navigateToCustomers() { onCustomers.run(); }
-    public void navigateToSettings()  { onSettings.run(); }
+    public void navigateToSettings() { onSettings.run(); }
 }

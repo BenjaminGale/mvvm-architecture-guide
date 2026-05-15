@@ -22,10 +22,10 @@ class ViewLocatorTest {
         @Test
         @DisplayName("the expected view is returned when resolving the registered viewModel")
         void resolvesCorrectViewType() {
-            var locator = new ViewLocator();
+            var locator = new ViewLocator<Region>();
             locator.register(StubViewModel.class, vm -> new StubView());
 
-            Region view = locator.resolve(new StubViewModel());
+            Region view = locator.locate(new StubViewModel());
 
             assertInstanceOf(StubView.class, view);
         }
@@ -38,10 +38,10 @@ class ViewLocatorTest {
         @Test
         @DisplayName("an exception is thrown when resolving the unregistered viewModel")
         void throwsForUnregisteredViewModel() {
-            var locator = new ViewLocator();
+            var locator = new ViewLocator<Region>();
 
             assertThrows(IllegalStateException.class,
-                () -> locator.resolve(new OtherViewModel()));
+                () -> locator.locate(new OtherViewModel()));
         }
     }
 }
