@@ -29,7 +29,7 @@ public class App extends Application {
             customers
         );
 
-        shell.workspaceContext().show(orders.ordersExplorerViewModel());
+        shell.workspaceContext().show(orders::ordersExplorerViewModel);
 
         return shell.mainView(
             orders.orderContext(),

@@ -57,8 +57,8 @@ public class ShellModule {
 
     public Navigation navigation(OrdersModule orders, CustomersModule customers) {
         return new Navigation(
-            () -> workspaceContext.show(orders.ordersExplorerViewModel()),
-            () -> workspaceContext.show(customers.customersExplorerViewModel())
+            () -> workspaceContext.show(orders::ordersExplorerViewModel),
+            () -> workspaceContext.show(customers::customersExplorerViewModel)
         );
     }
 

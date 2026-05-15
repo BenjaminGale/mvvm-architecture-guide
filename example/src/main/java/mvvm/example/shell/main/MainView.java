@@ -17,7 +17,7 @@ public class MainView extends StackPane {
         var layout = new BorderPane();
         layout.setLeft(new SidebarView(viewModel.getSidebar()));
         layout.setCenter(workspace);
-        layout.setBottom(new StatusBarView(viewModel.statusTextProperty()));
+        layout.setBottom(new StatusBarView(viewModel.statusMessages()));
 
         getChildren().add(layout);
 

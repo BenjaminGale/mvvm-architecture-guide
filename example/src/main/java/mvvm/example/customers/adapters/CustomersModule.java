@@ -25,14 +25,14 @@ public class CustomersModule {
     public CustomersExplorerViewModel customersExplorerViewModel() {
         return new CustomersExplorerViewModel(
             customerService,
-            customer -> workspaces.show(customerDetailViewModel(customer))
+            customer -> workspaces.show(() -> customerDetailViewModel(customer))
         );
     }
 
     private CustomerDetailViewModel customerDetailViewModel(Customer customer) {
         return new CustomerDetailViewModel(
             customer,
-            () -> workspaces.show(customersExplorerViewModel())
+            () -> workspaces.show(this::customersExplorerViewModel)
         );
     }
 }

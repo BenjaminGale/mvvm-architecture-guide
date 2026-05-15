@@ -53,9 +53,10 @@ public class OrdersModule {
         return new OrdersExplorerViewModel(
             orderRepository::findAll,
             new OrdersExplorerHost() {
-                @Override public void showOrderDetails(Order order) { workspaces.show(orderEditorViewModel(order)); }
+                @Override public void showOrderDetails(Order order) { workspaces.show(() -> orderEditorViewModel(order)); }
                 @Override public void setPendingOrderCount(int count) { orderContext.setCount(count); }
-            }
+            },
+            workspaces.statusMessages()
         );
     }
 
@@ -68,8 +69,8 @@ public class OrdersModule {
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
-                @Override public void returnToList() { workspaces.show(ordersExplorerViewModel()); }
-                @Override public void openOrder(Order copied) { workspaces.show(orderEditorViewModel(copied)); }
+                @Override public void returnToList() { workspaces.show(OrdersModule.this::ordersExplorerViewModel); }
+                @Override public void openOrder(Order copied) { workspaces.show(() -> orderEditorViewModel(copied)); }
                 @Override public void showItemEditor(EditItemRequest request) { appContext.dialogManager().show(editItemViewModel(request)); }
             });
     }

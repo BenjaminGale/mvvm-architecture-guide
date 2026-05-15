@@ -15,17 +15,17 @@ public class OrdersExplorerViewModelScenarios {
     private static final LocalDate OLDER = LocalDate.of(2026, 5, 1);
     private static final LocalDate OVERDUE = LocalDate.of(2026, 4, 1);
 
-    public static Stream<Arguments> statusTextCases() {
+    public static Stream<Arguments> statusMessageCases() {
         return Stream.of(
             Arguments.of(
                 "no orders",
                 List.of(),
-                "0 orders, 0 overdue"
+                "0 orders", "0 overdue"
             ),
             Arguments.of(
                 "single non-overdue order",
                 List.of(MockOrders.of("1", RECENT)),
-                "1 orders, 0 overdue"
+                "1 orders", "0 overdue"
             ),
             Arguments.of(
                 "mixed overdue and non-overdue orders",
@@ -33,7 +33,7 @@ public class OrdersExplorerViewModelScenarios {
                     MockOrders.of("1", RECENT),
                     MockOrders.of("2", OVERDUE)
                 ),
-                "2 orders, 1 overdue"
+                "2 orders", "1 overdue"
             ),
             Arguments.of(
                 "all orders overdue",
@@ -42,7 +42,7 @@ public class OrdersExplorerViewModelScenarios {
                     MockOrders.of("2", OVERDUE),
                     MockOrders.of("3", OVERDUE)
                 ),
-                "3 orders, 3 overdue"
+                "3 orders", "3 overdue"
             )
         );
     }

@@ -12,14 +12,16 @@ import java.util.Comparator;
 public class OrdersExplorerViewModel {
 
     private final ObservableList<Order> orders = FXCollections.observableArrayList();
-    private final StringProperty statusText = new SimpleStringProperty("");
+    private final StringProperty orderCountText = new SimpleStringProperty("");
+    private final StringProperty overdueCountText = new SimpleStringProperty("");
 
     private final OrdersExplorerService service;
     private final OrdersExplorerHost host;
 
-    public OrdersExplorerViewModel(OrdersExplorerService service, OrdersExplorerHost host) {
+    public OrdersExplorerViewModel(OrdersExplorerService service, OrdersExplorerHost host, ObservableList<ReadOnlyStringProperty> statusMessages) {
         this.service = service;
         this.host = host;
+        statusMessages.addAll(orderCountText, overdueCountText);
         refresh();
     }
 
@@ -27,8 +29,12 @@ public class OrdersExplorerViewModel {
         return orders;
     }
 
-    public ReadOnlyStringProperty statusTextProperty() {
-        return statusText;
+    public ReadOnlyStringProperty orderCountTextProperty() {
+        return orderCountText;
+    }
+
+    public ReadOnlyStringProperty overdueCountTextProperty() {
+        return overdueCountText;
     }
 
     public void refresh() {
@@ -40,10 +46,11 @@ public class OrdersExplorerViewModel {
 
         orders.setAll(result);
 
-        var pendingCount = (int) result.stream().filter(Order::isOverdue).count();
-        host.setPendingOrderCount(pendingCount);
+        var overdueCount = (int) result.stream().filter(Order::isOverdue).count();
+        host.setPendingOrderCount(overdueCount);
 
-        statusText.set(result.size() + " orders, " + pendingCount + " overdue");
+        orderCountText.set(result.size() + " orders");
+        overdueCountText.set(overdueCount + " overdue");
     }
 
     public void openOrder(Order order) {
