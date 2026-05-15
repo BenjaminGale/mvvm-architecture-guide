@@ -24,7 +24,39 @@ This architecture distinguishes between two kinds of view class.
 
 **View** — A class bound to a single ViewModel. It binds its controls to the ViewModel's observable properties and delegates user interactions back to it. All views follow the construction conventions in section 5.2.
 
-**Component** — A reusable chunk of UI with no ViewModel. Components accept plain data or observable values and contain no application logic. A status badge, a loading indicator, or a formatted label are typical examples.
+**Component** — A reusable chunk of UI that contains no application logic and is never registered with the `ViewLocator`. Components typically accept individual observable properties or plain values rather than a ViewModel, though a parent may pass a ViewModel directly if the component is tightly scoped to it. A status badge, a loading indicator, or a formatted label are typical examples.
+
+```java
+// Accepts individual observable properties
+public class StatusBadge extends HBox {
+    public StatusBadge(ObservableValue<Status> status) {
+        label.textProperty().bind(status.map(Status::displayName));
+        ...
+    }
+}
+
+// Accepts plain values
+public class SectionHeader extends Label {
+    public SectionHeader(String title) {
+        setText(title);
+        getStyleClass().add("section-header");
+    }
+}
+```
+
+Components should expose the least derived return type — typically `Region` or `Node` — so callers receive only enough handle to place the component in the layout. A static factory method is a natural fit for this:
+
+```java
+public class StatusBadge extends HBox {
+    public static Region create(ObservableValue<Status> status) {
+        return new StatusBadge(status);
+    }
+
+    private StatusBadge(ObservableValue<Status> status) { ... }
+}
+```
+
+Once placed, the component reacts to property changes internally. Its creator has no further interaction with it.
 
 #### 5.1.1 Construction patterns for Views
 
@@ -42,10 +74,9 @@ var lineItemsView = new LineItemsView(viewModel.getLineItems());
 
 ```java
 viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
-viewLocator.register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
 ```
 
-The invariants from section 4.1.3 determine which pattern applies: if the ViewModel has no external dependencies and the view always renders inside the parent's layout, instantiate it directly; otherwise register it with the `ViewLocator`. Full screens, dialogs, and any view the workspace presents will always fall into the latter category.
+If the ViewModel has no external dependencies and the view always renders inside the parent's layout, instantiate it directly; otherwise register it with the `ViewLocator`. Full screens, dialogs, and any view the workspace presents will always fall into the latter category. (See section 4.1.3 for the underlying invariants, and 5.3 for the registration API.)
 
 ### 5.2 View classes
 
@@ -106,6 +137,8 @@ viewLocator.register(MainViewModel.class, vm -> new MainView(vm, viewLocator));
 
 Navigation is the act of changing what the user sees. ViewModels never hold references to view-layer infrastructure. Instead they declare navigation intent through **host interfaces**, and the module wires up the implementation. How the host implementation surfaces that intent in the view layer — whether through a shared context object, a direct callback, or some other mechanism — is application-specific and not prescribed by this architecture.
 
+Host interfaces declare navigation intent; `WorkspaceContext` and `DialogManager` fulfil it in the view layer; `AppContext` groups them for convenient module access.
+
 #### 5.4.1 Host interfaces
 
 A host interface declares the navigation actions a ViewModel can trigger, expressed as domain operations rather than presentation concepts. The ViewModel calls the host; the module supplies an implementation that calls the appropriate view-layer infrastructure.
@@ -129,7 +162,7 @@ public class OrdersExplorerViewModel {
 }
 ```
 
-The module provides the implementation, translating navigation intent into view-layer calls:
+The module provides the implementation, translating navigation intent into view-layer calls (see 5.4.2 for `WorkspaceContext`):
 
 ```java
 new OrdersExplorerViewModel(service, new OrdersExplorerHost() {
@@ -171,7 +204,7 @@ public class DialogManager {
 }
 ```
 
-Dialogs are registered in the module alongside workspace views:
+Dialogs are registered in the module alongside workspace views (see 5.4.4 for `AppContext`):
 
 ```java
 appContext.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
