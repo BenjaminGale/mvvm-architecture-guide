@@ -45,15 +45,7 @@ viewLocator.register(OrderEditorViewModel.class, OrderEditorView::new);
 viewLocator.register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
 ```
 
-The invariants from section 4.1.3 determine which pattern applies. If a view's ViewModel requires external dependencies or the view could appear outside the parent's layout, it must be registered with the `ViewLocator`.
-
-| | Directly instantiated | ViewLocator-registered |
-|---|---|---|
-| **ViewModel source** | Provided by a parent ViewModel as a sub-ViewModel | Constructed in the module |
-| **Use when** | ViewModel has no external dependencies and the view always renders inside the parent's layout | ViewModel requires services, or the view may appear outside the parent's layout |
-| **ViewLocator registration** | Never registered | Always registered |
-| **Presented via** | Constructed inline in the parent view | `ViewLocator.locate` |
-| **Typical examples** | Header, line items, summary panel within an editor | Full screens, dialogs, any view the workspace or dialog manager presents |
+The invariants from section 4.1.3 determine which pattern applies: if the ViewModel has no external dependencies and the view always renders inside the parent's layout, instantiate it directly; otherwise register it with the `ViewLocator`. Full screens, dialogs, and any view the workspace presents will always fall into the latter category.
 
 ### 5.2 View classes
 
