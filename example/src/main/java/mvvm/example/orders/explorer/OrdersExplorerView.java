@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import mvvm.example.core.view.controls.Controls;
 import mvvm.example.core.view.controls.CurrencyTableCell;
+import mvvm.example.core.view.controls.LocalDateTableCell;
 import mvvm.example.core.view.controls.TableViews;
 import mvvm.example.orders.domain.Order;
 
@@ -15,8 +16,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class OrdersExplorerView extends BorderPane {
-
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
     public OrdersExplorerView(OrdersExplorerViewModel viewModel) {
         var table = new TableView<Order>();
@@ -38,46 +37,40 @@ public class OrdersExplorerView extends BorderPane {
         setTop(toolbar);
         setCenter(table);
 
-        refreshButton.setOnAction(e -> viewModel.refresh());
+        refreshButton.setOnAction(_ -> viewModel.refresh());
 
         TableViews.onActivate(table, viewModel::openOrder);
 
         Controls.focusOnShow(table);
     }
 
-    private TableColumn<Order, String> referenceColumn() {
+    private static TableColumn<Order, String> referenceColumn() {
         var col = new TableColumn<Order, String>("Reference");
         col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().reference()));
         return col;
     }
 
-    private TableColumn<Order, String> customerColumn() {
+    private static TableColumn<Order, String> customerColumn() {
         var col = new TableColumn<Order, String>("Customer");
         col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().customerName()));
         return col;
     }
 
-    private TableColumn<Order, LocalDate> dateColumn() {
+    private static TableColumn<Order, LocalDate> dateColumn() {
         var col = new TableColumn<Order, LocalDate>("Date");
         col.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().date()));
-        col.setCellFactory(c -> new TableCell<>() {
-            @Override
-            protected void updateItem(LocalDate date, boolean empty) {
-                super.updateItem(date, empty);
-                setText(empty || date == null ? null : DATE_FORMAT.format(date));
-            }
-        });
+        col.setCellFactory(LocalDateTableCell.forTableColumn(DateTimeFormatter.ofPattern("dd MMM yyyy")));
         return col;
     }
 
-    private TableColumn<Order, BigDecimal> totalColumn() {
+    private static TableColumn<Order, BigDecimal> totalColumn() {
         var col = new TableColumn<Order, BigDecimal>("Total");
         col.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().total()));
         col.setCellFactory(CurrencyTableCell.forTableColumn());
         return col;
     }
 
-    private TableColumn<Order, String> overdueColumn() {
+    private static TableColumn<Order, String> overdueColumn() {
         var col = new TableColumn<Order, String>("Overdue");
         col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().isOverdue() ? "Yes" : ""));
         return col;

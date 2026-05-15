@@ -4,12 +4,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import mvvm.example.core.view.ViewLocator;
 import mvvm.example.core.view.controls.Buttons;
+import mvvm.example.core.view.controls.Spacer;
 
 public class OrderEditorView extends BorderPane {
 
@@ -18,10 +18,7 @@ public class OrderEditorView extends BorderPane {
         var copyBtn = new Button("Copy");
         var deleteBtn = new Button("Delete");
 
-        var spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        var toolbar = new ToolBar(saveBtn, spacer, copyBtn, deleteBtn);
+        var toolbar = new ToolBar(saveBtn, Spacer.create(), copyBtn, deleteBtn);
 
         var headerView = viewLocator.locate(viewModel.getHeader());
         var lineItemsView = viewLocator.locate(viewModel.getLineItems());

@@ -28,19 +28,19 @@ public class CustomersExplorerView extends BorderPane {
         Controls.focusOnShow(table);
     }
 
-    private TableColumn<Customer, String> nameColumn() {
+    private static TableColumn<Customer, String> nameColumn() {
         var col = new TableColumn<Customer, String>("Name");
         col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().name()));
         return col;
     }
 
-    private TableColumn<Customer, String> emailColumn() {
+    private static TableColumn<Customer, String> emailColumn() {
         var col = new TableColumn<Customer, String>("Email");
         col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().email()));
         return col;
     }
 
-    private TableColumn<Customer, String> statusColumn() {
+    private static TableColumn<Customer, String> statusColumn() {
         var col = new TableColumn<Customer, String>("Status");
         col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().status().displayName()));
         return col;
