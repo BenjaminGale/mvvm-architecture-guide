@@ -24,8 +24,6 @@ public class App extends Application {
         var orders = new OrdersModule(shell.appContext(), shell.context());
         var customers = new CustomersModule(shell.appContext(), shell.context());
 
-        orders.showExplorer();
-
         return shell.mainView(orders.sidebarItem(), customers.sidebarItem());
     }
 }
