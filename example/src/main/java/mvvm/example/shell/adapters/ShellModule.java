@@ -7,7 +7,7 @@ import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewLocator;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
-import mvvm.example.shell.WorkspaceContext;
+import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.main.MainView;
 import mvvm.example.shell.main.statusbar.StatusItemView;
 import mvvm.example.shell.main.MainViewModel;
@@ -17,7 +17,7 @@ import mvvm.example.shell.main.sidebar.SidebarViewModel;
 public class ShellModule {
 
     private final AppContext appContext;
-    private final WorkspaceContext workspaceContext;
+    private final ShellContext shellContext;
 
     public ShellModule(Window window) {
         this.appContext = new AppContext(
@@ -28,7 +28,7 @@ public class ShellModule {
             )
         );
 
-        this.workspaceContext = new WorkspaceContext();
+        this.shellContext = new ShellContext();
 
         this.appContext.viewLocator().register(MainViewModel.class, vm -> new MainView(vm, this.appContext.viewLocator()));
         this.appContext.viewLocator().register(StatusItemViewModel.class, StatusItemView::new);
@@ -38,8 +38,8 @@ public class ShellModule {
         return appContext;
     }
 
-    public WorkspaceContext workspaceContext() {
-        return workspaceContext;
+    public ShellContext context() {
+        return shellContext;
     }
 
     public Parent mainView(OrderContext orderContext, SidebarHost sidebarHost) {
@@ -49,7 +49,7 @@ public class ShellModule {
     private MainViewModel mainViewModel(OrderContext orderContext, SidebarHost sidebarHost) {
         return new MainViewModel(
             new SidebarViewModel(orderContext, sidebarHost),
-            workspaceContext
+            shellContext
         );
     }
 }

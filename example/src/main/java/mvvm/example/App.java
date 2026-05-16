@@ -22,8 +22,8 @@ public class App extends Application {
 
     private Parent bootstrap(Stage stage) {
         var shell = new ShellModule(stage);
-        var orders = new OrdersModule(shell.appContext(), shell.workspaceContext());
-        var customers = new CustomersModule(shell.appContext(), shell.workspaceContext());
+        var orders = new OrdersModule(shell.appContext(), shell.context());
+        var customers = new CustomersModule(shell.appContext(), shell.context());
 
         orders.showExplorer();
 

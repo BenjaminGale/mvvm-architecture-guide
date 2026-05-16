@@ -5,18 +5,24 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
 import java.util.function.Supplier;
 
-public class WorkspaceContext {
+public class ShellContext {
 
+    private final ObservableList<SidebarItemViewModel> sidebarItems = FXCollections.observableArrayList();
     private final ObjectProperty<Object> currentWorkspaceProperty = new SimpleObjectProperty<>(this, "currentWorkspace");
     private final ObservableList<StatusItemViewModel> statusItems = FXCollections.observableArrayList();
 
     public void show(Supplier<Object> factory) {
         statusItems.clear();
         currentWorkspaceProperty.set(factory.get());
+    }
+
+    public ObservableList<SidebarItemViewModel> sidebarItems() {
+        return sidebarItems;
     }
 
     public ReadOnlyObjectProperty<Object> currentWorkspaceProperty() {

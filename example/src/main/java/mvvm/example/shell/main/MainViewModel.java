@@ -2,21 +2,21 @@ package mvvm.example.shell.main;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
-import mvvm.example.shell.WorkspaceContext;
+import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 import mvvm.example.shell.main.sidebar.SidebarViewModel;
 
 public class MainViewModel {
 
     private final SidebarViewModel sidebar;
-    private final WorkspaceContext workspaces;
+    private final ShellContext shell;
 
     public MainViewModel(
         SidebarViewModel sidebar,
-        WorkspaceContext workspaces
+        ShellContext shell
     ) {
         this.sidebar = sidebar;
-        this.workspaces = workspaces;
+        this.shell = shell;
     }
 
     public SidebarViewModel getSidebar() {
@@ -24,10 +24,10 @@ public class MainViewModel {
     }
 
     public ReadOnlyObjectProperty<Object> currentWorkspaceProperty() {
-        return workspaces.currentWorkspaceProperty();
+        return shell.currentWorkspaceProperty();
     }
 
     public ObservableList<StatusItemViewModel> statusItems() {
-        return workspaces.statusItems();
+        return shell.statusItems();
     }
 }
