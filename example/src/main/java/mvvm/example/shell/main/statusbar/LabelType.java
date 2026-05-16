@@ -1,4 +1,4 @@
-package mvvm.example.shell;
+package mvvm.example.shell.main.statusbar;
 
 public enum LabelType {
     All_ORDERS,

@@ -1,4 +1,4 @@
-package mvvm.example.shell.sidebar;
+package mvvm.example.shell.main.sidebar;
 
 import mvvm.example.orders.context.OrderContext;
 import org.junit.jupiter.api.DisplayName;

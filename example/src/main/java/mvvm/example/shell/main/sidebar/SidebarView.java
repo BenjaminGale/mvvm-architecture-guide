@@ -1,4 +1,4 @@
-package mvvm.example.shell.sidebar;
+package mvvm.example.shell.main.sidebar;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

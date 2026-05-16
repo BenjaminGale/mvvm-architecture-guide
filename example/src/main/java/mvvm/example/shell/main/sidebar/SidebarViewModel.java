@@ -1,4 +1,4 @@
-package mvvm.example.shell.sidebar;
+package mvvm.example.shell.main.sidebar;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerProperty;

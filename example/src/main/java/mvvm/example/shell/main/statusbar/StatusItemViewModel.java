@@ -1,7 +1,6 @@
 package mvvm.example.shell.main.statusbar;
 
 import javafx.beans.property.ReadOnlyIntegerProperty;
-import mvvm.example.shell.LabelType;
 
 public class StatusItemViewModel {
 

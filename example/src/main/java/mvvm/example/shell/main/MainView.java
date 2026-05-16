@@ -5,7 +5,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import mvvm.example.core.view.ViewLocator;
 import mvvm.example.shell.main.statusbar.StatusBarView;
-import mvvm.example.shell.sidebar.SidebarView;
+import mvvm.example.shell.main.sidebar.SidebarView;
 
 public class MainView extends StackPane {
 

@@ -11,8 +11,8 @@ import mvvm.example.shell.WorkspaceContext;
 import mvvm.example.shell.main.MainView;
 import mvvm.example.shell.main.statusbar.StatusItemView;
 import mvvm.example.shell.main.MainViewModel;
-import mvvm.example.shell.sidebar.SidebarHost;
-import mvvm.example.shell.sidebar.SidebarViewModel;
+import mvvm.example.shell.main.sidebar.SidebarHost;
+import mvvm.example.shell.main.sidebar.SidebarViewModel;
 
 public class ShellModule {
 

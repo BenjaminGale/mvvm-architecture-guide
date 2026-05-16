@@ -1,4 +1,4 @@
-package mvvm.example.shell.sidebar;
+package mvvm.example.shell.main.sidebar;
 
 public interface SidebarHost {
     void openOrdersWorkspace();

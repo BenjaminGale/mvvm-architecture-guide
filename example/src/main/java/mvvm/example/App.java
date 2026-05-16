@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 import mvvm.example.customers.adapters.CustomersModule;
 import mvvm.example.orders.adapters.OrdersModule;
 import mvvm.example.shell.adapters.ShellModule;
-import mvvm.example.shell.sidebar.SidebarHost;
+import mvvm.example.shell.main.sidebar.SidebarHost;
 
 public class App extends Application {
 

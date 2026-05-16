@@ -4,7 +4,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import mvvm.example.shell.WorkspaceContext;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
-import mvvm.example.shell.sidebar.SidebarViewModel;
+import mvvm.example.shell.main.sidebar.SidebarViewModel;
 
 public class MainViewModel {
 
