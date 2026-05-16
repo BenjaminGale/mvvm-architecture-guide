@@ -46,10 +46,6 @@ public class OrdersModule {
         view.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
     }
 
-    public OrderContext orderContext() {
-        return orderContext;
-    }
-
     public SidebarItemViewModel sidebarItem() {
         return new SidebarItemViewModel("Orders", this::showExplorer, orderContext.pendingCountProperty());
     }
