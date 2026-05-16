@@ -5,8 +5,12 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import mvvm.example.core.view.controls.Buttons;
+import mvvm.example.core.view.controls.Labels;
+import mvvm.example.core.view.controls.Spacer;
 
 public class SidebarView extends BorderPane {
 
@@ -48,7 +52,11 @@ public class SidebarView extends BorderPane {
     private Button navigationButton(SidebarItemViewModel viewModel) {
         var button = new Button();
 
-        button.textProperty().bind(viewModel.titleProperty());
+        var titleLabel = new Label();
+        titleLabel.textProperty().bind(viewModel.titleProperty());
+
+        button.setGraphic(new HBox(titleLabel, Spacer.create(), Labels.badge(viewModel.countProperty())));
+        button.setContentDisplay(ContentDisplay.RIGHT);
         button.setMaxWidth(Double.MAX_VALUE);
         button.setAlignment(Pos.CENTER_LEFT);
 

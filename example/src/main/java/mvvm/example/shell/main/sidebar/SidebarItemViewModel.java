@@ -14,6 +14,11 @@ public class SidebarItemViewModel {
         this.openWorkspaceAction = new Action(openWorkspace);
     }
 
+    public SidebarItemViewModel(String title, Action.Listener openWorkspace, ReadOnlyIntegerProperty count) {
+        this(title, openWorkspace);
+        this.count.bind(count);
+    }
+
     public Action openWorkspaceAction() {
         return openWorkspaceAction;
     }

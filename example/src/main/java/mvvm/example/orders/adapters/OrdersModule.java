@@ -51,7 +51,7 @@ public class OrdersModule {
     }
 
     public SidebarItemViewModel sidebarItem() {
-        return new SidebarItemViewModel("Orders", this::showExplorer);
+        return new SidebarItemViewModel("Orders", this::showExplorer, orderContext.pendingCountProperty());
     }
 
     public void showExplorer() {
