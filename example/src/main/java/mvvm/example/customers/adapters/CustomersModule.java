@@ -1,6 +1,7 @@
 package mvvm.example.customers.adapters;
 
 import mvvm.example.AppContext;
+import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.customers.detail.CustomerDetailView;
 import mvvm.example.customers.detail.CustomerDetailViewModel;
 import mvvm.example.customers.domain.Customer;
@@ -20,6 +21,10 @@ public class CustomersModule {
 
         appContext.viewLocator().register(CustomersExplorerViewModel.class, CustomersExplorerView::new);
         appContext.viewLocator().register(CustomerDetailViewModel.class, CustomerDetailView::new);
+    }
+
+    public SidebarItemViewModel sidebarItem() {
+        return new SidebarItemViewModel("Customers", this::showExplorer);
     }
 
     public void showExplorer() {

@@ -5,8 +5,6 @@ import javafx.stage.Window;
 import mvvm.example.AppContext;
 import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewLocator;
-import mvvm.example.customers.adapters.CustomersModule;
-import mvvm.example.orders.adapters.OrdersModule;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.shell.main.sidebar.SidebarView;
 import mvvm.example.shell.main.statusbar.StatusBarView;
@@ -49,12 +47,8 @@ public class ShellModule {
         return shell;
     }
 
-    public Parent mainView(OrdersModule order, CustomersModule customers) {
-        shell.navigationItems().addAll(
-            new SidebarItemViewModel("Orders", order::showExplorer),
-            new SidebarItemViewModel("Customers", customers::showExplorer)
-        );
-
+    public Parent mainView(SidebarItemViewModel... items) {
+        shell.navigationItems().addAll(items);
         return appContext.viewLocator().locate(mainViewModel());
     }
 

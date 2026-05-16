@@ -1,6 +1,7 @@
 package mvvm.example.orders.adapters;
 
 import mvvm.example.AppContext;
+import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.CopyOrderService;
@@ -47,6 +48,10 @@ public class OrdersModule {
 
     public OrderContext orderContext() {
         return orderContext;
+    }
+
+    public SidebarItemViewModel sidebarItem() {
+        return new SidebarItemViewModel("Orders", this::showExplorer);
     }
 
     public void showExplorer() {

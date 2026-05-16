@@ -26,6 +26,6 @@ public class App extends Application {
 
         orders.showExplorer();
 
-        return shell.mainView(orders, customers);
+        return shell.mainView(orders.sidebarItem(), customers.sidebarItem());
     }
 }
