@@ -7,15 +7,15 @@ import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerService;
 import mvvm.example.customers.explorer.CustomersExplorerView;
 import mvvm.example.customers.explorer.CustomersExplorerViewModel;
-import mvvm.example.shell.WorkspaceContext;
+import mvvm.example.shell.ShellContext;
 
 public class CustomersModule {
 
-    private final WorkspaceContext workspaces;
+    private final ShellContext shell;
     private final CustomerService customerService;
 
-    public CustomersModule(AppContext  appContext, WorkspaceContext workspaceContext) {
-        this.workspaces = workspaceContext;
+    public CustomersModule(AppContext appContext, ShellContext shell) {
+        this.shell = shell;
         this.customerService = new CustomerService(new InMemoryCustomerRepository());
 
         appContext.viewLocator().register(CustomersExplorerViewModel.class, CustomersExplorerView::new);
@@ -23,20 +23,20 @@ public class CustomersModule {
     }
 
     public void showExplorer() {
-        workspaces.show(this::customersExplorerViewModel);
+        shell.show(this::customersExplorerViewModel);
     }
 
     public CustomersExplorerViewModel customersExplorerViewModel() {
         return new CustomersExplorerViewModel(
             customerService,
-            customer -> workspaces.show(() -> customerDetailViewModel(customer))
+            customer -> shell.show(() -> customerDetailViewModel(customer))
         );
     }
 
     private CustomerDetailViewModel customerDetailViewModel(Customer customer) {
         return new CustomerDetailViewModel(
             customer,
-            () -> workspaces.show(this::customersExplorerViewModel)
+            () -> shell.show(this::customersExplorerViewModel)
         );
     }
 }

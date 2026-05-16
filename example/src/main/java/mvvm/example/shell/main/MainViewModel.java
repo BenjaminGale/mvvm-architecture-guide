@@ -1,33 +1,34 @@
 package mvvm.example.shell.main;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.collections.ObservableList;
-import mvvm.example.shell.WorkspaceContext;
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
+import mvvm.example.shell.main.statusbar.StatusBarViewModel;
 import mvvm.example.shell.main.sidebar.SidebarViewModel;
 
 public class MainViewModel {
 
     private final SidebarViewModel sidebar;
-    private final WorkspaceContext workspaces;
+    private final StatusBarViewModel statusBar;
+    private final ReadOnlyObjectProperty<Object> currentWorkspace;
 
     public MainViewModel(
         SidebarViewModel sidebar,
-        WorkspaceContext workspaces
+        StatusBarViewModel statusBar,
+        ReadOnlyObjectProperty<Object> currentWorkspace
     ) {
         this.sidebar = sidebar;
-        this.workspaces = workspaces;
+        this.statusBar = statusBar;
+        this.currentWorkspace = currentWorkspace;
     }
 
     public SidebarViewModel getSidebar() {
         return sidebar;
     }
 
-    public ReadOnlyObjectProperty<Object> currentWorkspaceProperty() {
-        return workspaces.currentWorkspaceProperty();
+    public StatusBarViewModel getStatusBar() {
+        return statusBar;
     }
 
-    public ObservableList<StatusItemViewModel> statusItems() {
-        return workspaces.statusItems();
+    public ReadOnlyObjectProperty<Object> currentWorkspaceProperty() {
+        return currentWorkspace;
     }
 }

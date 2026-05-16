@@ -19,20 +19,20 @@ import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
 import mvvm.example.orders.explorer.OrdersExplorerHost;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
-import mvvm.example.shell.WorkspaceContext;
+import mvvm.example.shell.ShellContext;
 
 public class OrdersModule {
 
     private final AppContext appContext;
-    private final WorkspaceContext workspaces;
+    private final ShellContext shell;
 
     private final OrderRepository orderRepository;
     private final CopyOrderService orderService;
     private final OrderContext orderContext;
 
-    public OrdersModule(AppContext appContext, WorkspaceContext workspaces) {
+    public OrdersModule(AppContext appContext, ShellContext shell) {
         this.appContext = appContext;
-        this.workspaces = workspaces;
+        this.shell = shell;
 
         this.orderRepository = new InMemoryOrderRepository();
         this.orderService = new CopyOrderService(this.orderRepository);
@@ -50,17 +50,17 @@ public class OrdersModule {
     }
 
     public void showExplorer() {
-        workspaces.show(this::ordersExplorerViewModel);
+        shell.show(this::ordersExplorerViewModel);
     }
 
     public OrdersExplorerViewModel ordersExplorerViewModel() {
         return new OrdersExplorerViewModel(
             orderRepository::findAll,
             new OrdersExplorerHost() {
-                @Override public void showOrderDetails(Order order) { workspaces.show(() -> orderEditorViewModel(order)); }
+                @Override public void showOrderDetails(Order order) { shell.show(() -> orderEditorViewModel(order)); }
                 @Override public void setPendingOrderCount(int count) { orderContext.setCount(count); }
             },
-            workspaces.statusItems()
+            shell.statusItems()
         );
     }
 
@@ -73,8 +73,8 @@ public class OrdersModule {
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
-                @Override public void returnToList() { workspaces.show(OrdersModule.this::ordersExplorerViewModel); }
-                @Override public void openOrder(Order copied) { workspaces.show(() -> orderEditorViewModel(copied)); }
+                @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
+                @Override public void openOrder(Order copied) { shell.show(() -> orderEditorViewModel(copied)); }
                 @Override public void showItemEditor(EditItemRequest request) { appContext.dialogManager().show(editItemViewModel(request)); }
             });
     }

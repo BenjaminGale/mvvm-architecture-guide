@@ -5,19 +5,23 @@ import javafx.stage.Window;
 import mvvm.example.AppContext;
 import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewLocator;
-import mvvm.example.orders.context.OrderContext;
+import mvvm.example.customers.adapters.CustomersModule;
+import mvvm.example.orders.adapters.OrdersModule;
+import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
+import mvvm.example.shell.main.sidebar.SidebarView;
+import mvvm.example.shell.main.statusbar.StatusBarView;
+import mvvm.example.shell.main.statusbar.StatusBarViewModel;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
-import mvvm.example.shell.WorkspaceContext;
+import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.main.MainView;
 import mvvm.example.shell.main.statusbar.StatusItemView;
 import mvvm.example.shell.main.MainViewModel;
-import mvvm.example.shell.main.sidebar.SidebarHost;
 import mvvm.example.shell.main.sidebar.SidebarViewModel;
 
 public class ShellModule {
 
     private final AppContext appContext;
-    private final WorkspaceContext workspaceContext;
+    private final ShellContext shell;
 
     public ShellModule(Window window) {
         this.appContext = new AppContext(
@@ -28,28 +32,37 @@ public class ShellModule {
             )
         );
 
-        this.workspaceContext = new WorkspaceContext();
+        this.shell = new ShellContext();
 
-        this.appContext.viewLocator().register(MainViewModel.class, vm -> new MainView(vm, this.appContext.viewLocator()));
-        this.appContext.viewLocator().register(StatusItemViewModel.class, StatusItemView::new);
+        var viewLocator = this.appContext.viewLocator();
+        viewLocator.register(MainViewModel.class, vm -> new MainView(vm, viewLocator));
+        viewLocator.register(StatusBarViewModel.class, vm -> new StatusBarView(vm, viewLocator));
+        viewLocator.register(StatusItemViewModel.class, StatusItemView::new);
+        viewLocator.register(SidebarViewModel.class, SidebarView::new);
     }
 
     public AppContext appContext() {
         return appContext;
     }
 
-    public WorkspaceContext workspaceContext() {
-        return workspaceContext;
+    public ShellContext context() {
+        return shell;
     }
 
-    public Parent mainView(OrderContext orderContext, SidebarHost sidebarHost) {
-        return appContext.viewLocator().locate(mainViewModel(orderContext, sidebarHost));
+    public Parent mainView(OrdersModule order, CustomersModule customers) {
+        shell.navigationItems().addAll(
+            new SidebarItemViewModel("Orders", order::showExplorer),
+            new SidebarItemViewModel("Customers", customers::showExplorer)
+        );
+
+        return appContext.viewLocator().locate(mainViewModel());
     }
 
-    private MainViewModel mainViewModel(OrderContext orderContext, SidebarHost sidebarHost) {
+    private MainViewModel mainViewModel() {
         return new MainViewModel(
-            new SidebarViewModel(orderContext, sidebarHost),
-            workspaceContext
+            new SidebarViewModel(shell.navigationItems()),
+            new StatusBarViewModel(shell.statusItems()),
+            shell.currentWorkspaceProperty()
         );
     }
 }

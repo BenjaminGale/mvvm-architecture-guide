@@ -4,7 +4,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -12,14 +11,14 @@ import javafx.scene.layout.Region;
 import mvvm.example.core.view.ViewLocator;
 import mvvm.example.core.view.controls.Spacer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class StatusBarView extends BorderPane {
 
+    private final ViewLocator<Region> viewLocator;
     private final HBox content = new HBox();
 
-    public StatusBarView(ObservableList<StatusItemViewModel> statusItems, ViewLocator<Region> viewLocator) {
+    public StatusBarView(StatusBarViewModel viewModel, ViewLocator<Region> viewLocator) {
+        this.viewLocator = viewLocator;
+
         content.setPadding(new Insets(5, 8, 5, 8));
         content.setMinHeight(24);
         content.setSpacing(8);
@@ -27,19 +26,24 @@ public class StatusBarView extends BorderPane {
         setTop(new Separator());
         setCenter(content);
 
-        rebuild(statusItems, viewLocator);
-        statusItems.addListener((ListChangeListener<StatusItemViewModel>) _ -> rebuild(statusItems, viewLocator));
+        setContent(viewModel.statusItems());
+
+        viewModel
+            .statusItems()
+            .addListener((ListChangeListener<StatusItemViewModel>) _ ->
+                setContent(viewModel.statusItems())
+            );
     }
 
-    private void rebuild(ObservableList<StatusItemViewModel> statusItems, ViewLocator<Region> viewLocator) {
-        List<Node> nodes = new ArrayList<>();
-        nodes.add(Spacer.create());
+    private void setContent(ObservableList<StatusItemViewModel> statusItems) {
+        var children = content.getChildren();
+
+        children.clear();
+        children.add(Spacer.create());
 
         for (int i = 0; i < statusItems.size(); i++) {
-            if (i > 0) nodes.add(new Separator(Orientation.VERTICAL));
-            nodes.add(viewLocator.locate(statusItems.get(i)));
+            if (i > 0) children.add(new Separator(Orientation.VERTICAL));
+            children.add(viewLocator.locate(statusItems.get(i)));
         }
-
-        content.getChildren().setAll(nodes);
     }
 }
