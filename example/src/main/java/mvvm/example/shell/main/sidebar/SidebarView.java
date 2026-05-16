@@ -3,10 +3,8 @@ package mvvm.example.shell.main.sidebar;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import mvvm.example.core.view.controls.Buttons;
 
@@ -15,7 +13,13 @@ public class SidebarView extends BorderPane {
     private final VBox navigationHost = new VBox();
 
     public SidebarView(SidebarViewModel viewModel) {
-        setRight(new Separator(Orientation.VERTICAL));
+        var separator = new Region();
+        separator.setStyle("-fx-background-color: -fx-box-border;");
+        separator.setPrefWidth(1);
+        separator.setMinWidth(1);
+        separator.setMaxWidth(1);
+
+        setRight(separator);
         setCenter(navigationHost);
         setPrefWidth(180);
 
