@@ -22,6 +22,10 @@ public class CustomersModule {
         appContext.viewLocator().register(CustomerDetailViewModel.class, CustomerDetailView::new);
     }
 
+    public void showExplorer() {
+        workspaces.show(this::customersExplorerViewModel);
+    }
+
     public CustomersExplorerViewModel customersExplorerViewModel() {
         return new CustomersExplorerViewModel(
             customerService,

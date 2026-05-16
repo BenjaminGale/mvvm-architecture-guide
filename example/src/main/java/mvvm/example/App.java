@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import mvvm.example.customers.adapters.CustomersModule;
 import mvvm.example.orders.adapters.OrdersModule;
 import mvvm.example.shell.adapters.ShellModule;
+import mvvm.example.shell.sidebar.SidebarHost;
 
 public class App extends Application {
 
@@ -24,16 +25,11 @@ public class App extends Application {
         var orders = new OrdersModule(shell.appContext(), shell.workspaceContext());
         var customers = new CustomersModule(shell.appContext(), shell.workspaceContext());
 
-        var navigation = shell.navigation(
-            orders,
-            customers
-        );
+        orders.showExplorer();
 
-        shell.workspaceContext().show(orders::ordersExplorerViewModel);
-
-        return shell.mainView(
-            orders.orderContext(),
-            navigation
-        );
+        return shell.mainView(orders.orderContext(), new SidebarHost() {
+            public void openOrdersWorkspace() { orders.showExplorer(); }
+            public void openCustomersWorkspace() { customers.showExplorer(); }
+        });
     }
 }

@@ -8,23 +8,17 @@ import mvvm.example.orders.context.PendingOrderCount;
 public class SidebarViewModel {
 
     private final IntegerProperty pendingOrderCount = new SimpleIntegerProperty();
-    private final Runnable onOrders;
-    private final Runnable onCustomers;
+    private final SidebarHost host;
 
-    public SidebarViewModel(
-        PendingOrderCount orderContext,
-        Runnable onOrders,
-        Runnable onCustomers
-    ) {
+    public SidebarViewModel(PendingOrderCount orderContext, SidebarHost host) {
         pendingOrderCount.bind(orderContext.pendingCountProperty());
-        this.onOrders = onOrders;
-        this.onCustomers = onCustomers;
+        this.host = host;
     }
 
     public ReadOnlyIntegerProperty pendingOrderCountProperty() {
         return pendingOrderCount;
     }
 
-    public void navigateToOrders() { onOrders.run(); }
-    public void navigateToCustomers() { onCustomers.run(); }
+    public void openOrdersWorkspace() { host.openOrdersWorkspace(); }
+    public void openCustomersWorkspace() { host.openCustomersWorkspace(); }
 }

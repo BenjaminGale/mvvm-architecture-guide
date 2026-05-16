@@ -49,6 +49,10 @@ public class OrdersModule {
         return orderContext;
     }
 
+    public void showExplorer() {
+        workspaces.show(this::ordersExplorerViewModel);
+    }
+
     public OrdersExplorerViewModel ordersExplorerViewModel() {
         return new OrdersExplorerViewModel(
             orderRepository::findAll,

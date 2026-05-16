@@ -5,15 +5,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("SidebarViewModel")
 class SidebarViewModelTest {
 
+    private static class StubHost implements SidebarHost {
+        private boolean ordersInvoked = false;
+        private boolean customersInvoked = false;
+
+        public void openOrdersWorkspace() { ordersInvoked = true; }
+        public void openCustomersWorkspace() { customersInvoked = true; }
+
+        void assertOrdersWorkspaceOpened() { assertTrue(ordersInvoked); }
+        void assertCustomersWorkspaceOpened() { assertTrue(customersInvoked); }
+    }
+
     private static SidebarViewModel viewModelWith(OrderContext context) {
-        return new SidebarViewModel(context, () -> {}, () -> {});
+        return new SidebarViewModel(context, new StubHost());
     }
 
     @Nested
@@ -50,23 +59,23 @@ class SidebarViewModelTest {
         @Test
         @DisplayName("the orders callback is invoked when navigating to orders")
         void ordersCallbackInvoked() {
-            var invoked = new AtomicBoolean(false);
-            var vm = new SidebarViewModel(new OrderContext(), () -> invoked.set(true), () -> {});
+            var host = new StubHost();
+            var vm = new SidebarViewModel(new OrderContext(), host);
 
-            vm.navigateToOrders();
+            vm.openOrdersWorkspace();
 
-            assertTrue(invoked.get());
+            host.assertOrdersWorkspaceOpened();
         }
 
         @Test
         @DisplayName("the customers callback is invoked when navigating to customers")
         void customersCallbackInvoked() {
-            var invoked = new AtomicBoolean(false);
-            var vm = new SidebarViewModel(new OrderContext(), () -> {}, () -> invoked.set(true));
+            var host = new StubHost();
+            var vm = new SidebarViewModel(new OrderContext(), host);
 
-            vm.navigateToCustomers();
+            vm.openCustomersWorkspace();
 
-            assertTrue(invoked.get());
+            host.assertCustomersWorkspaceOpened();
         }
     }
 }

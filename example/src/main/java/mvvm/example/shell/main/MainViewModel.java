@@ -9,11 +9,14 @@ import mvvm.example.shell.sidebar.SidebarViewModel;
 public class MainViewModel {
 
     private final SidebarViewModel sidebar;
-    private final WorkspaceContext workspaceContext;
+    private final WorkspaceContext workspaces;
 
-    public MainViewModel(SidebarViewModel sidebar, WorkspaceContext workspaceContext) {
+    public MainViewModel(
+        SidebarViewModel sidebar,
+        WorkspaceContext workspaces
+    ) {
         this.sidebar = sidebar;
-        this.workspaceContext = workspaceContext;
+        this.workspaces = workspaces;
     }
 
     public SidebarViewModel getSidebar() {
@@ -21,10 +24,10 @@ public class MainViewModel {
     }
 
     public ReadOnlyObjectProperty<Object> currentWorkspaceProperty() {
-        return workspaceContext.currentWorkspaceProperty();
+        return workspaces.currentWorkspaceProperty();
     }
 
     public ObservableList<ReadOnlyStringProperty> statusMessages() {
-        return workspaceContext.statusMessages();
+        return workspaces.statusMessages();
     }
 }

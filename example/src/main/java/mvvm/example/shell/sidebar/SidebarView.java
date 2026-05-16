@@ -36,7 +36,7 @@ public class SidebarView extends VBox {
 
         getChildren().addAll(ordersBtn, customersBtn);
 
-        ordersBtn.setOnAction(e -> viewModel.navigateToOrders());
-        customersBtn.setOnAction(e -> viewModel.navigateToCustomers());
+        ordersBtn.setOnAction(e -> viewModel.openOrdersWorkspace());
+        customersBtn.setOnAction(e -> viewModel.openCustomersWorkspace());
     }
 }
