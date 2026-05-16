@@ -7,7 +7,6 @@ import javafx.stage.Stage;
 import mvvm.example.customers.adapters.CustomersModule;
 import mvvm.example.orders.adapters.OrdersModule;
 import mvvm.example.shell.adapters.ShellModule;
-import mvvm.example.shell.main.sidebar.SidebarHost;
 
 public class App extends Application {
 
@@ -27,9 +26,6 @@ public class App extends Application {
 
         orders.showExplorer();
 
-        return shell.mainView(orders.orderContext(), new SidebarHost() {
-            public void openOrdersWorkspace() { orders.showExplorer(); }
-            public void openCustomersWorkspace() { customers.showExplorer(); }
-        });
+        return shell.mainView(orders, customers);
     }
 }

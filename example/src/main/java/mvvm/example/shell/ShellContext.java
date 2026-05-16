@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 public class ShellContext {
 
-    private final ObservableList<SidebarItemViewModel> sidebarItems = FXCollections.observableArrayList();
+    private final ObservableList<SidebarItemViewModel> navigationItems = FXCollections.observableArrayList();
     private final ObjectProperty<Object> currentWorkspaceProperty = new SimpleObjectProperty<>(this, "currentWorkspace");
     private final ObservableList<StatusItemViewModel> statusItems = FXCollections.observableArrayList();
 
@@ -21,8 +21,8 @@ public class ShellContext {
         currentWorkspaceProperty.set(factory.get());
     }
 
-    public ObservableList<SidebarItemViewModel> sidebarItems() {
-        return sidebarItems;
+    public ObservableList<SidebarItemViewModel> navigationItems() {
+        return navigationItems;
     }
 
     public ReadOnlyObjectProperty<Object> currentWorkspaceProperty() {

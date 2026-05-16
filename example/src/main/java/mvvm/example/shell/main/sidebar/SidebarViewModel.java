@@ -1,24 +1,16 @@
 package mvvm.example.shell.main.sidebar;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import mvvm.example.orders.context.PendingOrderCount;
+import javafx.collections.ObservableList;
 
 public class SidebarViewModel {
 
-    private final IntegerProperty pendingOrderCount = new SimpleIntegerProperty();
-    private final SidebarHost host;
+    private final ObservableList<SidebarItemViewModel> navigationItems;
 
-    public SidebarViewModel(PendingOrderCount orderContext, SidebarHost host) {
-        pendingOrderCount.bind(orderContext.pendingCountProperty());
-        this.host = host;
+    public SidebarViewModel(ObservableList<SidebarItemViewModel> navigationItems) {
+        this.navigationItems = navigationItems;
     }
 
-    public ReadOnlyIntegerProperty pendingOrderCountProperty() {
-        return pendingOrderCount;
+    public ObservableList<SidebarItemViewModel> navigationItems() {
+        return navigationItems;
     }
-
-    public void openOrdersWorkspace() { host.openOrdersWorkspace(); }
-    public void openCustomersWorkspace() { host.openCustomersWorkspace(); }
 }

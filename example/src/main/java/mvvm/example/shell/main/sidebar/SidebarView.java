@@ -1,42 +1,55 @@
 package mvvm.example.shell.main.sidebar;
 
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-import mvvm.example.core.view.controls.Labels;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.*;
+import mvvm.example.core.view.controls.Buttons;
 
-public class SidebarView extends VBox {
+public class SidebarView extends BorderPane {
+
+    private final VBox navigationHost = new VBox();
 
     public SidebarView(SidebarViewModel viewModel) {
-        setPadding(new Insets(8));
-        setSpacing(4);
+        setRight(new Separator(Orientation.VERTICAL));
+        setCenter(navigationHost);
         setPrefWidth(180);
-        setStyle("-fx-border-color: -fx-box-border; -fx-border-width: 0 1 0 0;");
 
-        var pendingBadge = Labels.badge(viewModel.pendingOrderCountProperty());
+        navigationHost.setPadding(new Insets(8));
+        navigationHost.setSpacing(4);
 
-        var spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        var ordersContent = new HBox(new Label("Orders"), spacer, pendingBadge);
-        ordersContent.setAlignment(Pos.CENTER_LEFT);
+        setContent(viewModel.navigationItems());
 
-        var ordersBtn = new Button();
-        ordersBtn.setGraphic(ordersContent);
-        ordersBtn.setMaxWidth(Double.MAX_VALUE);
-        ordersBtn.setAlignment(Pos.CENTER_LEFT);
+        viewModel
+            .navigationItems()
+            .addListener((ListChangeListener<SidebarItemViewModel>) _ ->
+                setContent(viewModel.navigationItems())
+            );
+    }
 
-        var customersBtn = new Button("Customers");
-        customersBtn.setMaxWidth(Double.MAX_VALUE);
-        customersBtn.setAlignment(Pos.CENTER_LEFT);
+    private void setContent(ObservableList<SidebarItemViewModel> items) {
+        navigationHost
+            .getChildren()
+            .setAll(
+                items.stream()
+                    .map(this::navigationButton)
+                    .toList()
+            );
+    }
 
-        getChildren().addAll(ordersBtn, customersBtn);
+    private Button navigationButton(SidebarItemViewModel viewModel) {
+        var button = new Button();
 
-        ordersBtn.setOnAction(e -> viewModel.openOrdersWorkspace());
-        customersBtn.setOnAction(e -> viewModel.openCustomersWorkspace());
+        button.textProperty().bind(viewModel.titleProperty());
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.setAlignment(Pos.CENTER_LEFT);
+
+        Buttons.bind(button, viewModel.openWorkspaceAction());
+
+        return button;
     }
 }
