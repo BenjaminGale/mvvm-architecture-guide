@@ -12,7 +12,7 @@ This section covers the view layer, describing how views are constructed and con
   - [5.4.1 Host interfaces](#541-host-interfaces)
   - [5.4.2 WorkspaceContext](#542-workspacecontext)
   - [5.4.3 DialogManager](#543-dialogmanager)
-  - [5.4.4 AppContext](#544-appcontext)
+  - [5.4.4 ViewServices](#544-viewservices)
 - [5.5 Presentation decisions belong to the View](#55-presentation-decisions-belong-to-the-view)
 - [5.6 Adding a new screen](#56-adding-a-new-screen)
 
@@ -137,7 +137,7 @@ viewLocator.register(MainViewModel.class, vm -> new MainView(vm, viewLocator));
 
 Navigation is the act of changing what the user sees. ViewModels never hold references to view-layer infrastructure. Instead they declare navigation intent through **host interfaces**, and the module wires up the implementation. How the host implementation surfaces that intent in the view layer — whether through a shared context object, a direct callback, or some other mechanism — is application-specific and not prescribed by this architecture.
 
-Host interfaces declare navigation intent; `WorkspaceContext` and `DialogManager` fulfil it in the view layer; `AppContext` groups them for convenient module access.
+Host interfaces declare navigation intent; `WorkspaceContext` and `DialogManager` fulfil it in the view layer; `ViewServices` groups them for convenient module access.
 
 #### 5.4.1 Host interfaces
 
@@ -204,7 +204,7 @@ public class DialogManager {
 }
 ```
 
-Dialogs are registered in the module alongside workspace views (see 5.4.4 for `AppContext`):
+Dialogs are registered in the module alongside workspace views (see 5.4.4 for `ViewServices`):
 
 ```java
 appContext.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
@@ -224,12 +224,12 @@ public interface OrderEditorHost {
 }
 ```
 
-#### 5.4.4 AppContext
+#### 5.4.4 ViewServices
 
-`AppContext` is a record that groups the shared view-layer infrastructure available to all modules — the workspace `ViewLocator` and the `DialogManager` — so modules do not receive them as separate constructor arguments.
+`ViewServices` is a record that groups the shared view-layer infrastructure available to all modules — the workspace `ViewLocator` and the `DialogManager` — so modules do not receive them as separate constructor arguments.
 
 ```java
-public record AppContext(
+public record ViewServices(
     ViewLocator<Region> viewLocator,
     DialogManager dialogManager) {
 }

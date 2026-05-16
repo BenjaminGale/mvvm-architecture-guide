@@ -2,7 +2,7 @@ package mvvm.example.shell.adapters;
 
 import javafx.scene.Parent;
 import javafx.stage.Window;
-import mvvm.example.AppContext;
+import mvvm.example.core.view.ViewServices;
 import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewLocator;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
@@ -20,11 +20,11 @@ import java.util.Arrays;
 
 public class ShellModule {
 
-    private final AppContext appContext;
+    private final ViewServices view;
     private final ShellContext shell;
 
     public ShellModule(Window window) {
-        this.appContext = new AppContext(
+        this.view = new ViewServices(
             new ViewLocator<>(),
             new DialogManager(
                 window,
@@ -34,15 +34,15 @@ public class ShellModule {
 
         this.shell = new ShellContext();
 
-        var viewLocator = this.appContext.viewLocator();
+        var viewLocator = this.view.viewLocator();
         viewLocator.register(MainViewModel.class, vm -> new MainView(vm, viewLocator));
         viewLocator.register(StatusBarViewModel.class, vm -> new StatusBarView(vm, viewLocator));
         viewLocator.register(StatusItemViewModel.class, StatusItemView::new);
         viewLocator.register(SidebarViewModel.class, SidebarView::new);
     }
 
-    public AppContext appContext() {
-        return appContext;
+    public ViewServices view() {
+        return view;
     }
 
     public ShellContext context() {
@@ -56,7 +56,7 @@ public class ShellModule {
             .findFirst()
             .ifPresent(item -> item.openWorkspaceAction().execute());
 
-        return appContext.viewLocator().locate(mainViewModel());
+        return view.viewLocator().locate(mainViewModel());
     }
 
     private MainViewModel mainViewModel() {

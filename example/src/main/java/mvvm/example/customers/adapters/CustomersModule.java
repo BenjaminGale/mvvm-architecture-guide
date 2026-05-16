@@ -1,6 +1,6 @@
 package mvvm.example.customers.adapters;
 
-import mvvm.example.AppContext;
+import mvvm.example.core.view.ViewServices;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.customers.detail.CustomerDetailView;
 import mvvm.example.customers.detail.CustomerDetailViewModel;
@@ -15,12 +15,12 @@ public class CustomersModule {
     private final ShellContext shell;
     private final CustomerService customerService;
 
-    public CustomersModule(AppContext appContext, ShellContext shell) {
+    public CustomersModule(ViewServices view, ShellContext shell) {
         this.shell = shell;
         this.customerService = new CustomerService(new InMemoryCustomerRepository());
 
-        appContext.viewLocator().register(CustomersExplorerViewModel.class, CustomersExplorerView::new);
-        appContext.viewLocator().register(CustomerDetailViewModel.class, CustomerDetailView::new);
+        view.viewLocator().register(CustomersExplorerViewModel.class, CustomersExplorerView::new);
+        view.viewLocator().register(CustomerDetailViewModel.class, CustomerDetailView::new);
     }
 
     public SidebarItemViewModel sidebarItem() {

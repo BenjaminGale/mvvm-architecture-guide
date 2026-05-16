@@ -16,7 +16,6 @@ Each top-level package corresponds to one feature. Two packages sit outside this
 ```
 com.example/
 ├── App.java
-├── AppContext.java
 ├── orders/
 ├── customers/
 ├── shell/
@@ -27,7 +26,7 @@ com.example/
 - **`shell`** — The application shell: the main window and sidebar. Treated as a feature like any other.
 - **`core`** — Reusable infrastructure types shared across all features, organised by layer.
 
-`App.java` sits at the root as the single composition root. `AppContext.java` holds application-wide observable state shared across features.
+`App.java` sits at the root as the single composition root.
 
 ### 7.2 Feature sub-packages
 
@@ -147,7 +146,8 @@ core/
 └── view/
     ├── CurrencyTableCell.java
     ├── DialogManager.java
-    └── ViewLocator.java
+    ├── ViewLocator.java
+    └── ViewServices.java
 ```
 
 ### 7.4 Complete package layout
@@ -156,7 +156,6 @@ core/
 com.example/
 │
 ├── App.java
-├── AppContext.java
 │
 ├── orders/
 │   ├── domain/
@@ -223,7 +222,8 @@ com.example/
     ├── view/
     │   ├── CurrencyTableCell.java
     │   ├── DialogManager.java
-    │   └── ViewLocator.java
+    │   ├── ViewLocator.java
+    │   └── ViewServices.java
     └── viewmodel/
         ├── Action.java
         └── AsyncAction.java

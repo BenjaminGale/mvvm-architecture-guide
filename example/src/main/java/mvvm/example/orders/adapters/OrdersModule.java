@@ -1,6 +1,6 @@
 package mvvm.example.orders.adapters;
 
-import mvvm.example.AppContext;
+import mvvm.example.core.view.ViewServices;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
@@ -24,26 +24,26 @@ import mvvm.example.shell.ShellContext;
 
 public class OrdersModule {
 
-    private final AppContext appContext;
+    private final ViewServices view;
     private final ShellContext shell;
 
     private final OrderRepository orderRepository;
     private final CopyOrderService orderService;
     private final OrderContext orderContext;
 
-    public OrdersModule(AppContext appContext, ShellContext shell) {
-        this.appContext = appContext;
+    public OrdersModule(ViewServices view, ShellContext shell) {
+        this.view = view;
         this.shell = shell;
 
         this.orderRepository = new InMemoryOrderRepository();
         this.orderService = new CopyOrderService(this.orderRepository);
         this.orderContext = new OrderContext();
 
-        appContext.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
-        appContext.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
-        appContext.viewLocator().register(LineItemsViewModel.class, LineItemsView::new);
-        appContext.viewLocator().register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, appContext.viewLocator()));
-        appContext.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
+        view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
+        view.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
+        view.viewLocator().register(LineItemsViewModel.class, LineItemsView::new);
+        view.viewLocator().register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, view.viewLocator()));
+        view.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
     }
 
     public OrderContext orderContext() {
@@ -80,7 +80,7 @@ public class OrdersModule {
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
                 @Override public void openOrder(Order copied) { shell.show(() -> orderEditorViewModel(copied)); }
-                @Override public void showItemEditor(EditItemRequest request) { appContext.dialogManager().show(editItemViewModel(request)); }
+                @Override public void showItemEditor(EditItemRequest request) { view.dialogManager().show(editItemViewModel(request)); }
             });
     }
 

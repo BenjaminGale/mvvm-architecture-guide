@@ -47,17 +47,17 @@ public class App extends Application {
 
 `ShellModule` owns the application's navigation infrastructure. Its constructor takes the JavaFX `Window` (needed to anchor dialogs) and creates two shared objects that every domain module receives:
 
-- **`AppContext`** — bundles a `ViewLocator` for workspace views and a `DialogManager` for dialog views. Every module registers its own ViewModel-to-View mappings here at construction time.
+- **`ViewServices`** — bundles a `ViewLocator` for workspace views and a `DialogManager` for dialog views. Every module registers its own ViewModel-to-View mappings here at construction time.
 - **`WorkspaceContext`** — holds the currently displayed workspace ViewModel as an observable property. Domain modules call `workspaceContext.show(viewModel)` to navigate between screens.
 
 ```java
 public class ShellModule {
 
-    private final AppContext appContext;
+    private final ViewServices appContext;
     private final WorkspaceContext workspaceContext;
 
     public ShellModule(Window window) {
-        this.appContext = new AppContext(
+        this.appContext = new ViewServices(
             new ViewLocator<>(),
             new DialogManager(window, new ViewLocator<>())
         );
@@ -68,7 +68,7 @@ public class ShellModule {
             vm -> new MainView(vm, appContext.viewLocator()));
     }
 
-    public AppContext appContext() { return appContext; }
+    public ViewServices appContext() { return appContext; }
     public WorkspaceContext workspaceContext() { return workspaceContext; }
     ...
 }
@@ -107,7 +107,7 @@ public Parent mainView(OrderContext orderContext, Navigation navigation) {
 
 ### 6.3 Domain modules
 
-As an application grows, `App` accumulates more factory methods. Modules are the natural way to organise them. Each module is self-contained: it creates its own services and repositories, registers its own ViewModel-to-View mappings with the shared `AppContext`, and exposes factory methods for the screens in its domain.
+As an application grows, `App` accumulates more factory methods. Modules are the natural way to organise them. Each module is self-contained: it creates its own services and repositories, registers its own ViewModel-to-View mappings with the shared `ViewServices`, and exposes factory methods for the screens in its domain.
 
 ```java
 public class OrdersModule {
@@ -116,7 +116,7 @@ public class OrdersModule {
     private final OrderRepository orderRepository;
     private final OrderContext orderContext;
 
-    public OrdersModule(AppContext appContext, WorkspaceContext workspaces) {
+    public OrdersModule(ViewServices appContext, WorkspaceContext workspaces) {
         this.workspaces = workspaces;
         this.orderRepository = new InMemoryOrderRepository();
         this.orderContext = new OrderContext();
@@ -138,7 +138,7 @@ The constructor does three things: creates the module's own infrastructure, regi
 
 The sample application is split into four modules:
 
-- **`ShellModule`** — navigation infrastructure (`AppContext`, `WorkspaceContext`), the main window layout, and the sidebar. This is created first and passes its shared objects to the domain modules.
+- **`ShellModule`** — navigation infrastructure (`ViewServices`, `WorkspaceContext`), the main window layout, and the sidebar. This is created first and passes its shared objects to the domain modules.
 - **`OrdersModule`** — order explorer, order editor, and the line item edit dialog. Owns `OrderRepository`, `CopyOrderService`, and `OrderContext`.
 - **`CustomersModule`** — customer explorer and customer detail. Owns `CustomerService`.
 
