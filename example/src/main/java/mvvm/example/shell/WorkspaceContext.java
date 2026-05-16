@@ -2,20 +2,20 @@ package mvvm.example.shell;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
 import java.util.function.Supplier;
 
 public class WorkspaceContext {
 
     private final ObjectProperty<Object> currentWorkspaceProperty = new SimpleObjectProperty<>(this, "currentWorkspace");
-    private final ObservableList<ReadOnlyStringProperty> statusMessages = FXCollections.observableArrayList();
+    private final ObservableList<StatusItemViewModel> statusItems = FXCollections.observableArrayList();
 
     public void show(Supplier<Object> factory) {
-        statusMessages.clear();
+        statusItems.clear();
         currentWorkspaceProperty.set(factory.get());
     }
 
@@ -23,7 +23,7 @@ public class WorkspaceContext {
         return currentWorkspaceProperty;
     }
 
-    public ObservableList<ReadOnlyStringProperty> statusMessages() {
-        return statusMessages;
+    public ObservableList<StatusItemViewModel> statusItems() {
+        return statusItems;
     }
 }

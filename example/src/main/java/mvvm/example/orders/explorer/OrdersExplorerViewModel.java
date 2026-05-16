@@ -1,27 +1,30 @@
 package mvvm.example.orders.explorer;
 
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.shell.LabelType;
+import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
 import java.util.Comparator;
 
 public class OrdersExplorerViewModel {
 
     private final ObservableList<Order> orders = FXCollections.observableArrayList();
-    private final StringProperty orderCountText = new SimpleStringProperty("");
-    private final StringProperty overdueCountText = new SimpleStringProperty("");
+    private final IntegerProperty orderCount = new SimpleIntegerProperty(0);
+    private final IntegerProperty overdueCount = new SimpleIntegerProperty(0);
 
     private final OrdersExplorerService service;
     private final OrdersExplorerHost host;
 
-    public OrdersExplorerViewModel(OrdersExplorerService service, OrdersExplorerHost host, ObservableList<ReadOnlyStringProperty> statusMessages) {
+    public OrdersExplorerViewModel(OrdersExplorerService service, OrdersExplorerHost host, ObservableList<StatusItemViewModel> statusItems) {
         this.service = service;
         this.host = host;
-        statusMessages.addAll(orderCountText, overdueCountText);
+        statusItems.add(new StatusItemViewModel(orderCount, LabelType.All_ORDERS));
+        statusItems.add(new StatusItemViewModel(overdueCount, LabelType.OVERDUE_ORDERS));
         refresh();
     }
 
@@ -29,12 +32,12 @@ public class OrdersExplorerViewModel {
         return orders;
     }
 
-    public ReadOnlyStringProperty orderCountTextProperty() {
-        return orderCountText;
+    public ReadOnlyIntegerProperty orderCountProperty() {
+        return orderCount;
     }
 
-    public ReadOnlyStringProperty overdueCountTextProperty() {
-        return overdueCountText;
+    public ReadOnlyIntegerProperty overdueCountProperty() {
+        return overdueCount;
     }
 
     public void refresh() {
@@ -46,11 +49,11 @@ public class OrdersExplorerViewModel {
 
         orders.setAll(result);
 
-        var overdueCount = (int) result.stream().filter(Order::isOverdue).count();
-        host.setPendingOrderCount(overdueCount);
+        var overdue = (int) result.stream().filter(Order::isOverdue).count();
+        host.setPendingOrderCount(overdue);
 
-        orderCountText.set(result.size() + " orders");
-        overdueCountText.set(overdueCount + " overdue");
+        orderCount.set(result.size());
+        overdueCount.set(overdue);
     }
 
     public void openOrder(Order order) {

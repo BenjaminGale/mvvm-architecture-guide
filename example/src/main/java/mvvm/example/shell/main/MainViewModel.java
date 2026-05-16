@@ -1,9 +1,9 @@
 package mvvm.example.shell.main;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ObservableList;
 import mvvm.example.shell.WorkspaceContext;
+import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 import mvvm.example.shell.sidebar.SidebarViewModel;
 
 public class MainViewModel {
@@ -27,7 +27,7 @@ public class MainViewModel {
         return workspaces.currentWorkspaceProperty();
     }
 
-    public ObservableList<ReadOnlyStringProperty> statusMessages() {
-        return workspaces.statusMessages();
+    public ObservableList<StatusItemViewModel> statusItems() {
+        return workspaces.statusItems();
     }
 }

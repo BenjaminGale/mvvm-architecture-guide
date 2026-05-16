@@ -1,0 +1,23 @@
+package mvvm.example.shell.main.statusbar;
+
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import mvvm.example.shell.LabelType;
+
+public class StatusItemViewModel {
+
+    private final ReadOnlyIntegerProperty count;
+    private final LabelType label;
+
+    public StatusItemViewModel(ReadOnlyIntegerProperty count, LabelType label) {
+        this.count = count;
+        this.label = label;
+    }
+
+    public ReadOnlyIntegerProperty countProperty() {
+        return count;
+    }
+
+    public LabelType label() {
+        return label;
+    }
+}

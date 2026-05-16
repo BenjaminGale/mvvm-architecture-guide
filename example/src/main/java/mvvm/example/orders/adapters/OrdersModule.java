@@ -60,7 +60,7 @@ public class OrdersModule {
                 @Override public void showOrderDetails(Order order) { workspaces.show(() -> orderEditorViewModel(order)); }
                 @Override public void setPendingOrderCount(int count) { orderContext.setCount(count); }
             },
-            workspaces.statusMessages()
+            workspaces.statusItems()
         );
     }
 

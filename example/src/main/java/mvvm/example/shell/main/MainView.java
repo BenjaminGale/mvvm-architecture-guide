@@ -4,6 +4,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import mvvm.example.core.view.ViewLocator;
+import mvvm.example.shell.main.statusbar.StatusBarView;
 import mvvm.example.shell.sidebar.SidebarView;
 
 public class MainView extends StackPane {
@@ -17,7 +18,7 @@ public class MainView extends StackPane {
         var layout = new BorderPane();
         layout.setLeft(new SidebarView(viewModel.getSidebar()));
         layout.setCenter(workspace);
-        layout.setBottom(new StatusBarView(viewModel.statusMessages()));
+        layout.setBottom(new StatusBarView(viewModel.statusItems(), viewLocator));
 
         getChildren().add(layout);
 

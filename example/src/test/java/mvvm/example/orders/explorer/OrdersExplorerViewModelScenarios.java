@@ -20,12 +20,12 @@ public class OrdersExplorerViewModelScenarios {
             Arguments.of(
                 "no orders",
                 List.of(),
-                "0 orders", "0 overdue"
+                0, 0
             ),
             Arguments.of(
                 "single non-overdue order",
                 List.of(MockOrders.of("1", RECENT)),
-                "1 orders", "0 overdue"
+                1, 0
             ),
             Arguments.of(
                 "mixed overdue and non-overdue orders",
@@ -33,7 +33,7 @@ public class OrdersExplorerViewModelScenarios {
                     MockOrders.of("1", RECENT),
                     MockOrders.of("2", OVERDUE)
                 ),
-                "2 orders", "1 overdue"
+                2, 1
             ),
             Arguments.of(
                 "all orders overdue",
@@ -42,7 +42,7 @@ public class OrdersExplorerViewModelScenarios {
                     MockOrders.of("2", OVERDUE),
                     MockOrders.of("3", OVERDUE)
                 ),
-                "3 orders", "3 overdue"
+                3, 3
             )
         );
     }

@@ -1,12 +1,13 @@
 package mvvm.example.orders.explorer;
 
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.StubOrderRepository;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
+import mvvm.example.shell.LabelType;
+import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,17 +30,17 @@ class OrdersExplorerViewModelTest {
 
     private StubOrderRepository repository;
     private MockOrdersExplorerHost host;
-    private ObservableList<ReadOnlyStringProperty> statusMessages;
+    private ObservableList<StatusItemViewModel> statusItems;
 
     @BeforeEach
     void setUp() {
         repository = new StubOrderRepository();
         host = new MockOrdersExplorerHost();
-        statusMessages = FXCollections.observableArrayList();
+        statusItems = FXCollections.observableArrayList();
     }
 
     private OrdersExplorerViewModel createViewModel() {
-        return new OrdersExplorerViewModel(repository::findAll, host, statusMessages);
+        return new OrdersExplorerViewModel(repository::findAll, host, statusItems);
     }
 
     @Nested
@@ -81,23 +82,23 @@ class OrdersExplorerViewModelTest {
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
         @DisplayName("it shows expected order count in status bar")
-        void showsExpectedOrderCount(String caseName, List<Order> orders, String expectedOrderCount, String expectedOverdueCount) {
+        void showsExpectedOrderCount(String caseName, List<Order> orders, int expectedOrderCount, int expectedOverdueCount) {
             orders.forEach(repository::save);
 
             var vm = createViewModel();
 
-            assertEquals(expectedOrderCount, vm.orderCountTextProperty().get());
+            assertEquals(expectedOrderCount, vm.orderCountProperty().get());
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
         @DisplayName("it shows expected overdue count in status bar")
-        void showsExpectedOverdueCount(String caseName, List<Order> orders, String expectedOrderCount, String expectedOverdueCount) {
+        void showsExpectedOverdueCount(String caseName, List<Order> orders, int expectedOrderCount, int expectedOverdueCount) {
             orders.forEach(repository::save);
 
             var vm = createViewModel();
 
-            assertEquals(expectedOverdueCount, vm.overdueCountTextProperty().get());
+            assertEquals(expectedOverdueCount, vm.overdueCountProperty().get());
         }
 
         @Test
@@ -109,6 +110,43 @@ class OrdersExplorerViewModelTest {
             createViewModel();
 
             host.assertPendingOrderCount(2);
+        }
+
+        @Test
+        @DisplayName("it adds a status item for order count")
+        void addsOrderCountStatusItem() {
+            repository.save(MockOrders.of("1", RECENT));
+            repository.save(MockOrders.of("2", RECENT));
+
+            createViewModel();
+
+            assertEquals(2, statusItems.getFirst().countProperty().get());
+            assertEquals(LabelType.All_ORDERS, statusItems.getFirst().label());
+        }
+
+        @Test
+        @DisplayName("it adds a status item for overdue count")
+        void addsOverdueCountStatusItem() {
+            repository.save(MockOrders.of("1", RECENT));
+            repository.save(MockOrders.of("2", OVERDUE));
+
+            createViewModel();
+
+            assertEquals(1, statusItems.getLast().countProperty().get());
+            assertEquals(LabelType.OVERDUE_ORDERS, statusItems.getLast().label());
+        }
+
+        @Test
+        @DisplayName("it keeps status items in sync when refreshed")
+        void statusItemsUpdateOnRefresh() {
+            var vm = createViewModel();
+
+            repository.save(MockOrders.of("1", RECENT));
+            repository.save(MockOrders.of("2", OVERDUE));
+            vm.refresh();
+
+            assertEquals(2, statusItems.getFirst().countProperty().get());
+            assertEquals(1, statusItems.getLast().countProperty().get());
         }
     }
 
@@ -136,25 +174,25 @@ class OrdersExplorerViewModelTest {
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
         @DisplayName("it updates order count in status bar")
-        void updatesOrderCount(String caseName, List<Order> orders, String expectedOrderCount, String expectedOverdueCount) {
+        void updatesOrderCount(String caseName, List<Order> orders, int expectedOrderCount, int expectedOverdueCount) {
             orders.forEach(repository::save);
 
             var vm = createViewModel();
             vm.refresh();
 
-            assertEquals(expectedOrderCount, vm.orderCountTextProperty().get());
+            assertEquals(expectedOrderCount, vm.orderCountProperty().get());
         }
 
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
         @DisplayName("it updates overdue count in status bar")
-        void updatesOverdueCount(String caseName, List<Order> orders, String expectedOrderCount, String expectedOverdueCount) {
+        void updatesOverdueCount(String caseName, List<Order> orders, int expectedOrderCount, int expectedOverdueCount) {
             orders.forEach(repository::save);
 
             var vm = createViewModel();
             vm.refresh();
 
-            assertEquals(expectedOverdueCount, vm.overdueCountTextProperty().get());
+            assertEquals(expectedOverdueCount, vm.overdueCountProperty().get());
         }
 
         @ParameterizedTest(name = "{0}")
