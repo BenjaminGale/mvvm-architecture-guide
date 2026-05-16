@@ -3,17 +3,15 @@ package mvvm.example.orders.context;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 
-public class OrderContext implements PendingOrderCount, PendingOrderCounter {
+public class OrderContext {
 
-    private final ReadOnlyIntegerWrapper pendingCount = new ReadOnlyIntegerWrapper(this, "pendingCount", 0);
+    private final ReadOnlyIntegerWrapper overdueOrderCount = new ReadOnlyIntegerWrapper(this, "pendingCount", 0);
 
-    @Override
     public void setCount(int count) {
-        pendingCount.set(count);
+        overdueOrderCount.set(count);
     }
 
-    @Override
-    public ReadOnlyIntegerProperty pendingCountProperty() {
-        return pendingCount.getReadOnlyProperty();
+    public ReadOnlyIntegerProperty overdueOrderCountProperty() {
+        return overdueOrderCount.getReadOnlyProperty();
     }
 }

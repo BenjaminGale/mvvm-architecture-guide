@@ -20,7 +20,7 @@ class OrderContextTest {
 
             context.setCount(7);
 
-            assertEquals(7, context.pendingCountProperty().get());
+            assertEquals(7, context.overdueOrderCountProperty().get());
         }
 
         @Test
@@ -28,7 +28,7 @@ class OrderContextTest {
         void listenersNotifiedOnChange() {
             var context = new OrderContext();
             var observed = new int[]{0};
-            context.pendingCountProperty().addListener((obs, old, value) -> observed[0] = value.intValue());
+            context.overdueOrderCountProperty().addListener((obs, old, value) -> observed[0] = value.intValue());
 
             context.setCount(4);
 
