@@ -4,7 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
-import mvvm.example.customers.editor.EditCustomerRequest;
+import mvvm.example.customers.requests.EditCustomerRequest;
 
 import java.util.Comparator;
 

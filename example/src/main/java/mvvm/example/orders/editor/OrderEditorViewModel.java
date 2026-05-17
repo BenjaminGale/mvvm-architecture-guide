@@ -5,10 +5,11 @@ import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.editor.lineitems.editor.EditItemRequest;
+import mvvm.example.orders.requests.EditItemRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemRowViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
+import mvvm.example.orders.requests.EditOrderRequest;
 
 import java.util.concurrent.CompletableFuture;
 

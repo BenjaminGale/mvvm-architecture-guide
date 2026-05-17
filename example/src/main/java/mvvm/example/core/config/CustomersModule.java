@@ -3,7 +3,7 @@ package mvvm.example.core.config;
 import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
-import mvvm.example.customers.editor.EditCustomerRequest;
+import mvvm.example.customers.requests.EditCustomerRequest;
 import mvvm.example.customers.editor.CustomerEditorService;
 import mvvm.example.customers.editor.CustomerEditorView;
 import mvvm.example.customers.editor.CustomerEditorViewModel;

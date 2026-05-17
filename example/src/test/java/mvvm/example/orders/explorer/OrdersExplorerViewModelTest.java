@@ -4,7 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.requests.EditOrderRequest;
 import mvvm.example.shell.main.statusbar.LabelType;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 import org.junit.jupiter.api.BeforeEach;

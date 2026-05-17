@@ -4,7 +4,7 @@ import mvvm.example.customers.domain.Customer;
 
 import java.util.List;
 import mvvm.example.customers.domain.CustomerStatus;
-import mvvm.example.customers.editor.EditCustomerRequest;
+import mvvm.example.customers.requests.EditCustomerRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

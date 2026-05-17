@@ -1,6 +1,7 @@
 package mvvm.example.orders.editor;
 
-import mvvm.example.orders.editor.lineitems.editor.EditItemRequest;
+import mvvm.example.orders.requests.EditItemRequest;
+import mvvm.example.orders.requests.EditOrderRequest;
 
 public interface OrderEditorHost {
     void returnToList();

@@ -1,6 +1,7 @@
 package mvvm.example.orders.editor.lineitems.editor;
 
 import mvvm.example.orders.domain.LineItem;
+import mvvm.example.orders.requests.EditItemRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

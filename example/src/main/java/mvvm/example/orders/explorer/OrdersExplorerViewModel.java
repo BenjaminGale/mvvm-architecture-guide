@@ -5,7 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.requests.EditOrderRequest;
 import mvvm.example.shell.main.statusbar.LabelType;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 

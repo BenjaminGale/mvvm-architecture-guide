@@ -6,7 +6,7 @@ import mvvm.example.orders.domain.CopyOrderCommand;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.editor.*;
-import mvvm.example.orders.editor.lineitems.editor.EditItemRequest;
+import mvvm.example.orders.requests.EditItemRequest;
 import mvvm.example.orders.editor.lineitems.editor.EditItemView;
 import mvvm.example.orders.editor.lineitems.editor.EditItemViewModel;
 import mvvm.example.orders.editor.header.OrderHeaderView;
@@ -16,6 +16,7 @@ import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
 import mvvm.example.orders.explorer.OrdersExplorerHost;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
+import mvvm.example.orders.requests.EditOrderRequest;
 import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 

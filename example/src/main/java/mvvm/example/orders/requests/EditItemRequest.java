@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor.lineitems.editor;
+package mvvm.example.orders.requests;
 
 import mvvm.example.orders.domain.LineItem;
 

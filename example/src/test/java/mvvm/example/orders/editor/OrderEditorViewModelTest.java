@@ -2,6 +2,7 @@ package mvvm.example.orders.editor;
 
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.requests.EditOrderRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

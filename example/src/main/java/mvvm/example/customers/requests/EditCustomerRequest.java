@@ -1,4 +1,4 @@
-package mvvm.example.customers.editor;
+package mvvm.example.customers.requests;
 
 public record EditCustomerRequest(String customerId, boolean isNew, Runnable onSaved) {
 

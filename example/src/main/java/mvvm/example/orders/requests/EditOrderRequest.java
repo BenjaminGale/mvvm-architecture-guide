@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor;
+package mvvm.example.orders.requests;
 
 public record EditOrderRequest(String orderId) {
 }
