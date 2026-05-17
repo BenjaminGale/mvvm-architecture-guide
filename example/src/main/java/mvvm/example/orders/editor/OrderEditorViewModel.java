@@ -19,6 +19,7 @@ public class OrderEditorViewModel {
     public final Action copy;
 
     private final Order order;
+
     private final OrderHeaderViewModel header;
     private final LineItemsViewModel lineItems;
 
@@ -26,13 +27,16 @@ public class OrderEditorViewModel {
     private final OrderEditorHost host;
 
     public OrderEditorViewModel(
-        Order order,
+        EditOrderRequest request,
         OrderEditorService service,
         OrderEditorHost host
     ) {
-        this.order = order;
         this.service = service;
         this.host = host;
+
+        // TODO: This shouldn't be in the constructor...
+        this.order = service.fetchOrder(request.orderId());
+
         this.header = new OrderHeaderViewModel(order);
         this.lineItems = new LineItemsViewModel(order.lineItems(), this::editRow);
 
@@ -54,8 +58,8 @@ public class OrderEditorViewModel {
     }
 
     private void onCopy() {
-        var copied = service.copyOrder(order.id());
-        host.openOrder(copied);
+        var copiedId = service.copyOrder(order.id());
+        host.openOrder(new EditOrderRequest(copiedId));
     }
 
     private void editRow(LineItemRowViewModel row) {

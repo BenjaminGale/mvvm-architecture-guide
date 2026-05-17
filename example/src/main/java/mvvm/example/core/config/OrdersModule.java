@@ -5,10 +5,7 @@ import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.CopyOrderCommand;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
-import mvvm.example.orders.editor.OrderEditorHost;
-import mvvm.example.orders.editor.OrderEditorService;
-import mvvm.example.orders.editor.OrderEditorView;
-import mvvm.example.orders.editor.OrderEditorViewModel;
+import mvvm.example.orders.editor.*;
 import mvvm.example.orders.editor.edititem.EditItemRequest;
 import mvvm.example.orders.editor.edititem.EditItemView;
 import mvvm.example.orders.editor.edititem.EditItemViewModel;
@@ -56,24 +53,25 @@ public class OrdersModule {
         return new OrdersExplorerViewModel(
             orderRepository::findAll,
             new OrdersExplorerHost() {
-                @Override public void showOrderDetails(Order order) { shell.show(() -> orderEditorViewModel(order)); }
+                @Override public void showOrderDetails(EditOrderRequest request) { shell.show(() -> orderEditorViewModel(request)); }
                 @Override public void setPendingOrderCount(int count) { orderContext.setCount(count); }
             },
             shell.statusItems()
         );
     }
 
-    private OrderEditorViewModel orderEditorViewModel(Order order) {
+    private OrderEditorViewModel orderEditorViewModel(EditOrderRequest request) {
         return new OrderEditorViewModel(
-            order,
+            request,
             new OrderEditorService() {
+                @Override public Order fetchOrder(String orderId) { return orderRepository.findById(orderId).orElseThrow(); }
                 @Override public void saveOrder(Order order) { orderRepository.save(order); }
-                @Override public Order copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
+                @Override public String copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
-                @Override public void openOrder(Order copied) { shell.show(() -> orderEditorViewModel(copied)); }
+                @Override public void openOrder(EditOrderRequest copyRequest) { shell.show(() -> orderEditorViewModel(copyRequest)); }
                 @Override public void showItemEditor(EditItemRequest request) { view.dialogManager().show(editItemViewModel(request)); }
             });
     }

@@ -25,13 +25,16 @@ class OrderEditorViewModelTest {
                 .forEach(order -> ordersMap.put(order.id(), order));
         }
 
+        @Override public Order fetchOrder(String orderId) { return ordersMap.get(orderId); }
+
         @Override public void saveOrder(Order order) {
             ordersMap.put(order.id(), order);
         }
 
-        @Override public Order copyOrder(String orderId) {
+        @Override public String copyOrder(String orderId) {
+            var copiedId = "copied-" + orderId;
             copiedOrderIds.add(orderId);
-            return ordersMap.get(orderId);
+            return copiedId;
         }
 
         @Override public void deleteOrder(String orderId) {
@@ -46,27 +49,27 @@ class OrderEditorViewModelTest {
 
     static class MockHost implements OrderEditorHost {
 
-        private Order shownOrder;
+        private EditOrderRequest request;
 
         @Override public void returnToList() {}
-        @Override public void openOrder(Order order) { shownOrder = order; }
+        @Override public void openOrder(EditOrderRequest request) { this.request = request; }
         @Override public void showItemEditor(EditItemRequest request) { }
 
-        void assertOrderWasShown(Order order) {
-            assertEquals(order, shownOrder);
+        void assertOrderWasShown(String orderId) {
+            assertEquals(orderId, request.orderId());
         }
     }
 
     private static OrderEditorHost noOpHost() {
         return new OrderEditorHost() {
             @Override public void returnToList() {}
-            @Override public void openOrder(Order order) {}
+            @Override public void openOrder(EditOrderRequest request) {}
             @Override public void showItemEditor(EditItemRequest request) {}
         };
     }
 
     private static OrderEditorViewModel vmFor(Order order) {
-        return new OrderEditorViewModel(order, new MockService(order), noOpHost());
+        return new OrderEditorViewModel(new EditOrderRequest(order.id()), new MockService(order), noOpHost());
     }
 
     @Nested
@@ -132,8 +135,8 @@ class OrderEditorViewModelTest {
         @DisplayName("the order is added to storage")
         void orderIsPersisted() {
             var order = MockOrders.validOrderWithLineItems();
-            var service = new MockService();
-            var vm = new OrderEditorViewModel(order, service, noOpHost());
+            var service = new MockService(order);
+            var vm = new OrderEditorViewModel(new EditOrderRequest(order.id()), service, noOpHost());
 
             vm.save.executeAsync(Runnable::run).join();
 
@@ -150,7 +153,7 @@ class OrderEditorViewModelTest {
         void orderIsRemoved() {
             var order = MockOrders.validOrderWithLineItems();
             var service = new MockService(order);
-            var vm = new OrderEditorViewModel(order, service, noOpHost());
+            var vm = new OrderEditorViewModel(new EditOrderRequest(order.id()), service, noOpHost());
 
             vm.delete.execute();
 
@@ -168,12 +171,12 @@ class OrderEditorViewModelTest {
             var order = MockOrders.validOrderWithLineItems();
             var service = new MockService(order);
             var host = new MockHost();
-            var vm = new OrderEditorViewModel(order, service, host);
+            var vm = new OrderEditorViewModel(new EditOrderRequest(order.id()), service, host);
 
             vm.copy.execute();
 
             service.assertOrderWasCopied(order);
-            host.assertOrderWasShown(order);
+            host.assertOrderWasShown("copied-" + order.id());
         }
     }
 

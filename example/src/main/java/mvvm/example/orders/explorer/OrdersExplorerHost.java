@@ -1,8 +1,8 @@
 package mvvm.example.orders.explorer;
 
-import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.editor.EditOrderRequest;
 
 public interface OrdersExplorerHost {
-    void showOrderDetails(Order order);
+    void showOrderDetails(EditOrderRequest request);
     void setPendingOrderCount(int count);
 }

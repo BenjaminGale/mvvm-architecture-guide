@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.editor.EditOrderRequest;
 import mvvm.example.shell.main.statusbar.LabelType;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
@@ -28,7 +29,7 @@ public class OrdersExplorerViewModel {
         this.host = host;
 
         this.openOrderAction = new Action(
-            () -> host.showOrderDetails(selectedOrder.get()),
+            () -> host.showOrderDetails(new EditOrderRequest(selectedOrder.get().id())),
             selectedOrder.isNotNull()
         );
 

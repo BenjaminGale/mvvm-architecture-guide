@@ -11,7 +11,7 @@ public class CopyOrderCommand {
         this.repository = repository;
     }
 
-    public Order copy(String id) {
+    public String copy(String id) {
         var original = repository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
@@ -29,6 +29,6 @@ public class CopyOrderCommand {
 
         repository.save(copy);
 
-        return copy;
+        return copy.id();
     }
 }

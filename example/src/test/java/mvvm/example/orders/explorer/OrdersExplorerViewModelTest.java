@@ -237,7 +237,7 @@ class OrdersExplorerViewModelTest {
             vm.selectedOrderProperty().set(order);
             vm.openOrderAction().execute();
 
-            host.assertOrderWasShown(order);
+            host.assertOrderWasShown(order.id());
         }
 
         @Test
