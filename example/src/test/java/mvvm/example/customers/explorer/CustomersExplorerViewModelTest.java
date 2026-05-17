@@ -1,8 +1,8 @@
 package mvvm.example.customers.explorer;
 
-import mvvm.example.customers.StubCustomerRepository;
 import mvvm.example.customers.domain.Customer;
-import mvvm.example.customers.domain.CustomerService;
+
+import java.util.List;
 import mvvm.example.customers.domain.CustomerStatus;
 import mvvm.example.customers.editor.EditCustomerRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -25,8 +25,7 @@ class CustomersExplorerViewModelTest {
     }
 
     private static CustomersExplorerViewModel viewModelWith(Customer... customers) {
-        var service = new CustomerService(new StubCustomerRepository(customers));
-        return new CustomersExplorerViewModel(service, request -> {});
+        return new CustomersExplorerViewModel(() -> List.of(customers), request -> {});
     }
 
     @Nested
@@ -69,8 +68,7 @@ class CustomersExplorerViewModelTest {
         void navigationCallbackInvoked() {
             var selected = new AtomicReference<String>();
             var customer = customer("1", "Acme Ltd");
-            var service = new CustomerService(new StubCustomerRepository(customer));
-            var vm = new CustomersExplorerViewModel(service, request -> selected.set(request.customerId()));
+            var vm = new CustomersExplorerViewModel(() -> List.of(customer), request -> selected.set(request.customerId()));
 
             vm.openCustomer(customer);
 
@@ -81,8 +79,7 @@ class CustomersExplorerViewModelTest {
         @DisplayName("the navigation callback is not invoked when called with null")
         void navigationCallbackNotInvokedForNull() {
             var selected = new AtomicReference<String>();
-            var service = new CustomerService(new StubCustomerRepository());
-            var vm = new CustomersExplorerViewModel(service, request -> selected.set(request.customerId()));
+            var vm = new CustomersExplorerViewModel(List::of, request -> selected.set(request.customerId()));
 
             vm.openCustomer(null);
 

@@ -4,7 +4,7 @@ import mvvm.example.core.view.ViewServices;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.domain.CopyOrderService;
+import mvvm.example.orders.domain.OrderCopier;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.editor.OrderEditorHost;
 import mvvm.example.orders.editor.OrderEditorService;
@@ -28,7 +28,7 @@ public class OrdersModule {
     private final ShellContext shell;
 
     private final OrderRepository orderRepository;
-    private final CopyOrderService orderService;
+    private final OrderCopier orderCopier;
     private final OrderContext orderContext;
 
     public OrdersModule(ViewServices view, ShellContext shell) {
@@ -36,7 +36,7 @@ public class OrdersModule {
         this.shell = shell;
 
         this.orderRepository = new InMemoryOrderRepository();
-        this.orderService = new CopyOrderService(this.orderRepository);
+        this.orderCopier = new OrderCopier(this.orderRepository);
         this.orderContext = new OrderContext();
 
         view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
@@ -70,7 +70,7 @@ public class OrdersModule {
             order,
             new OrderEditorService() {
                 @Override public void saveOrder(Order order) { orderRepository.save(order); }
-                @Override public Order copyOrder(String orderId) { return orderService.copy(orderId); }
+                @Override public Order copyOrder(String orderId) { return orderCopier.copy(orderId); }
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {

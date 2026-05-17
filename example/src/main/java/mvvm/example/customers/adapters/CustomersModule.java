@@ -4,7 +4,6 @@ import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
-import mvvm.example.customers.domain.CustomerService;
 import mvvm.example.customers.editor.EditCustomerRequest;
 import mvvm.example.customers.editor.CustomerEditorService;
 import mvvm.example.customers.editor.CustomerEditorView;
@@ -18,14 +17,12 @@ public class CustomersModule {
 
     private final ShellContext shell;
     private final DialogManager dialogManager;
-    private final CustomerService customerService;
     private final CustomerRepository customerRepository;
 
     public CustomersModule(ViewServices view, ShellContext shell) {
         this.shell = shell;
         this.dialogManager = view.dialogManager();
         this.customerRepository = new InMemoryCustomerRepository();
-        this.customerService = new CustomerService(this.customerRepository);
 
         view.viewLocator().register(CustomersExplorerViewModel.class, CustomersExplorerView::new);
         view.dialogManager().register(CustomerEditorViewModel.class, CustomerEditorView::dialog);
@@ -41,7 +38,7 @@ public class CustomersModule {
 
     public CustomersExplorerViewModel customersExplorerViewModel() {
         return new CustomersExplorerViewModel(
-            customerService,
+            customerRepository::findAll,
             request -> dialogManager.show(editor(request)));
     }
 

@@ -3,11 +3,11 @@ package mvvm.example.orders.domain;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public class CopyOrderService {
+public class OrderCopier {
 
     private final OrderRepository repository;
 
-    public CopyOrderService(OrderRepository repository) {
+    public OrderCopier(OrderRepository repository) {
         this.repository = repository;
     }
 

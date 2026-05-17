@@ -3,7 +3,7 @@ package mvvm.example.customers.explorer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.customers.domain.Customer;
-import mvvm.example.customers.domain.CustomerService;
+import mvvm.example.customers.domain.CustomerStatus;
 import mvvm.example.customers.editor.EditCustomerRequest;
 
 import java.util.Comparator;
@@ -11,11 +11,11 @@ import java.util.Comparator;
 public class CustomersExplorerViewModel {
 
     private final ObservableList<Customer> customers = FXCollections.observableArrayList();
-    private final CustomerService customerService;
+    private final CustomersExplorerService service;
     private final CustomerExplorerHost host;
 
-    public CustomersExplorerViewModel(CustomerService customerService, CustomerExplorerHost host) {
-        this.customerService = customerService;
+    public CustomersExplorerViewModel(CustomersExplorerService service, CustomerExplorerHost host) {
+        this.service = service;
         this.host = host;
         load();
     }
@@ -33,8 +33,9 @@ public class CustomersExplorerViewModel {
     }
 
     private void load() {
-        var sorted = customerService.fetchActive()
+        var sorted = service.fetchCustomers()
             .stream()
+            .filter(c -> c.status() == CustomerStatus.ACTIVE)
             .sorted(Comparator.comparing(Customer::name))
             .toList();
         customers.setAll(sorted);
