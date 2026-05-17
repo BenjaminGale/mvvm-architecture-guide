@@ -8,22 +8,27 @@ import mvvm.example.core.config.adapters.InMemoryCustomerRepository;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.core.config.adapters.InMemoryOrderRepository;
 import mvvm.example.orders.domain.OrderRepository;
+import mvvm.example.core.config.adapters.InMemoryProductRepository;
+import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.shell.ShellContext;
 
 public class AppModule {
 
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
     public AppModule() {
         this.customerRepository = new InMemoryCustomerRepository();
         this.orderRepository = new InMemoryOrderRepository();
+        this.productRepository = new InMemoryProductRepository();
     }
 
     public ShellModule createShellModule(Stage stage) {
         return new ShellModule(
             customerRepository,
             orderRepository,
+            productRepository,
             new ViewServices(
                 new ViewLocator<>(),
                 new DialogManager(

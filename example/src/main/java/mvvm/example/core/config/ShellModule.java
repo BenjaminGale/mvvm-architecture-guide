@@ -6,6 +6,7 @@ import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.CopyOrderCommand;
 import mvvm.example.orders.domain.OrderRepository;
+import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.shell.main.sidebar.SidebarView;
@@ -23,12 +24,14 @@ public class ShellModule {
 
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
     private final ViewServices view;
     private final ShellContext shell;
 
-    public ShellModule(CustomerRepository customerRepository, OrderRepository orderRepository, ViewServices view, ShellContext shell) {
+    public ShellModule(CustomerRepository customerRepository, OrderRepository orderRepository, ProductRepository productRepository, ViewServices view, ShellContext shell) {
         this.customerRepository = customerRepository;
         this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
         this.view = view;
         this.shell = shell;
 
@@ -51,9 +54,14 @@ public class ShellModule {
         return new CustomersModule(customerRepository, view, shell);
     }
 
+    public StockModule createStockModule() {
+        return new StockModule(productRepository, view, shell);
+    }
+
     public Parent mainView(SidebarItemViewModel... items) {
         shell.navigationItems().addAll(items);
 
+        // TODO: Move to MainViewModel
         Arrays.stream(items)
             .findFirst()
             .ifPresent(item -> item.openWorkspaceAction().execute());
