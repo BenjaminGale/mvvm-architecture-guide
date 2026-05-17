@@ -115,21 +115,27 @@ Repositories are consumed exclusively by Services.
 
 Domain operations encapsulate business logic that spans multiple domain objects or does not naturally belong to any single entity.
 
-They are named after the operation they perform rather than the role they fill. An operation class named `OrderCopier` does one thing: it copies an order. This naming convention makes the scope of each class self-evident and resists the accumulation of unrelated responsibilities over time.
+Each domain operation class does one thing and is named after that operation. This naming convention makes the scope of each class self-evident and resists the accumulation of unrelated responsibilities over time.
+
+Domain operations are split into two kinds:
+
+**Commands** perform a state-changing operation — creating, updating, deleting, or transforming domain objects. They are named with a verb-noun pattern suffixed with `Command`.
+
+**Queries** derive or compute a result from domain state without modifying it. They are named with a verb-noun pattern suffixed with `Query`.
 
 ### 3.3.1 Rules for domain operations
 
-- named after the operation they perform, not a generic role (`OrderCopier`, not `OrderService`)
-- do one thing
+- each class does one thing — either a single command or a single query
+- commands are suffixed with `Command`; queries are suffixed with `Query`
 - depend only on repository interfaces and domain models
 - contain no presentation logic and have no knowledge of ViewModels
 
 ```java
-public class OrderCopier {
+public class CopyOrderCommand {
 
     private final OrderRepository repository;
 
-    public OrderCopier(OrderRepository repository) {
+    public CopyOrderCommand(OrderRepository repository) {
         this.repository = repository;
     }
 
