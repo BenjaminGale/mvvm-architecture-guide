@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor.edititem;
+package mvvm.example.orders.editor.lineitems.editor;
 
 import mvvm.example.orders.domain.LineItem;
 import org.junit.jupiter.api.DisplayName;
