@@ -48,4 +48,8 @@ public class CustomerEditorViewModel {
         service.save(new Customer(id, name.get(), email.get(), status.get()));
         request.onSaved().run();
     }
+
+    public boolean isNew() {
+        return request.isNew();
+    }
 }

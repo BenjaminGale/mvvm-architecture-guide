@@ -17,7 +17,7 @@ public class CustomerEditorView extends GridPane {
     public static Dialog<Runnable> dialog(CustomerEditorViewModel viewModel) {
         var saveBtn = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
         var dialog = new Dialog<Runnable>();
-        dialog.setTitle("Customer");
+        dialog.setTitle(viewModel.isNew() ? "Add Customer" : "Edit Customer");
         dialog.getDialogPane().setContent(new CustomerEditorView(viewModel));
         dialog.getDialogPane().getButtonTypes().addAll(saveBtn, ButtonType.CANCEL);
         dialog.setResultConverter(bt -> bt == saveBtn ? viewModel::confirm : null);
