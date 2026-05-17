@@ -87,7 +87,7 @@ class OrdersExplorerViewModelTest {
 
             var vm = createViewModel();
 
-            assertEquals(expectedOrderCount, vm.orderCountProperty().get());
+            assertEquals(expectedOrderCount, vm.ordersCountProperty().get());
         }
 
         @ParameterizedTest(name = "{0}")
@@ -98,7 +98,7 @@ class OrdersExplorerViewModelTest {
 
             var vm = createViewModel();
 
-            assertEquals(expectedOverdueCount, vm.overdueCountProperty().get());
+            assertEquals(expectedOverdueCount, vm.overdueOrdersCountProperty().get());
         }
 
         @Test
@@ -180,7 +180,7 @@ class OrdersExplorerViewModelTest {
             var vm = createViewModel();
             vm.refresh();
 
-            assertEquals(expectedOrderCount, vm.orderCountProperty().get());
+            assertEquals(expectedOrderCount, vm.ordersCountProperty().get());
         }
 
         @ParameterizedTest(name = "{0}")
@@ -192,7 +192,7 @@ class OrdersExplorerViewModelTest {
             var vm = createViewModel();
             vm.refresh();
 
-            assertEquals(expectedOverdueCount, vm.overdueCountProperty().get());
+            assertEquals(expectedOverdueCount, vm.overdueOrdersCountProperty().get());
         }
 
         @ParameterizedTest(name = "{0}")
@@ -234,7 +234,8 @@ class OrdersExplorerViewModelTest {
             repository.save(order);
 
             var vm = createViewModel();
-            vm.openOrder(order);
+            vm.selectedOrderProperty().set(order);
+            vm.openOrderAction().execute();
 
             host.assertOrderWasShown(order);
         }
@@ -243,7 +244,7 @@ class OrdersExplorerViewModelTest {
         @DisplayName("it does nothing when no order selected")
         void navigationCallbackNotInvokedForNull() {
             var vm = createViewModel();
-            vm.openOrder(null);
+            vm.openOrderAction().execute();
 
             host.assertNoOrderWasShown();
         }

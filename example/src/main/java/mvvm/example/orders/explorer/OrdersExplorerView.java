@@ -30,6 +30,10 @@ public class OrdersExplorerView extends BorderPane {
         table.getColumns().add(totalColumn());
         table.getColumns().add(overdueColumn());
 
+        viewModel
+            .selectedOrderProperty()
+            .bind(table.getSelectionModel().selectedItemProperty());
+
         var refreshButton = new Button("Refresh");
         var toolbar = new ToolBar(refreshButton);
 
@@ -39,7 +43,7 @@ public class OrdersExplorerView extends BorderPane {
 
         refreshButton.setOnAction(_ -> viewModel.refresh());
 
-        TableViews.onActivate(table, viewModel::openOrder);
+        TableViews.bind(table, viewModel.openOrderAction());
 
         Controls.focusOnShow(table);
     }
