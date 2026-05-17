@@ -4,17 +4,18 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-public record Order(String id, String customerName, LocalDate date, String reference, List<LineItem> lineItems) {
+public record Order(String id, String customerName, LocalDate date, String reference, OrderStatus status, LocalDate completionDate, List<LineItem> lineItems) {
 
     public record Header(String customerName, LocalDate date, String reference) {
     }
 
+    public Order {
+        lineItems = List.copyOf(lineItems);
+    }
+
+    @Deprecated
     public Order(String id, String customerName, LocalDate date, String reference, List<LineItem> lineItems) {
-        this.id = id;
-        this.customerName = customerName;
-        this.date = date;
-        this.reference = reference;
-        this.lineItems = List.copyOf(lineItems);
+        this(id, customerName, date, reference, OrderStatus.WIP, null, lineItems);
     }
 
     public BigDecimal total() {
@@ -25,7 +26,9 @@ public record Order(String id, String customerName, LocalDate date, String refer
     }
 
     public boolean isOverdue() {
-        return date.isBefore(LocalDate.now().minusDays(30));
+        return status != OrderStatus.SHIPPED
+            && status != OrderStatus.CANCELLED
+            && date.isBefore(LocalDate.now().minusDays(30));
     }
 
     public boolean isValid() {
@@ -38,10 +41,18 @@ public record Order(String id, String customerName, LocalDate date, String refer
     }
 
     public Order withHeader(Header header) {
-        return new Order(id, header.customerName(), header.date(), header.reference(), lineItems);
+        return new Order(id, header.customerName(), header.date(), header.reference(), status, completionDate, lineItems);
     }
 
     public Order withLineItems(List<LineItem> newItems) {
-        return new Order(id, customerName, date, reference, newItems);
+        return new Order(id, customerName, date, reference, status, completionDate, newItems);
+    }
+
+    public Order withStatus(OrderStatus newStatus) {
+        return new Order(id, customerName, date, reference, newStatus, completionDate, lineItems);
+    }
+
+    public Order withCompletionDate(LocalDate newCompletionDate) {
+        return new Order(id, customerName, date, reference, status, newCompletionDate, lineItems);
     }
 }

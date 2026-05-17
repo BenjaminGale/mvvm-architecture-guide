@@ -21,7 +21,9 @@ public class CopyOrderCommand {
             original.customerName(),
             LocalDate.now(),
             "COPY-" + original.reference(),
-            original.lineItems()
+            OrderStatus.WIP,
+            null,
+            original.lineItems().stream().map(item -> new LineItem(item.description(), item.quantity(), 0, item.unitPrice())).toList()
         );
 
         repository.save(copy);

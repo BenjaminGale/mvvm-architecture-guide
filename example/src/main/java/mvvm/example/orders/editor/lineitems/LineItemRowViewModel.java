@@ -17,6 +17,7 @@ public class LineItemRowViewModel {
     private final StringProperty description = new SimpleStringProperty();
     private final IntegerProperty quantity = new SimpleIntegerProperty();
     private final ObjectProperty<BigDecimal> unitPrice = new SimpleObjectProperty<>();
+    private int quantityAllocated;
     private final ObjectBinding<BigDecimal> total = Bindings.createObjectBinding(() -> {
             var price = unitPrice.get();
             var qty   = quantity.get();
@@ -28,6 +29,7 @@ public class LineItemRowViewModel {
     public LineItemRowViewModel(LineItem item) {
         description.set(item.description());
         quantity.set(item.quantity());
+        quantityAllocated = item.quantityAllocated();
         unitPrice.set(item.unitPrice());
     }
 
@@ -40,6 +42,7 @@ public class LineItemRowViewModel {
         return new LineItem(
             description.get(),
             quantity.get(),
+            quantityAllocated,
             unitPrice.get()
         );
     }

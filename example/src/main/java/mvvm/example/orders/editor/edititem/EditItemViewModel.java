@@ -31,6 +31,7 @@ public class EditItemViewModel {
             new LineItem(
                 description.get(),
                 quantity.get(),
+                request.getItem().quantityAllocated(),
                 unitPrice.get()
             )
         );
