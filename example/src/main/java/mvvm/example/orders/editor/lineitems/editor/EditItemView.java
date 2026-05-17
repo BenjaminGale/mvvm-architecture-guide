@@ -1,5 +1,6 @@
 package mvvm.example.orders.editor.lineitems.editor;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -58,5 +59,7 @@ public class EditItemView extends BorderPane {
         descriptionField.textProperty().bindBidirectional(viewModel.descriptionProperty());
         quantityFactory.valueProperty().bindBidirectional(viewModel.quantityProperty().asObject());
         priceFormatter.valueProperty().bindBidirectional(viewModel.unitPriceProperty());
+
+        Platform.runLater(descriptionField::requestFocus);
     }
 }

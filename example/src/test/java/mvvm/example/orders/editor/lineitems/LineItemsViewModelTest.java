@@ -20,7 +20,7 @@ class LineItemsViewModelTest {
     }
 
     private static LineItemsViewModel withItems(LineItem... items) {
-        return new LineItemsViewModel(List.of(items), row -> {});
+        return new LineItemsViewModel(List.of(items), row -> {}, () -> {});
     }
 
     @Nested
@@ -116,21 +116,32 @@ class LineItemsViewModelTest {
     class WhenARowIsAdded {
 
         @Test
-        @DisplayName("the new row is appended to the list")
-        void rowAppendedToList() {
-            var vm = withItems(namedItem("Widget"));
+        @DisplayName("addRow invokes the add callback")
+        void addRowInvokesCallback() {
+            Runnable onAddRow = mock();
+            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), row -> {}, onAddRow);
 
             vm.addRow();
+
+            verify(onAddRow).run();
+        }
+
+        @Test
+        @DisplayName("addConfirmedRow appends the new row to the list")
+        void confirmedRowAppendedToList() {
+            var vm = withItems(namedItem("Widget"));
+
+            vm.addConfirmedRow(namedItem("Gadget"));
 
             assertEquals(2, vm.getRows().size());
         }
 
         @Test
-        @DisplayName("the list becomes invalid because the new row has a blank description")
-        void listBecomesInvalidAfterAdd() {
+        @DisplayName("addConfirmedRow with a blank description makes the list invalid")
+        void confirmedRowWithBlankDescriptionMakesListInvalid() {
             var vm = withItems(namedItem("Widget"));
 
-            vm.addRow();
+            vm.addConfirmedRow(namedItem(""));
 
             assertFalse(vm.validProperty().get());
         }
@@ -170,7 +181,7 @@ class LineItemsViewModelTest {
         @DisplayName("the edit callback is invoked with the selected row")
         void editCallbackInvokedWithSelectedRow() {
             Consumer<LineItemRowViewModel> onEditRow = mock();
-            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), onEditRow);
+            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), onEditRow, () -> {});
             vm.selectRow(vm.getRows().getFirst());
 
             vm.editSelected();
@@ -182,7 +193,7 @@ class LineItemsViewModelTest {
         @DisplayName("the edit callback is not invoked when no row is selected")
         void editCallbackNotInvokedWithNoSelection() {
             Consumer<LineItemRowViewModel> onEditRow = mock();
-            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), onEditRow);
+            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), onEditRow, () -> {});
 
             vm.editSelected();
 

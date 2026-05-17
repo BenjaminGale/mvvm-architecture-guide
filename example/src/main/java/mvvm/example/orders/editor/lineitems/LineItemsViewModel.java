@@ -22,9 +22,11 @@ public class LineItemsViewModel {
     private final BooleanProperty valid = new SimpleBooleanProperty(false);
 
     private final Consumer<LineItemRowViewModel> onEditRow;
+    private final Runnable onAddRow;
 
-    public LineItemsViewModel(List<LineItem> items, Consumer<LineItemRowViewModel> onEditRow) {
+    public LineItemsViewModel(List<LineItem> items, Consumer<LineItemRowViewModel> onEditRow, Runnable onAddRow) {
         this.onEditRow = onEditRow;
+        this.onAddRow = onAddRow;
         rows.setAll(items.stream().map(LineItemRowViewModel::new).toList());
 
         selectedRow.addListener(obs -> canRemove.set(selectedRow.get() != null));
@@ -44,7 +46,11 @@ public class LineItemsViewModel {
     }
 
     public void addRow() {
-        rows.add(new LineItemRowViewModel(LineItem.empty()));
+        onAddRow.run();
+    }
+
+    public void addConfirmedRow(LineItem item) {
+        rows.add(new LineItemRowViewModel(item));
     }
 
     public void removeSelected() {

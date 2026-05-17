@@ -9,6 +9,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import mvvm.example.core.view.controls.CurrencyTableCell;
 import mvvm.example.core.view.controls.Spacer;
+import mvvm.example.core.view.controls.TableViews;
 
 import java.math.BigDecimal;
 
@@ -39,6 +40,8 @@ public class LineItemsView extends BorderPane {
         addBtn.setOnAction(e -> viewModel.addRow());
         editBtn.setOnAction(e -> viewModel.editSelected());
         deleteBtn.setOnAction(e -> viewModel.removeSelected());
+
+        TableViews.onActivate(table, _ -> viewModel.editSelected());
 
         table.getSelectionModel()
             .selectedItemProperty()

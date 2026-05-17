@@ -39,7 +39,7 @@ public class OrderEditorViewModel {
         this.order = service.fetchOrder(request.orderId());
 
         this.header = new OrderHeaderViewModel(order);
-        this.lineItems = new LineItemsViewModel(order.lineItems(), this::editRow);
+        this.lineItems = new LineItemsViewModel(order.lineItems(), this::editRow, this::addRow);
 
         this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));
         this.delete = new Action(this::onDelete);
@@ -61,6 +61,15 @@ public class OrderEditorViewModel {
     private void onCopy() {
         var copiedId = service.copyOrder(order.id());
         host.openOrder(new EditOrderRequest(copiedId));
+    }
+
+    private void addRow() {
+        host.showItemEditor(
+            new EditItemRequest(
+                LineItem.empty(),
+                lineItems::addConfirmedRow
+            )
+        );
     }
 
     private void editRow(LineItemRowViewModel row) {
