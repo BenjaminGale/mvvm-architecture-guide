@@ -107,17 +107,6 @@ class OrdersExplorerViewModelTest {
         }
 
         @Test
-        @DisplayName("it reports pending order count")
-        void pendingCountUpdated() {
-            orders.add(MockOrders.of("1", OVERDUE));
-            orders.add(MockOrders.of("2", OVERDUE));
-
-            createViewModel();
-
-            verify(host).setPendingOrderCount(2);
-        }
-
-        @Test
         @DisplayName("it adds a status item for order count")
         void addsOrderCountStatusItem() {
             orders.add(MockOrders.of("1", RECENT));
@@ -214,17 +203,6 @@ class OrdersExplorerViewModelTest {
                 .toList();
 
             assertEquals(expectedOrder, actual);
-        }
-
-        @Test
-        @DisplayName("it reports updated pending order count")
-        void pendingCountUpdated() {
-            orders.add(MockOrders.of("1", OVERDUE));
-
-            var vm = createViewModel();
-            vm.refresh();
-
-            verify(host, atLeastOnce()).setPendingOrderCount(1);
         }
     }
 

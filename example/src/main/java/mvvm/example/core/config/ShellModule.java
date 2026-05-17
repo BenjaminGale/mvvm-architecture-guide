@@ -3,7 +3,6 @@ package mvvm.example.core.config;
 import javafx.scene.Parent;
 import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.CustomerRepository;
-import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.CopyOrderCommand;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
@@ -46,8 +45,7 @@ public class ShellModule {
             orderRepository,
             view,
             shell,
-            new CopyOrderCommand(orderRepository),
-            new OrderContext());
+            new CopyOrderCommand(orderRepository));
     }
 
     public CustomersModule createCustomersModule() {

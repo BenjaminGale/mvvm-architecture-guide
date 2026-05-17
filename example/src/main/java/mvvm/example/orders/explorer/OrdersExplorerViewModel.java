@@ -22,11 +22,9 @@ public class OrdersExplorerViewModel {
     private final Action openOrderAction;
 
     private final OrdersExplorerService service;
-    private final OrdersExplorerHost host;
 
     public OrdersExplorerViewModel(OrdersExplorerService service, OrdersExplorerHost host, ObservableList<StatusItemViewModel> statusItems) {
         this.service = service;
-        this.host = host;
 
         this.openOrderAction = new Action(
             () -> host.showOrderDetails(new EditOrderRequest(selectedOrder.get().id())),
@@ -63,7 +61,6 @@ public class OrdersExplorerViewModel {
         orders.setAll(result);
 
         var overdue = (int) result.stream().filter(Order::isOverdue).count();
-        host.setPendingOrderCount(overdue);
 
         ordersCount.set(result.size());
         overdueOrdersCount.set(overdue);

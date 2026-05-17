@@ -6,17 +6,11 @@ import mvvm.example.core.viewmodel.Action;
 public class SidebarItemViewModel {
 
     private final StringProperty title = new SimpleStringProperty(this, "title");
-    private final IntegerProperty count = new SimpleIntegerProperty(this, "count");
     private final Action openWorkspaceAction;
 
     public SidebarItemViewModel(String title, Action.Listener openWorkspace) {
         this.title.set(title);
         this.openWorkspaceAction = new Action(openWorkspace);
-    }
-
-    public SidebarItemViewModel(String title, Action.Listener openWorkspace, ReadOnlyIntegerProperty count) {
-        this(title, openWorkspace);
-        this.count.bind(count);
     }
 
     public Action openWorkspaceAction() {
@@ -25,9 +19,5 @@ public class SidebarItemViewModel {
 
     public ReadOnlyStringProperty titleProperty() {
         return title;
-    }
-
-    public ReadOnlyIntegerProperty countProperty() {
-        return count;
     }
 }

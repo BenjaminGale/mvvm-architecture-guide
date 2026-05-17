@@ -1,7 +1,6 @@
 package mvvm.example.core.config;
 
 import mvvm.example.core.view.ViewServices;
-import mvvm.example.orders.context.OrderContext;
 import mvvm.example.orders.domain.CopyOrderCommand;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
@@ -13,7 +12,6 @@ import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsView;
 import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
-import mvvm.example.orders.explorer.OrdersExplorerHost;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 import mvvm.example.orders.requests.EditOrderRequest;
@@ -26,14 +24,12 @@ public class OrdersModule {
     private final ViewServices view;
     private final ShellContext shell;
     private final CopyOrderCommand copyOrderCommand;
-    private final OrderContext orderContext;
 
-    public OrdersModule(OrderRepository orderRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand, OrderContext orderContext) {
+    public OrdersModule(OrderRepository orderRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
         this.orderRepository = orderRepository;
         this.view = view;
         this.shell = shell;
         this.copyOrderCommand = copyOrderCommand;
-        this.orderContext = orderContext;
 
         view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
         view.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
@@ -43,7 +39,7 @@ public class OrdersModule {
     }
 
     public SidebarItemViewModel sidebarItem() {
-        return new SidebarItemViewModel("Orders", this::showExplorer, orderContext.overdueOrderCountProperty());
+        return new SidebarItemViewModel("Orders", this::showExplorer);
     }
 
     public void showExplorer() {
@@ -53,10 +49,7 @@ public class OrdersModule {
     public OrdersExplorerViewModel ordersExplorerViewModel() {
         return new OrdersExplorerViewModel(
             orderRepository::findAll,
-            new OrdersExplorerHost() {
-                @Override public void showOrderDetails(EditOrderRequest request) { shell.show(() -> orderEditorViewModel(request)); }
-                @Override public void setPendingOrderCount(int count) { orderContext.setCount(count); }
-            },
+            request -> shell.show(() -> orderEditorViewModel(request)),
             shell.statusItems()
         );
     }
