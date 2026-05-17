@@ -160,18 +160,25 @@ Stubs are preferable to mocks because test setup describes what the service _doe
 
 #### 8.4.1 Action
 
-Tests verify the guard and that `canExecute` correctly reflects a bound property:
+Mock the `Listener` to verify execution, and assert that `canExecute` correctly reflects a bound property:
 
 ```java
 @Test
-void action_doesNotExecuteWhenCanExecuteIsFalse() {
-    var executed = new AtomicBoolean(false);
-    var canExecute = new SimpleBooleanProperty(false);
-    var action = new Action(() -> executed.set(true), canExecute);
+void action_executesTheListener() {
+    Action.Listener listener = mock();
+    var action = new Action(listener);
 
     action.execute();
 
-    assertFalse(executed.get());
+    verify(listener).actionExecuted();
+}
+
+@Test
+void action_throwsWhenCanExecuteIsFalse() {
+    var canExecute = new SimpleBooleanProperty(false);
+    var action = new Action(() -> {}, canExecute);
+
+    assertThrows(IllegalStateException.class, action::execute);
 }
 
 @Test

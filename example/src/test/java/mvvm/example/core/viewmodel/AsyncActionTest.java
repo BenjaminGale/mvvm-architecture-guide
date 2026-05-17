@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("ViewModel.AsyncAction")
 class AsyncActionTest {
@@ -27,16 +27,14 @@ class AsyncActionTest {
 
         @Test
         @DisplayName("executes the listener when executeAsync() is called")
-        void executesTheListener() {
-            var executed = new AtomicBoolean(false);
-            var action = new AsyncAction(() -> {
-                executed.set(true);
-                return CompletableFuture.completedFuture(() -> {});
-            });
+        void executesTheListener() throws Exception {
+            AsyncAction.Listener listener = mock();
+            when(listener.actionExecutedAsync()).thenReturn(CompletableFuture.completedFuture(() -> {}));
+            var action = new AsyncAction(listener);
 
             action.executeAsync(Runnable::run);
 
-            assertTrue(executed.get());
+            verify(listener).actionExecutedAsync();
         }
     }
 

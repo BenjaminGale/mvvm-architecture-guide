@@ -7,9 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Orders.LineItemsViewModel")
 class LineItemsViewModelTest {
@@ -168,24 +169,24 @@ class LineItemsViewModelTest {
         @Test
         @DisplayName("the edit callback is invoked with the selected row")
         void editCallbackInvokedWithSelectedRow() {
-            var edited = new AtomicReference<LineItemRowViewModel>();
-            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), edited::set);
+            Consumer<LineItemRowViewModel> onEditRow = mock();
+            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), onEditRow);
             vm.selectRow(vm.getRows().getFirst());
 
             vm.editSelected();
 
-            assertNotNull(edited.get());
+            verify(onEditRow).accept(any(LineItemRowViewModel.class));
         }
 
         @Test
         @DisplayName("the edit callback is not invoked when no row is selected")
         void editCallbackNotInvokedWithNoSelection() {
-            var edited = new AtomicReference<LineItemRowViewModel>();
-            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), edited::set);
+            Consumer<LineItemRowViewModel> onEditRow = mock();
+            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), onEditRow);
 
             vm.editSelected();
 
-            assertNull(edited.get());
+            verify(onEditRow, never()).accept(any());
         }
     }
 

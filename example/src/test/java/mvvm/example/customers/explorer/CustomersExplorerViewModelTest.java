@@ -9,9 +9,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicReference;
+import org.mockito.ArgumentCaptor;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Customers.CustomersExplorerViewModel")
 class CustomersExplorerViewModelTest {
@@ -66,24 +67,26 @@ class CustomersExplorerViewModelTest {
         @Test
         @DisplayName("the navigation callback is invoked with the selected customer id")
         void navigationCallbackInvoked() {
-            var selected = new AtomicReference<String>();
+            var host = mock(CustomerExplorerHost.class);
             var customer = customer("1", "Acme Ltd");
-            var vm = new CustomersExplorerViewModel(() -> List.of(customer), request -> selected.set(request.customerId()));
+            var vm = new CustomersExplorerViewModel(() -> List.of(customer), host);
 
             vm.openCustomer(customer);
 
-            assertEquals(customer.id(), selected.get());
+            var captor = ArgumentCaptor.forClass(EditCustomerRequest.class);
+            verify(host).editCustomer(captor.capture());
+            assertEquals(customer.id(), captor.getValue().customerId());
         }
 
         @Test
         @DisplayName("the navigation callback is not invoked when called with null")
         void navigationCallbackNotInvokedForNull() {
-            var selected = new AtomicReference<String>();
-            var vm = new CustomersExplorerViewModel(List::of, request -> selected.set(request.customerId()));
+            var host = mock(CustomerExplorerHost.class);
+            var vm = new CustomersExplorerViewModel(List::of, host);
 
             vm.openCustomer(null);
 
-            assertNull(selected.get());
+            verify(host, never()).editCustomer(any());
         }
     }
 
@@ -94,13 +97,14 @@ class CustomersExplorerViewModelTest {
         @Test
         @DisplayName("the navigation callback is invoked with a new customer request")
         void navigationCallbackInvoked() {
-            var capturedRequest = new AtomicReference<EditCustomerRequest>();
-            var vm = new CustomersExplorerViewModel(List::of, capturedRequest::set);
+            var host = mock(CustomerExplorerHost.class);
+            var vm = new CustomersExplorerViewModel(List::of, host);
 
             vm.addCustomer();
 
-            assertNotNull(capturedRequest.get());
-            assertTrue(capturedRequest.get().isNew());
+            var captor = ArgumentCaptor.forClass(EditCustomerRequest.class);
+            verify(host).editCustomer(captor.capture());
+            assertTrue(captor.getValue().isNew());
         }
     }
 }

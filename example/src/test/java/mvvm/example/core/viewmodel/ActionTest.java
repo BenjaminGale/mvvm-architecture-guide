@@ -5,9 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("ViewModel.Action")
 class ActionTest {
@@ -19,12 +18,12 @@ class ActionTest {
         @Test
         @DisplayName("executes the listener when execute() is called")
         void executesTheListener() {
-            var executed = new AtomicBoolean(false);
-            var action = new Action(() -> executed.set(true));
+            Action.Listener listener = mock();
+            var action = new Action(listener);
 
             action.execute();
 
-            assertTrue(executed.get());
+            verify(listener).actionExecuted();
         }
 
         @Test
@@ -43,13 +42,13 @@ class ActionTest {
         @Test
         @DisplayName("executes the listener when the binding is true")
         void executesWhenBindingIsTrue() {
-            var executed = new AtomicBoolean(false);
+            Action.Listener listener = mock();
             var canExecute = new SimpleBooleanProperty(true);
-            var action = new Action(() -> executed.set(true), canExecute);
+            var action = new Action(listener, canExecute);
 
             action.execute();
 
-            assertTrue(executed.get());
+            verify(listener).actionExecuted();
         }
 
         @Test

@@ -6,9 +6,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+
+import org.mockito.ArgumentCaptor;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Orders.EditItemViewModel")
 class EditItemViewModelTest {
@@ -55,30 +58,30 @@ class EditItemViewModelTest {
         @Test
         @DisplayName("the request callback is invoked with the updated item")
         void requestCallbackInvokedWithUpdatedItem() {
-            var confirmed = new AtomicReference<LineItem>();
-            var request = new EditItemRequest(ORIGINAL, confirmed::set);
-            var vm = new EditItemViewModel(request);
+            Consumer<LineItem> listener = mock();
+            var vm = new EditItemViewModel(new EditItemRequest(ORIGINAL, listener));
 
             vm.confirm();
 
-            assertNotNull(confirmed.get());
+            verify(listener).accept(any(LineItem.class));
         }
 
         @Test
         @DisplayName("the confirmed item reflects the edited property values")
         void confirmedItemReflectsEditedValues() {
-            var confirmed = new AtomicReference<LineItem>();
-            var request = new EditItemRequest(ORIGINAL, confirmed::set);
-            var vm = new EditItemViewModel(request);
+            Consumer<LineItem> listener = mock();
+            var vm = new EditItemViewModel(new EditItemRequest(ORIGINAL, listener));
             vm.descriptionProperty().set("Gadget");
             vm.quantityProperty().set(5);
             vm.unitPriceProperty().set(BigDecimal.valueOf(19.99));
 
             vm.confirm();
 
-            assertEquals("Gadget", confirmed.get().description());
-            assertEquals(5, confirmed.get().quantity());
-            assertEquals(BigDecimal.valueOf(19.99), confirmed.get().unitPrice());
+            var captor = ArgumentCaptor.forClass(LineItem.class);
+            verify(listener).accept(captor.capture());
+            assertEquals("Gadget", captor.getValue().description());
+            assertEquals(5, captor.getValue().quantity());
+            assertEquals(BigDecimal.valueOf(19.99), captor.getValue().unitPrice());
         }
     }
 }
