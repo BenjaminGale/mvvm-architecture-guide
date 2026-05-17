@@ -1,5 +1,6 @@
 package mvvm.example.customers.editor;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -52,5 +53,7 @@ public class CustomerEditorView extends GridPane {
         add(emailField, 1, 1);
         add(new Label("Status"), 0, 2);
         add(statusCombo, 1, 2);
+
+        Platform.runLater(nameField::requestFocus);
     }
 }
