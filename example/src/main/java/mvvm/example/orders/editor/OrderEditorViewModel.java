@@ -7,7 +7,6 @@ import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.requests.EditItemRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
-import mvvm.example.orders.editor.lineitems.LineItemRowViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
 import mvvm.example.orders.requests.EditOrderRequest;
 
@@ -72,19 +71,13 @@ public class OrderEditorViewModel {
         );
     }
 
-    private void editRow(LineItemRowViewModel row) {
+    private void editRow(int index, LineItem item) {
         host.showItemEditor(
             new EditItemRequest(
-                row.toLineItem(),
-                updated -> saveEditedRow(row, updated)
+                item,
+                updated -> lineItems.updateConfirmedRow(index, updated)
             )
         );
-    }
-
-    private void saveEditedRow(LineItemRowViewModel row, LineItem updated) {
-        row.descriptionProperty().set(updated.description());
-        row.quantityProperty().set(updated.quantity());
-        row.unitPriceProperty().set(updated.unitPrice());
     }
 
     public OrderHeaderViewModel getHeader()  { return header; }

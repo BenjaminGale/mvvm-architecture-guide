@@ -1,5 +1,6 @@
 package mvvm.example.orders.editor.lineitems;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -10,13 +11,14 @@ import javafx.scene.layout.BorderPane;
 import mvvm.example.core.view.controls.CurrencyTableCell;
 import mvvm.example.core.view.controls.Spacer;
 import mvvm.example.core.view.controls.TableViews;
+import mvvm.example.orders.domain.LineItem;
 
 import java.math.BigDecimal;
 
 public class LineItemsView extends BorderPane {
 
     public LineItemsView(LineItemsViewModel viewModel) {
-        var table = new TableView<LineItemRowViewModel>();
+        var table = new TableView<LineItem>();
         table.setItems(viewModel.getRows());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.getColumns().add(descriptionColumn());
@@ -45,31 +47,37 @@ public class LineItemsView extends BorderPane {
 
         table.getSelectionModel()
             .selectedItemProperty()
-            .addListener((obs, old, row) -> viewModel.selectRow(row));
+            .addListener((obs, old, item) -> viewModel.selectRow(item));
+
+        viewModel.selectedRowProperty()
+            .addListener((obs, old, item) -> {
+                if (item == null) table.getSelectionModel().clearSelection();
+                else table.getSelectionModel().select(item);
+            });
     }
 
-    private static TableColumn<LineItemRowViewModel, String> descriptionColumn() {
-        var col = new TableColumn<LineItemRowViewModel, String>("Description");
-        col.setCellValueFactory(cell -> cell.getValue().descriptionProperty());
+    private static TableColumn<LineItem, String> descriptionColumn() {
+        var col = new TableColumn<LineItem, String>("Description");
+        col.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().description()));
         return col;
     }
 
-    private static TableColumn<LineItemRowViewModel, Number> quantityColumn() {
-        var col = new TableColumn<LineItemRowViewModel, Number>("Qty");
-        col.setCellValueFactory(cell -> cell.getValue().quantityProperty());
+    private static TableColumn<LineItem, Integer> quantityColumn() {
+        var col = new TableColumn<LineItem, Integer>("Qty");
+        col.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().quantity()));
         return col;
     }
 
-    private static TableColumn<LineItemRowViewModel, BigDecimal> unitPriceColumn() {
-        var col = new TableColumn<LineItemRowViewModel, BigDecimal>("Unit Price");
-        col.setCellValueFactory(cell -> cell.getValue().unitPriceProperty());
+    private static TableColumn<LineItem, BigDecimal> unitPriceColumn() {
+        var col = new TableColumn<LineItem, BigDecimal>("Unit Price");
+        col.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().unitPrice()));
         col.setCellFactory(CurrencyTableCell.forTableColumn());
         return col;
     }
 
-    private static TableColumn<LineItemRowViewModel, BigDecimal> totalColumn() {
-        var col = new TableColumn<LineItemRowViewModel, BigDecimal>("Total");
-        col.setCellValueFactory(cell -> cell.getValue().totalProperty());
+    private static TableColumn<LineItem, BigDecimal> totalColumn() {
+        var col = new TableColumn<LineItem, BigDecimal>("Total");
+        col.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().total()));
         col.setCellFactory(CurrencyTableCell.forTableColumn());
         return col;
     }

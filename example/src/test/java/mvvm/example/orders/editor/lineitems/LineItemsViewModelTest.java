@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -20,7 +20,7 @@ class LineItemsViewModelTest {
     }
 
     private static LineItemsViewModel withItems(LineItem... items) {
-        return new LineItemsViewModel(List.of(items), row -> {}, () -> {});
+        return new LineItemsViewModel(List.of(items), (i, item) -> {}, () -> {});
     }
 
     @Nested
@@ -119,7 +119,7 @@ class LineItemsViewModelTest {
         @DisplayName("addRow invokes the add callback")
         void addRowInvokesCallback() {
             Runnable onAddRow = mock();
-            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), row -> {}, onAddRow);
+            var vm = new LineItemsViewModel(List.of(namedItem("Widget")), (i, item) -> {}, onAddRow);
 
             vm.addRow();
 
@@ -178,26 +178,48 @@ class LineItemsViewModelTest {
     class WhenARowIsEdited {
 
         @Test
-        @DisplayName("the edit callback is invoked with the selected row")
-        void editCallbackInvokedWithSelectedRow() {
-            Consumer<LineItemRowViewModel> onEditRow = mock();
+        @DisplayName("the edit callback is invoked with the index and item")
+        void editCallbackInvokedWithIndexAndItem() {
+            BiConsumer<Integer, LineItem> onEditRow = mock();
             var vm = new LineItemsViewModel(List.of(namedItem("Widget")), onEditRow, () -> {});
             vm.selectRow(vm.getRows().getFirst());
 
             vm.editSelected();
 
-            verify(onEditRow).accept(any(LineItemRowViewModel.class));
+            verify(onEditRow).accept(eq(0), any(LineItem.class));
         }
 
         @Test
         @DisplayName("the edit callback is not invoked when no row is selected")
         void editCallbackNotInvokedWithNoSelection() {
-            Consumer<LineItemRowViewModel> onEditRow = mock();
+            BiConsumer<Integer, LineItem> onEditRow = mock();
             var vm = new LineItemsViewModel(List.of(namedItem("Widget")), onEditRow, () -> {});
 
             vm.editSelected();
 
-            verify(onEditRow, never()).accept(any());
+            verify(onEditRow, never()).accept(any(), any());
+        }
+
+        @Test
+        @DisplayName("updateConfirmedRow replaces the item at the given index")
+        void updateConfirmedRowReplacesItem() {
+            var vm = withItems(namedItem("Widget"));
+
+            vm.updateConfirmedRow(0, namedItem("Updated Widget"));
+
+            assertEquals("Updated Widget", vm.getRows().getFirst().description());
+        }
+
+        @Test
+        @DisplayName("updateConfirmedRow keeps the updated item selected")
+        void updateConfirmedRowKeepsSelection() {
+            var vm = withItems(namedItem("Widget"));
+            vm.selectRow(vm.getRows().getFirst());
+
+            var updated = namedItem("Updated Widget");
+            vm.updateConfirmedRow(0, updated);
+
+            assertEquals(updated, vm.selectedRowProperty().get());
         }
     }
 
@@ -206,17 +228,14 @@ class LineItemsViewModelTest {
     class WhenLineItemsAreBuilt {
 
         @Test
-        @DisplayName("the returned items reflect the current row values")
-        void itemsReflectCurrentRowValues() {
+        @DisplayName("the returned items match the current rows")
+        void itemsMatchCurrentRows() {
             var vm = withItems(namedItem("Widget"));
-            vm.getRows().getFirst().descriptionProperty().set("Updated Widget");
-            vm.getRows().getFirst().quantityProperty().set(3);
 
             var items = vm.buildLineItems();
 
             assertEquals(1, items.size());
-            assertEquals("Updated Widget", items.getFirst().description());
-            assertEquals(3, items.getFirst().quantity());
+            assertEquals("Widget", items.getFirst().description());
         }
     }
 }
