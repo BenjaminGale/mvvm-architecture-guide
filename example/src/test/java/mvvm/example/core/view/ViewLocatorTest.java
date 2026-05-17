@@ -11,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("View.ViewLocator")
 class ViewLocatorTest {
 
-    private static class StubViewModel {}
+    private static class StubViewModelA {}
+    private static class StubViewModelB {}
     private static class StubView extends Pane {}
-    private static class OtherViewModel {}
 
     @Nested
     @DisplayName("when a view is registered for a ViewModel")
@@ -23,9 +23,9 @@ class ViewLocatorTest {
         @DisplayName("the expected view is returned when resolving the registered viewModel")
         void resolvesCorrectViewType() {
             var locator = new ViewLocator<Region>();
-            locator.register(StubViewModel.class, vm -> new StubView());
+            locator.register(StubViewModelA.class, vm -> new StubView());
 
-            Region view = locator.locate(new StubViewModel());
+            Region view = locator.locate(new StubViewModelA());
 
             assertInstanceOf(StubView.class, view);
         }
@@ -40,8 +40,7 @@ class ViewLocatorTest {
         void throwsForUnregisteredViewModel() {
             var locator = new ViewLocator<Region>();
 
-            assertThrows(IllegalStateException.class,
-                () -> locator.locate(new OtherViewModel()));
+            assertThrows(IllegalStateException.class, () -> locator.locate(new StubViewModelB()));
         }
     }
 }
