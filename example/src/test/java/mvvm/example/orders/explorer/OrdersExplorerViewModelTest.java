@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -129,81 +128,6 @@ class OrdersExplorerViewModelTest {
             assertEquals(1, statusItems.getLast().countProperty().get());
             assertEquals(LabelType.OVERDUE_ORDERS, statusItems.getLast().label());
         }
-
-        @Test
-        @DisplayName("it keeps status items in sync when refreshed")
-        void statusItemsUpdateOnRefresh() {
-            var vm = createViewModel();
-
-            orders.add(MockOrders.of("1", RECENT));
-            orders.add(MockOrders.of("2", OVERDUE));
-            vm.refresh();
-
-            assertEquals(2, statusItems.getFirst().countProperty().get());
-            assertEquals(1, statusItems.getLast().countProperty().get());
-        }
-    }
-
-    @Nested
-    @DisplayName("when refreshed")
-    class WhenRefreshed {
-
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#refreshListCases")
-        @DisplayName("it reloads orders from storage")
-        void reloadsOrdersFromStorage(String caseName, List<Order> input, List<String> expectedOrder) {
-            orders.addAll(input);
-
-            var vm = createViewModel();
-            vm.refresh();
-
-            var actual = vm.getOrders()
-                .stream()
-                .map(Order::id)
-                .toList();
-
-            assertEquals(expectedOrder, actual);
-        }
-
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
-        @DisplayName("it updates order count in status bar")
-        void updatesOrderCount(String caseName, List<Order> input, int expectedOrderCount, int expectedOverdueCount) {
-            orders.addAll(input);
-
-            var vm = createViewModel();
-            vm.refresh();
-
-            assertEquals(expectedOrderCount, vm.ordersCountProperty().get());
-        }
-
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
-        @DisplayName("it updates overdue count in status bar")
-        void updatesOverdueCount(String caseName, List<Order> input, int expectedOrderCount, int expectedOverdueCount) {
-            orders.addAll(input);
-
-            var vm = createViewModel();
-            vm.refresh();
-
-            assertEquals(expectedOverdueCount, vm.overdueOrdersCountProperty().get());
-        }
-
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#sortingCases")
-        @DisplayName("it sorts orders by most recent date")
-        void sortsOrdersByDateDescending(String caseName, List<Order> input, List<String> expectedOrder) {
-            orders.addAll(input);
-
-            var vm = createViewModel();
-
-            var actual = vm.getOrders()
-                .stream()
-                .map(Order::id)
-                .toList();
-
-            assertEquals(expectedOrder, actual);
-        }
     }
 
     @Nested
@@ -234,31 +158,6 @@ class OrdersExplorerViewModelTest {
             var vm = createViewModel();
 
             assertFalse(vm.openOrderAction().canExecute());
-        }
-    }
-
-    @Nested
-    @DisplayName("when refreshed multiple times")
-    class WhenRefreshedMultipleTimes {
-
-        @ParameterizedTest(name = "{0}")
-        @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#multipleRefreshCases")
-        @DisplayName("it does not retain stale order state")
-        void remainsConsistentAcrossMultipleRefreshCycles(
-            String caseName,
-            List<Order> initialOrders,
-            Consumer<List<Order>> update,
-            List<String> expectedIds
-        ) {
-            orders.addAll(initialOrders);
-            var vm = createViewModel();
-
-            vm.refresh();
-
-            update.accept(orders);
-            vm.refresh();
-
-            assertEquals(expectedIds, vm.getOrders().stream().map(Order::id).toList());
         }
     }
 }

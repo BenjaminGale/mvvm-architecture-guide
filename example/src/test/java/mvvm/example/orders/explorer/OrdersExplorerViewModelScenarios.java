@@ -1,12 +1,10 @@
 package mvvm.example.orders.explorer;
 
 import mvvm.example.orders.MockOrders;
-import mvvm.example.orders.domain.Order;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class OrdersExplorerViewModelScenarios {
@@ -97,38 +95,6 @@ public class OrdersExplorerViewModelScenarios {
                     MockOrders.of("3", RECENT)
                 ),
                 List.of("1", "2", "3")
-            )
-        );
-    }
-
-    static Stream<Arguments> multipleRefreshCases() {
-        return Stream.of(
-            Arguments.of(
-                "add new order",
-                List.of(MockOrders.of("1", RECENT)),
-                (Consumer<List<Order>>) orders ->
-                    orders.add(MockOrders.of("2", OVERDUE)),
-                List.of("1", "2")
-            ),
-
-            Arguments.of(
-                "remove all orders",
-                List.of(
-                    MockOrders.of("1", RECENT),
-                    MockOrders.of("2", OVERDUE)
-                ),
-                (Consumer<List<Order>>) List::clear,
-                List.of()
-            ),
-
-            Arguments.of(
-                "replace existing order",
-                List.of(MockOrders.of("1", RECENT)),
-                (Consumer<List<Order>>) orders -> {
-                    orders.clear();
-                    orders.add(MockOrders.of("2", OVERDUE));
-                },
-                List.of("2")
             )
         );
     }

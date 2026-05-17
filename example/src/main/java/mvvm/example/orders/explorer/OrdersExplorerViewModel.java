@@ -36,7 +36,7 @@ public class OrdersExplorerViewModel {
             new StatusItemViewModel(overdueOrdersCount, LabelType.OVERDUE_ORDERS)
         );
 
-        refresh();
+        fetchItems();
     }
 
     public ObservableList<Order> getOrders() {
@@ -51,7 +51,7 @@ public class OrdersExplorerViewModel {
         return overdueOrdersCount;
     }
 
-    public void refresh() {
+    private void fetchItems() {
         var result = service
             .fetchAllOrders()
             .stream()

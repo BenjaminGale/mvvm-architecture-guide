@@ -24,9 +24,8 @@ public class StockExplorerView extends BorderPane {
         table.getColumns().add(unitPriceColumn());
         table.getColumns().add(quantityInStockColumn());
 
-        var refreshButton = new Button("Refresh");
-        refreshButton.setOnAction(_ -> viewModel.refresh());
-        var toolbar = new ToolBar(refreshButton);
+        var toolbar = new ToolBar();
+        toolbar.getItems().add(new Button("Add"));
 
         BorderPane.setMargin(table, new Insets(8));
         setTop(toolbar);

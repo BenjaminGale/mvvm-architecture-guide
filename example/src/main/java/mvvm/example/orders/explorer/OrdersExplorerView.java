@@ -34,14 +34,12 @@ public class OrdersExplorerView extends BorderPane {
             .selectedOrderProperty()
             .bind(table.getSelectionModel().selectedItemProperty());
 
-        var refreshButton = new Button("Refresh");
+        var refreshButton = new Button("Add");
         var toolbar = new ToolBar(refreshButton);
 
         BorderPane.setMargin(table, new Insets(8));
         setTop(toolbar);
         setCenter(table);
-
-        refreshButton.setOnAction(_ -> viewModel.refresh());
 
         TableViews.bind(table, viewModel.openOrderAction());
 
