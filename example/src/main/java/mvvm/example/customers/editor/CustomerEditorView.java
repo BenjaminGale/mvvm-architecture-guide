@@ -1,6 +1,5 @@
 package mvvm.example.customers.editor;
 
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -10,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
+import mvvm.example.core.view.controls.Controls;
 import mvvm.example.customers.domain.CustomerStatus;
 
 public class CustomerEditorView extends GridPane {
@@ -54,6 +54,6 @@ public class CustomerEditorView extends GridPane {
         add(new Label("Status"), 0, 2);
         add(statusCombo, 1, 2);
 
-        Platform.runLater(nameField::requestFocus);
+        Controls.focusOnShow(nameField);
     }
 }

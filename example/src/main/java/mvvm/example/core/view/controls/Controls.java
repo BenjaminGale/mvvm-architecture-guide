@@ -1,5 +1,6 @@
 package mvvm.example.core.view.controls;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
@@ -12,7 +13,7 @@ public class Controls {
             @Override
             public void changed(ObservableValue<? extends Scene> obs, Scene old, Scene scene) {
                 if (scene != null) {
-                    node.requestFocus();
+                    Platform.runLater(node::requestFocus);
                     node.sceneProperty().removeListener(this);
                 }
             }

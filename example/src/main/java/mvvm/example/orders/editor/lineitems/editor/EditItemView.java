@@ -1,6 +1,5 @@
 package mvvm.example.orders.editor.lineitems.editor;
 
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -8,6 +7,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.util.converter.BigDecimalStringConverter;
+import mvvm.example.core.view.controls.Controls;
 
 public class EditItemView extends BorderPane {
 
@@ -60,6 +60,6 @@ public class EditItemView extends BorderPane {
         quantityFactory.valueProperty().bindBidirectional(viewModel.quantityProperty().asObject());
         priceFormatter.valueProperty().bindBidirectional(viewModel.unitPriceProperty());
 
-        Platform.runLater(descriptionField::requestFocus);
+        Controls.focusOnShow(descriptionField);
     }
 }
