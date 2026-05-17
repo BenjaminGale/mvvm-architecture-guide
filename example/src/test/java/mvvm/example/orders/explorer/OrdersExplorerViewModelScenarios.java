@@ -1,7 +1,7 @@
 package mvvm.example.orders.explorer;
 
 import mvvm.example.orders.MockOrders;
-import mvvm.example.orders.domain.OrderRepository;
+import mvvm.example.orders.domain.Order;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.time.LocalDate;
@@ -106,8 +106,8 @@ public class OrdersExplorerViewModelScenarios {
             Arguments.of(
                 "add new order",
                 List.of(MockOrders.of("1", RECENT)),
-                (Consumer<OrderRepository>) repo ->
-                    repo.save(MockOrders.of("2", OVERDUE)),
+                (Consumer<List<Order>>) orders ->
+                    orders.add(MockOrders.of("2", OVERDUE)),
                 List.of("1", "2")
             ),
 
@@ -117,19 +117,16 @@ public class OrdersExplorerViewModelScenarios {
                     MockOrders.of("1", RECENT),
                     MockOrders.of("2", OVERDUE)
                 ),
-                (Consumer<OrderRepository>) repo -> {
-                    repo.delete("1");
-                    repo.delete("2");
-                },
+                (Consumer<List<Order>>) List::clear,
                 List.of()
             ),
 
             Arguments.of(
                 "replace existing order",
                 List.of(MockOrders.of("1", RECENT)),
-                (Consumer<OrderRepository>) repo -> {
-                    repo.delete("1");
-                    repo.save(MockOrders.of("2", OVERDUE));
+                (Consumer<List<Order>>) orders -> {
+                    orders.clear();
+                    orders.add(MockOrders.of("2", OVERDUE));
                 },
                 List.of("2")
             )

@@ -3,9 +3,7 @@ package mvvm.example.orders.explorer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.orders.MockOrders;
-import mvvm.example.orders.StubOrderRepository;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.editor.EditOrderRequest;
 import mvvm.example.shell.main.statusbar.LabelType;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
@@ -20,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -36,17 +35,17 @@ class OrdersExplorerViewModelTest {
 
     @Mock private OrdersExplorerHost host;
 
-    private StubOrderRepository repository;
+    private List<Order> orders;
     private ObservableList<StatusItemViewModel> statusItems;
 
     @BeforeEach
     void setUp() {
-        repository = new StubOrderRepository();
+        orders = new ArrayList<>();
         statusItems = FXCollections.observableArrayList();
     }
 
     private OrdersExplorerViewModel createViewModel() {
-        return new OrdersExplorerViewModel(repository::findAll, host, statusItems);
+        return new OrdersExplorerViewModel(() -> List.copyOf(orders), host, statusItems);
     }
 
     @Nested
@@ -57,7 +56,7 @@ class OrdersExplorerViewModelTest {
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#refreshListCases")
         @DisplayName("it loads orders from storage")
         void reloadsOrdersFromStorage(String caseName, List<Order> input, List<String> expectedOrder) {
-            input.forEach(repository::save);
+            orders.addAll(input);
 
             var vm = createViewModel();
 
@@ -73,7 +72,7 @@ class OrdersExplorerViewModelTest {
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#sortingCases")
         @DisplayName("it sorts orders by most recent date")
         void sortsOrdersByDateDescendingOnCreation(String caseName, List<Order> input, List<String> expectedOrder) {
-            input.forEach(repository::save);
+            orders.addAll(input);
 
             var vm = createViewModel();
 
@@ -88,8 +87,8 @@ class OrdersExplorerViewModelTest {
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
         @DisplayName("it shows expected order count in status bar")
-        void showsExpectedOrderCount(String caseName, List<Order> orders, int expectedOrderCount, int expectedOverdueCount) {
-            orders.forEach(repository::save);
+        void showsExpectedOrderCount(String caseName, List<Order> input, int expectedOrderCount, int expectedOverdueCount) {
+            orders.addAll(input);
 
             var vm = createViewModel();
 
@@ -99,8 +98,8 @@ class OrdersExplorerViewModelTest {
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
         @DisplayName("it shows expected overdue count in status bar")
-        void showsExpectedOverdueCount(String caseName, List<Order> orders, int expectedOrderCount, int expectedOverdueCount) {
-            orders.forEach(repository::save);
+        void showsExpectedOverdueCount(String caseName, List<Order> input, int expectedOrderCount, int expectedOverdueCount) {
+            orders.addAll(input);
 
             var vm = createViewModel();
 
@@ -110,8 +109,8 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("it reports pending order count")
         void pendingCountUpdated() {
-            repository.save(MockOrders.of("1", OVERDUE));
-            repository.save(MockOrders.of("2", OVERDUE));
+            orders.add(MockOrders.of("1", OVERDUE));
+            orders.add(MockOrders.of("2", OVERDUE));
 
             createViewModel();
 
@@ -121,8 +120,8 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("it adds a status item for order count")
         void addsOrderCountStatusItem() {
-            repository.save(MockOrders.of("1", RECENT));
-            repository.save(MockOrders.of("2", RECENT));
+            orders.add(MockOrders.of("1", RECENT));
+            orders.add(MockOrders.of("2", RECENT));
 
             createViewModel();
 
@@ -133,8 +132,8 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("it adds a status item for overdue count")
         void addsOverdueCountStatusItem() {
-            repository.save(MockOrders.of("1", RECENT));
-            repository.save(MockOrders.of("2", OVERDUE));
+            orders.add(MockOrders.of("1", RECENT));
+            orders.add(MockOrders.of("2", OVERDUE));
 
             createViewModel();
 
@@ -147,8 +146,8 @@ class OrdersExplorerViewModelTest {
         void statusItemsUpdateOnRefresh() {
             var vm = createViewModel();
 
-            repository.save(MockOrders.of("1", RECENT));
-            repository.save(MockOrders.of("2", OVERDUE));
+            orders.add(MockOrders.of("1", RECENT));
+            orders.add(MockOrders.of("2", OVERDUE));
             vm.refresh();
 
             assertEquals(2, statusItems.getFirst().countProperty().get());
@@ -164,7 +163,7 @@ class OrdersExplorerViewModelTest {
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#refreshListCases")
         @DisplayName("it reloads orders from storage")
         void reloadsOrdersFromStorage(String caseName, List<Order> input, List<String> expectedOrder) {
-            input.forEach(repository::save);
+            orders.addAll(input);
 
             var vm = createViewModel();
             vm.refresh();
@@ -180,8 +179,8 @@ class OrdersExplorerViewModelTest {
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
         @DisplayName("it updates order count in status bar")
-        void updatesOrderCount(String caseName, List<Order> orders, int expectedOrderCount, int expectedOverdueCount) {
-            orders.forEach(repository::save);
+        void updatesOrderCount(String caseName, List<Order> input, int expectedOrderCount, int expectedOverdueCount) {
+            orders.addAll(input);
 
             var vm = createViewModel();
             vm.refresh();
@@ -192,8 +191,8 @@ class OrdersExplorerViewModelTest {
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#statusMessageCases")
         @DisplayName("it updates overdue count in status bar")
-        void updatesOverdueCount(String caseName, List<Order> orders, int expectedOrderCount, int expectedOverdueCount) {
-            orders.forEach(repository::save);
+        void updatesOverdueCount(String caseName, List<Order> input, int expectedOrderCount, int expectedOverdueCount) {
+            orders.addAll(input);
 
             var vm = createViewModel();
             vm.refresh();
@@ -205,7 +204,7 @@ class OrdersExplorerViewModelTest {
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#sortingCases")
         @DisplayName("it sorts orders by most recent date")
         void sortsOrdersByDateDescending(String caseName, List<Order> input, List<String> expectedOrder) {
-            input.forEach(repository::save);
+            orders.addAll(input);
 
             var vm = createViewModel();
 
@@ -220,7 +219,7 @@ class OrdersExplorerViewModelTest {
         @Test
         @DisplayName("it reports updated pending order count")
         void pendingCountUpdated() {
-            repository.save(MockOrders.of("1", OVERDUE));
+            orders.add(MockOrders.of("1", OVERDUE));
 
             var vm = createViewModel();
             vm.refresh();
@@ -237,7 +236,7 @@ class OrdersExplorerViewModelTest {
         @DisplayName("it displays the selected order")
         void navigationCallbackInvoked() {
             var order = MockOrders.of("1", RECENT);
-            repository.save(order);
+            orders.add(order);
 
             var vm = createViewModel();
             vm.selectedOrderProperty().set(order);
@@ -266,15 +265,15 @@ class OrdersExplorerViewModelTest {
         void remainsConsistentAcrossMultipleRefreshCycles(
             String caseName,
             List<Order> initialOrders,
-            Consumer<OrderRepository> repoUpdate,
+            Consumer<List<Order>> update,
             List<String> expectedIds
         ) {
-            initialOrders.forEach(repository::save);
+            orders.addAll(initialOrders);
             var vm = createViewModel();
 
             vm.refresh();
 
-            repoUpdate.accept(repository);
+            update.accept(orders);
             vm.refresh();
 
             assertEquals(expectedIds, vm.getOrders().stream().map(Order::id).toList());
