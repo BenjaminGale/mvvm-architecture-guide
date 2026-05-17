@@ -6,21 +6,27 @@ import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.StubOrderRepository;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
+import mvvm.example.orders.editor.EditOrderRequest;
 import mvvm.example.shell.main.statusbar.LabelType;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("Orders.OrdersExplorerViewModel")
 class OrdersExplorerViewModelTest {
 
@@ -28,14 +34,14 @@ class OrdersExplorerViewModelTest {
     private static final LocalDate OLDER = LocalDate.of(2026, 5, 1);
     private static final LocalDate OVERDUE = LocalDate.of(2026, 4, 1);
 
+    @Mock private OrdersExplorerHost host;
+
     private StubOrderRepository repository;
-    private MockOrdersExplorerHost host;
     private ObservableList<StatusItemViewModel> statusItems;
 
     @BeforeEach
     void setUp() {
         repository = new StubOrderRepository();
-        host = new MockOrdersExplorerHost();
         statusItems = FXCollections.observableArrayList();
     }
 
@@ -109,7 +115,7 @@ class OrdersExplorerViewModelTest {
 
             createViewModel();
 
-            host.assertPendingOrderCount(2);
+            verify(host).setPendingOrderCount(2);
         }
 
         @Test
@@ -219,7 +225,7 @@ class OrdersExplorerViewModelTest {
             var vm = createViewModel();
             vm.refresh();
 
-            host.assertPendingOrderCount(1);
+            verify(host, atLeastOnce()).setPendingOrderCount(1);
         }
     }
 
@@ -237,7 +243,7 @@ class OrdersExplorerViewModelTest {
             vm.selectedOrderProperty().set(order);
             vm.openOrderAction().execute();
 
-            host.assertOrderWasShown(order.id());
+            verify(host).showOrderDetails(new EditOrderRequest(order.id()));
         }
 
         @Test
@@ -246,7 +252,7 @@ class OrdersExplorerViewModelTest {
             var vm = createViewModel();
             vm.openOrderAction().execute();
 
-            host.assertNoOrderWasShown();
+            verify(host, never()).showOrderDetails(any());
         }
     }
 
