@@ -21,6 +21,11 @@ tasks.test {
     jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
 application {
     mainClass = "mvvm.example.App"
     applicationDefaultJvmArgs +=
