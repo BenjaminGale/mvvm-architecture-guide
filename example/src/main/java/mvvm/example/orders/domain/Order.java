@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-public record Order(String id, String customerName, LocalDate date, String reference, OrderStatus status, LocalDate completionDate, List<LineItem> lineItems) {
+public record Order(String id, String customerId, String customerName, LocalDate date, String reference, OrderStatus status, LocalDate completionDate, List<LineItem> lineItems) {
 
     public record Header(String customerName, LocalDate date, String reference) {
     }
@@ -15,7 +15,7 @@ public record Order(String id, String customerName, LocalDate date, String refer
 
     @Deprecated
     public Order(String id, String customerName, LocalDate date, String reference, List<LineItem> lineItems) {
-        this(id, customerName, date, reference, OrderStatus.WIP, null, lineItems);
+        this(id, null, customerName, date, reference, OrderStatus.WIP, null, lineItems);
     }
 
     public BigDecimal total() {
@@ -41,18 +41,18 @@ public record Order(String id, String customerName, LocalDate date, String refer
     }
 
     public Order withHeader(Header header) {
-        return new Order(id, header.customerName(), header.date(), header.reference(), status, completionDate, lineItems);
+        return new Order(id, customerId, header.customerName(), header.date(), header.reference(), status, completionDate, lineItems);
     }
 
     public Order withLineItems(List<LineItem> newItems) {
-        return new Order(id, customerName, date, reference, status, completionDate, newItems);
+        return new Order(id, customerId, customerName, date, reference, status, completionDate, newItems);
     }
 
     public Order withStatus(OrderStatus newStatus) {
-        return new Order(id, customerName, date, reference, newStatus, completionDate, lineItems);
+        return new Order(id, customerId, customerName, date, reference, newStatus, completionDate, lineItems);
     }
 
     public Order withCompletionDate(LocalDate newCompletionDate) {
-        return new Order(id, customerName, date, reference, status, newCompletionDate, lineItems);
+        return new Order(id, customerId, customerName, date, reference, status, newCompletionDate, lineItems);
     }
 }

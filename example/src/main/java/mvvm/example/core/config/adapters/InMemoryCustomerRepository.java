@@ -33,17 +33,24 @@ public class InMemoryCustomerRepository implements CustomerRepository {
         store.put(customer.id(), customer);
     }
 
+    public static final String ACME_CORP = "cust-001";
+    public static final String GLOBEX_INC = "cust-002";
+    public static final String INITECH = "cust-003";
+    public static final String UMBRELLA_LTD = "cust-004";
+    public static final String SOYLENT_CORP = "cust-005";
+    public static final String CYBERDYNE_SYSTEMS = "cust-006";
+
     private void seed() {
-        add("Acme Corp", "orders@acme.example", CustomerStatus.ACTIVE);
-        add("Globex Inc", "purchasing@globex.example", CustomerStatus.ACTIVE);
-        add("Initech", "supplies@initech.example", CustomerStatus.ACTIVE);
-        add("Umbrella Ltd", "procurement@umbrella.example", CustomerStatus.ACTIVE);
-        add("Soylent Corp", "orders@soylent.example", CustomerStatus.INACTIVE);
-        add("Cyberdyne Systems", "supply@cyberdyne.example", CustomerStatus.INACTIVE);
+        add(ACME_CORP, "Acme Corp", "orders@acme.example", CustomerStatus.ACTIVE);
+        add(GLOBEX_INC, "Globex Inc", "purchasing@globex.example", CustomerStatus.ACTIVE);
+        add(INITECH, "Initech", "supplies@initech.example", CustomerStatus.ACTIVE);
+        add(UMBRELLA_LTD, "Umbrella Ltd", "procurement@umbrella.example", CustomerStatus.ACTIVE);
+        add(SOYLENT_CORP, "Soylent Corp", "orders@soylent.example", CustomerStatus.INACTIVE);
+        add(CYBERDYNE_SYSTEMS, "Cyberdyne Systems", "supply@cyberdyne.example", CustomerStatus.INACTIVE);
     }
 
-    private void add(String name, String email, CustomerStatus status) {
-        var customer = new Customer(UUID.randomUUID().toString(), name, email, status);
+    private void add(String id, String name, String email, CustomerStatus status) {
+        var customer = new Customer(id, name, email, status);
         store.put(customer.id(), customer);
     }
 }

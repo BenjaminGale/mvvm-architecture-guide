@@ -18,6 +18,7 @@ public class CopyOrderCommand {
 
         var copy = new Order(
             UUID.randomUUID().toString(),
+            original.customerId(),
             original.customerName(),
             LocalDate.now(),
             "COPY-" + original.reference(),

@@ -5,6 +5,8 @@ import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.domain.OrderStatus;
 
+import static mvvm.example.core.config.adapters.InMemoryCustomerRepository.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -44,7 +46,7 @@ public class InMemoryOrderRepository implements OrderRepository {
     private void seed() {
         add(
             "ORD-001",
-            "Acme Corp",
+            ACME_CORP, "Acme Corp",
             LocalDate.now().minusDays(5),
             OrderStatus.WIP,
             null,
@@ -56,7 +58,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-002",
-            "Globex Inc",
+            GLOBEX_INC, "Globex Inc",
             LocalDate.now().minusDays(45),
             OrderStatus.WIP,
             null,
@@ -67,7 +69,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-003",
-            "Initech",
+            INITECH, "Initech",
             LocalDate.now().minusDays(8),
             OrderStatus.FULFILLED,
             null,
@@ -79,7 +81,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-004",
-            "Umbrella Ltd",
+            UMBRELLA_LTD, "Umbrella Ltd",
             LocalDate.now().minusDays(60),
             OrderStatus.SHIPPED,
             LocalDate.now().minusDays(55),
@@ -90,7 +92,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-005",
-            "Soylent Corp",
+            SOYLENT_CORP, "Soylent Corp",
             LocalDate.now().minusDays(40),
             OrderStatus.CANCELLED,
             LocalDate.now().minusDays(38),
@@ -101,7 +103,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-006",
-            "Cyberdyne Systems",
+            CYBERDYNE_SYSTEMS, "Cyberdyne Systems",
             LocalDate.now().minusDays(35),
             OrderStatus.WIP,
             null,
@@ -112,8 +114,8 @@ public class InMemoryOrderRepository implements OrderRepository {
         );
     }
 
-    private void add(String reference, String customer, LocalDate date, OrderStatus status, LocalDate completionDate, List<LineItem> items) {
-        var order = new Order(UUID.randomUUID().toString(), customer, date, reference, status, completionDate, items);
+    private void add(String reference, String customerId, String customerName, LocalDate date, OrderStatus status, LocalDate completionDate, List<LineItem> items) {
+        var order = new Order(UUID.randomUUID().toString(), customerId, customerName, date, reference, status, completionDate, items);
         store.put(order.id(), order);
     }
 }
