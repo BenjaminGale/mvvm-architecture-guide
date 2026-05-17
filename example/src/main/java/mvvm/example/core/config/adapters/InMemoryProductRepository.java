@@ -1,4 +1,4 @@
-package mvvm.example.stock.adapters;
+package mvvm.example.core.config.adapters;
 
 import mvvm.example.stock.domain.Product;
 import mvvm.example.stock.domain.ProductRepository;

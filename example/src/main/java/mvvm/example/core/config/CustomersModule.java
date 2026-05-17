@@ -1,6 +1,5 @@
-package mvvm.example.customers.adapters;
+package mvvm.example.core.config;
 
-import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
@@ -15,14 +14,14 @@ import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 
 public class CustomersModule {
 
-    private final ShellContext shell;
-    private final DialogManager dialogManager;
     private final CustomerRepository customerRepository;
+    private final ViewServices view;
+    private final ShellContext shell;
 
-    public CustomersModule(ViewServices view, ShellContext shell) {
+    public CustomersModule(CustomerRepository customerRepository, ViewServices view, ShellContext shell) {
+        this.customerRepository = customerRepository;
+        this.view = view;
         this.shell = shell;
-        this.dialogManager = view.dialogManager();
-        this.customerRepository = new InMemoryCustomerRepository();
 
         view.viewLocator().register(CustomersExplorerViewModel.class, CustomersExplorerView::new);
         view.dialogManager().register(CustomerEditorViewModel.class, CustomerEditorView::dialog);
@@ -39,7 +38,7 @@ public class CustomersModule {
     public CustomersExplorerViewModel customersExplorerViewModel() {
         return new CustomersExplorerViewModel(
             customerRepository::findAll,
-            request -> dialogManager.show(editor(request)));
+            request -> view.dialogManager().show(editor(request)));
     }
 
     private CustomerEditorViewModel editor(EditCustomerRequest request) {

@@ -4,9 +4,7 @@ import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import mvvm.example.customers.adapters.CustomersModule;
-import mvvm.example.orders.adapters.OrdersModule;
-import mvvm.example.shell.adapters.ShellModule;
+import mvvm.example.core.config.AppModule;
 
 public class App extends Application {
 
@@ -20,9 +18,10 @@ public class App extends Application {
     }
 
     private Parent bootstrap(Stage stage) {
-        var shell = new ShellModule(stage);
-        var orders = new OrdersModule(shell.view(), shell.context());
-        var customers = new CustomersModule(shell.view(), shell.context());
+        var app = new AppModule();
+        var shell = app.createShellModule(stage);
+        var orders = shell.createOrdersModule();
+        var customers = shell.createCustomersModule();
 
         return shell.mainView(orders.sidebarItem(), customers.sidebarItem());
     }

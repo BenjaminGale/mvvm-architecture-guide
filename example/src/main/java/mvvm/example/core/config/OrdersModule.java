@@ -1,10 +1,9 @@
-package mvvm.example.orders.adapters;
+package mvvm.example.core.config;
 
 import mvvm.example.core.view.ViewServices;
-import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.orders.context.OrderContext;
-import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.CopyOrderCommand;
+import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.editor.OrderEditorHost;
 import mvvm.example.orders.editor.OrderEditorService;
@@ -21,23 +20,22 @@ import mvvm.example.orders.explorer.OrdersExplorerHost;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 import mvvm.example.shell.ShellContext;
+import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 
 public class OrdersModule {
 
+    private final OrderRepository orderRepository;
     private final ViewServices view;
     private final ShellContext shell;
-
-    private final OrderRepository orderRepository;
     private final CopyOrderCommand copyOrderCommand;
     private final OrderContext orderContext;
 
-    public OrdersModule(ViewServices view, ShellContext shell) {
+    public OrdersModule(OrderRepository orderRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand, OrderContext orderContext) {
+        this.orderRepository = orderRepository;
         this.view = view;
         this.shell = shell;
-
-        this.orderRepository = new InMemoryOrderRepository();
-        this.copyOrderCommand = new CopyOrderCommand(this.orderRepository);
-        this.orderContext = new OrderContext();
+        this.copyOrderCommand = copyOrderCommand;
+        this.orderContext = orderContext;
 
         view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
         view.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
