@@ -86,4 +86,21 @@ class CustomersExplorerViewModelTest {
             assertNull(selected.get());
         }
     }
+
+    @Nested
+    @DisplayName("when a new customer is added")
+    class WhenANewCustomerIsAdded {
+
+        @Test
+        @DisplayName("the navigation callback is invoked with a new customer request")
+        void navigationCallbackInvoked() {
+            var capturedRequest = new AtomicReference<EditCustomerRequest>();
+            var vm = new CustomersExplorerViewModel(List::of, capturedRequest::set);
+
+            vm.addCustomer();
+
+            assertNotNull(capturedRequest.get());
+            assertTrue(capturedRequest.get().isNew());
+        }
+    }
 }

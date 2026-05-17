@@ -25,7 +25,11 @@ public class CustomersExplorerViewModel {
     }
 
     public void openCustomer(Customer customer) {
-        if (customer != null) host.editCustomer(new EditCustomerRequest(customer.id(), this::refresh));
+        if (customer != null) host.editCustomer(EditCustomerRequest.forCustomer(customer.id(), this::refresh));
+    }
+
+    public void addCustomer() {
+        host.editCustomer(EditCustomerRequest.newCustomer(this::refresh));
     }
 
     private void refresh() {

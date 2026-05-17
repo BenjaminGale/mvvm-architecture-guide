@@ -7,6 +7,8 @@ import javafx.beans.property.StringProperty;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
 
+import java.util.UUID;
+
 public class CustomerEditorViewModel {
 
     private final StringProperty name = new SimpleStringProperty();
@@ -20,10 +22,12 @@ public class CustomerEditorViewModel {
         this.request = request;
         this.service = service;
 
-        var customer = service.load(request.customerId());
-        name.set(customer.name());
-        email.set(customer.email());
-        status.set(customer.status());
+        if (!request.isNew()) {
+            var customer = service.load(request.customerId());
+            name.set(customer.name());
+            email.set(customer.email());
+            status.set(customer.status());
+        }
     }
 
     public StringProperty nameProperty() {
@@ -39,7 +43,8 @@ public class CustomerEditorViewModel {
     }
 
     public void confirm() {
-        service.save(new Customer(request.customerId(), name.get(), email.get(), status.get()));
+        var id = request.isNew() ? UUID.randomUUID().toString() : request.customerId();
+        service.save(new Customer(id, name.get(), email.get(), status.get()));
         request.onSaved().run();
     }
 }
