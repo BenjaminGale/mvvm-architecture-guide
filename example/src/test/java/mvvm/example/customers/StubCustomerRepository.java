@@ -14,6 +14,7 @@ public class StubCustomerRepository implements CustomerRepository {
         this.customers = List.of(customers);
     }
 
-    @Override public List<Customer> findAll()                    { return customers; }
-    @Override public Optional<Customer> findById(String id)      { return customers.stream().filter(c -> c.id().equals(id)).findFirst(); }
+    @Override public List<Customer> findAll() { return customers; }
+    @Override public Optional<Customer> findById(String id) { return customers.stream().filter(c -> c.id().equals(id)).findFirst(); }
+    @Override public void save(Customer customer) {}
 }

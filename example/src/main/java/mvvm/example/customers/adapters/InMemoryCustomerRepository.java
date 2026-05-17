@@ -28,6 +28,11 @@ public class InMemoryCustomerRepository implements CustomerRepository {
         return Optional.ofNullable(store.get(id));
     }
 
+    @Override
+    public void save(Customer customer) {
+        store.put(customer.id(), customer);
+    }
+
     private void seed() {
         add("Acme Corp", "orders@acme.example", CustomerStatus.ACTIVE);
         add("Globex Inc", "purchasing@globex.example", CustomerStatus.ACTIVE);

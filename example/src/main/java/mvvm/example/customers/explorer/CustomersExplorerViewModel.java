@@ -4,24 +4,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerService;
+import mvvm.example.customers.editor.EditCustomerRequest;
 
 import java.util.Comparator;
-import java.util.function.Consumer;
 
 public class CustomersExplorerViewModel {
 
     private final ObservableList<Customer> customers = FXCollections.observableArrayList();
-    private final Consumer<Customer> onCustomerSelected;
+    private final CustomerService customerService;
+    private final CustomerExplorerHost host;
 
-    public CustomersExplorerViewModel(CustomerService customerService, Consumer<Customer> onCustomerSelected) {
-        this.onCustomerSelected = onCustomerSelected;
-
-        var sorted = customerService.fetchActive()
-            .stream()
-            .sorted(Comparator.comparing(Customer::name))
-            .toList();
-
-        customers.setAll(sorted);
+    public CustomersExplorerViewModel(CustomerService customerService, CustomerExplorerHost host) {
+        this.customerService = customerService;
+        this.host = host;
+        load();
     }
 
     public ObservableList<Customer> getCustomers() {
@@ -29,6 +25,18 @@ public class CustomersExplorerViewModel {
     }
 
     public void openCustomer(Customer customer) {
-        if (customer != null) onCustomerSelected.accept(customer);
+        if (customer != null) host.editCustomer(new EditCustomerRequest(customer.id(), this::refresh));
+    }
+
+    private void refresh() {
+        load();
+    }
+
+    private void load() {
+        var sorted = customerService.fetchActive()
+            .stream()
+            .sorted(Comparator.comparing(Customer::name))
+            .toList();
+        customers.setAll(sorted);
     }
 }

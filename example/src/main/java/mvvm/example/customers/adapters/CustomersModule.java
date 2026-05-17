@@ -1,26 +1,34 @@
 package mvvm.example.customers.adapters;
 
+import mvvm.example.core.view.DialogManager;
 import mvvm.example.core.view.ViewServices;
-import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
-import mvvm.example.customers.detail.CustomerDetailView;
-import mvvm.example.customers.detail.CustomerDetailViewModel;
 import mvvm.example.customers.domain.Customer;
+import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.customers.domain.CustomerService;
+import mvvm.example.customers.editor.EditCustomerRequest;
+import mvvm.example.customers.editor.CustomerEditorService;
+import mvvm.example.customers.editor.CustomerEditorView;
+import mvvm.example.customers.editor.CustomerEditorViewModel;
 import mvvm.example.customers.explorer.CustomersExplorerView;
 import mvvm.example.customers.explorer.CustomersExplorerViewModel;
 import mvvm.example.shell.ShellContext;
+import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 
 public class CustomersModule {
 
     private final ShellContext shell;
+    private final DialogManager dialogManager;
     private final CustomerService customerService;
+    private final CustomerRepository customerRepository;
 
     public CustomersModule(ViewServices view, ShellContext shell) {
         this.shell = shell;
-        this.customerService = new CustomerService(new InMemoryCustomerRepository());
+        this.dialogManager = view.dialogManager();
+        this.customerRepository = new InMemoryCustomerRepository();
+        this.customerService = new CustomerService(this.customerRepository);
 
         view.viewLocator().register(CustomersExplorerViewModel.class, CustomersExplorerView::new);
-        view.viewLocator().register(CustomerDetailViewModel.class, CustomerDetailView::new);
+        view.dialogManager().register(CustomerEditorViewModel.class, CustomerEditorView::dialog);
     }
 
     public SidebarItemViewModel sidebarItem() {
@@ -34,14 +42,20 @@ public class CustomersModule {
     public CustomersExplorerViewModel customersExplorerViewModel() {
         return new CustomersExplorerViewModel(
             customerService,
-            customer -> shell.show(() -> customerDetailViewModel(customer))
-        );
+            request -> dialogManager.show(editor(request)));
     }
 
-    private CustomerDetailViewModel customerDetailViewModel(Customer customer) {
-        return new CustomerDetailViewModel(
-            customer,
-            () -> shell.show(this::customersExplorerViewModel)
+    private CustomerEditorViewModel editor(EditCustomerRequest request) {
+        return new CustomerEditorViewModel(
+            request,
+            new CustomerEditorService() {
+                @Override public Customer load(String id) {
+                    return customerRepository.findById(id).orElseThrow();
+                }
+                @Override public void save(Customer customer) {
+                    customerRepository.save(customer);
+                }
+            }
         );
     }
 }

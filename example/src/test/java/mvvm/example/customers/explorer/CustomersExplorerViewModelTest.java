@@ -4,6 +4,7 @@ import mvvm.example.customers.StubCustomerRepository;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerService;
 import mvvm.example.customers.domain.CustomerStatus;
+import mvvm.example.customers.editor.EditCustomerRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ class CustomersExplorerViewModelTest {
 
     private static CustomersExplorerViewModel viewModelWith(Customer... customers) {
         var service = new CustomerService(new StubCustomerRepository(customers));
-        return new CustomersExplorerViewModel(service, c -> {});
+        return new CustomersExplorerViewModel(service, request -> {});
     }
 
     @Nested
@@ -64,24 +65,24 @@ class CustomersExplorerViewModelTest {
     class WhenACustomerIsOpened {
 
         @Test
-        @DisplayName("the navigation callback is invoked with the selected customer")
+        @DisplayName("the navigation callback is invoked with the selected customer id")
         void navigationCallbackInvoked() {
-            var selected = new AtomicReference<Customer>();
+            var selected = new AtomicReference<String>();
             var customer = customer("1", "Acme Ltd");
             var service = new CustomerService(new StubCustomerRepository(customer));
-            var vm = new CustomersExplorerViewModel(service, selected::set);
+            var vm = new CustomersExplorerViewModel(service, request -> selected.set(request.customerId()));
 
             vm.openCustomer(customer);
 
-            assertEquals(customer, selected.get());
+            assertEquals(customer.id(), selected.get());
         }
 
         @Test
         @DisplayName("the navigation callback is not invoked when called with null")
         void navigationCallbackNotInvokedForNull() {
-            var selected = new AtomicReference<Customer>();
+            var selected = new AtomicReference<String>();
             var service = new CustomerService(new StubCustomerRepository());
-            var vm = new CustomersExplorerViewModel(service, selected::set);
+            var vm = new CustomersExplorerViewModel(service, request -> selected.set(request.customerId()));
 
             vm.openCustomer(null);
 

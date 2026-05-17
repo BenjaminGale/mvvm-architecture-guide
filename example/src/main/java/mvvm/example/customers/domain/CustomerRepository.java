@@ -6,4 +6,5 @@ import java.util.Optional;
 public interface CustomerRepository {
     List<Customer> findAll();
     Optional<Customer> findById(String id);
+    void save(Customer customer);
 }
