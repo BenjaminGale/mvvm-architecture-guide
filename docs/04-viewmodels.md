@@ -742,6 +742,8 @@ public interface Action {
 }
 ```
 
+Calling `execute()` when `canExecute()` is false throws `IllegalStateException`. Views must ensure actions are only invoked when enabled — typically by binding the control's disable state to `canExecuteProperty()`.
+
 `AsyncAction` extends the same model to asynchronous interactions.
 
 ```java
@@ -751,6 +753,8 @@ public interface AsyncAction {
     CompletableFuture<Void> executeAsync();
 }
 ```
+
+The same contract applies: calling `executeAsync()` when `canExecute()` is false throws `IllegalStateException`. `canExecute()` is automatically false while execution is in progress, preventing double-submission.
 
 A ViewModel exposes Actions directly:
 

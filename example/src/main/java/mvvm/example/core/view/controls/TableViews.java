@@ -12,7 +12,6 @@ public class TableViews {
     public static <T> void bind(TableView<T> table, Action action) {
         table.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) {
-                if (!action.canExecute()) throw new IllegalStateException();
                 action.execute();
             }
         });
@@ -22,7 +21,6 @@ public class TableViews {
 
             row.setOnMouseClicked(e -> {
                 if (e.getClickCount() == 2) {
-                    if (!action.canExecute()) throw new IllegalStateException();
                     action.execute();
                 }
             });

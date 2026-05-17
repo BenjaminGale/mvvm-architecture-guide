@@ -53,15 +53,12 @@ class ActionTest {
         }
 
         @Test
-        @DisplayName("does not execute the listener when the binding is false")
-        void doesNotExecuteWhenBindingIsFalse() {
-            var executed = new AtomicBoolean(false);
+        @DisplayName("throws when execute() is called and the binding is false")
+        void throwsWhenBindingIsFalse() {
             var canExecute = new SimpleBooleanProperty(false);
-            var action = new Action(() -> executed.set(true), canExecute);
+            var action = new Action(() -> {}, canExecute);
 
-            action.execute();
-
-            assertFalse(executed.get());
+            assertThrows(IllegalStateException.class, action::execute);
         }
 
         @Test

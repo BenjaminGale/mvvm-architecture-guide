@@ -34,9 +34,10 @@ public class Action {
     }
 
     public void execute() {
-        if (canExecute()) {
-            listener.actionExecuted();
-        }
+        if (!canExecute())
+            throw new IllegalStateException("Action executed when canExecute is false");
+
+        listener.actionExecuted();
     }
 
     @FunctionalInterface

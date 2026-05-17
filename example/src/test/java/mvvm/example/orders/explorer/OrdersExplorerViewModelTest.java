@@ -244,14 +244,18 @@ class OrdersExplorerViewModelTest {
 
             verify(host).showOrderDetails(new EditOrderRequest(order.id()));
         }
+    }
+
+    @Nested
+    @DisplayName("when no order is selected")
+    class WhenNoOrderIsSelected {
 
         @Test
-        @DisplayName("it does nothing when no order selected")
-        void navigationCallbackNotInvokedForNull() {
+        @DisplayName("it cannot open an order")
+        void cannotExecuteWhenNoOrderSelected() {
             var vm = createViewModel();
-            vm.openOrderAction().execute();
 
-            verify(host, never()).showOrderDetails(any());
+            assertFalse(vm.openOrderAction().canExecute());
         }
     }
 

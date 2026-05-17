@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,19 +67,14 @@ class AsyncActionTest {
         }
 
         @Test
-        @DisplayName("does not accept a second execution")
-        void doesNotAcceptDoubleSubmission() {
-            var callCount = new AtomicInteger(0);
+        @DisplayName("throws on a second execution attempt")
+        void throwsOnDoubleSubmission() {
             var blocker = new CompletableFuture<Runnable>();
-            var action = new AsyncAction(() -> {
-                callCount.incrementAndGet();
-                return blocker;
-            });
+            var action = new AsyncAction(() -> blocker);
 
             action.executeAsync(Runnable::run);
-            action.executeAsync(Runnable::run);
 
-            assertEquals(1, callCount.get());
+            assertThrows(IllegalStateException.class, () -> action.executeAsync(Runnable::run));
         }
     }
 
@@ -118,18 +112,15 @@ class AsyncActionTest {
     class WithBooleanBinding {
 
         @Test
-        @DisplayName("does not execute the listener when the binding is false")
-        void doesNotExecuteWhenBindingIsFalse() {
-            var executed = new AtomicBoolean(false);
+        @DisplayName("throws when executeAsync() is called and the binding is false")
+        void throwsWhenBindingIsFalse() {
             var canExecute = new SimpleBooleanProperty(false);
-            var action = new AsyncAction(() -> {
-                executed.set(true);
-                return CompletableFuture.completedFuture(() -> {});
-            }, canExecute);
+            var action = new AsyncAction(
+                () -> CompletableFuture.completedFuture(() -> {}),
+                canExecute
+            );
 
-            action.executeAsync(Runnable::run);
-
-            assertFalse(executed.get());
+            assertThrows(IllegalStateException.class, () -> action.executeAsync(Runnable::run));
         }
 
         @Test

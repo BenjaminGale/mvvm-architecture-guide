@@ -38,9 +38,8 @@ public class AsyncAction {
     public CompletableFuture<Void> executeAsync(Executor viewExecutor) {
         requireNonNull(viewExecutor);
 
-        if (!canExecute()) {
-            return CompletableFuture.completedFuture(null);
-        }
+        if (!canExecute())
+            throw new IllegalStateException("Action executed when canExecute is false");
 
         isExecutingProperty.set(true);
 
