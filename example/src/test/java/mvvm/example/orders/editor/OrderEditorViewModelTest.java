@@ -11,7 +11,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("OrderEditorViewModel")
+@DisplayName("Orders.OrderEditorViewModel")
 class OrderEditorViewModelTest {
 
     static class MockService implements OrderEditorService {

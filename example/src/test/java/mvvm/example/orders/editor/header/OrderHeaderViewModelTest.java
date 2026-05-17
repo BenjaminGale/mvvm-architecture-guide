@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("OrderHeaderViewModel")
+@DisplayName("Orders.OrderHeaderViewModel")
 class OrderHeaderViewModelTest {
 
     private static final LocalDate A_DATE = LocalDate.of(2025, 1, 15);

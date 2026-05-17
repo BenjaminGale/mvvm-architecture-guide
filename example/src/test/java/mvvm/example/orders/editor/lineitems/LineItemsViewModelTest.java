@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("LineItemsViewModel")
+@DisplayName("Orders.LineItemsViewModel")
 class LineItemsViewModelTest {
 
     private static LineItem namedItem(String description) {

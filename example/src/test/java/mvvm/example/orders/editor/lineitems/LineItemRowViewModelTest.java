@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisplayName("LineItemRowViewModel")
+@DisplayName("Orders.LineItemRowViewModel")
 class LineItemRowViewModelTest {
 
     private static LineItemRowViewModel row(int quantity, BigDecimal unitPrice) {

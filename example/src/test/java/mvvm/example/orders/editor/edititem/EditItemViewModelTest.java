@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("EditItemViewModel")
+@DisplayName("Orders.EditItemViewModel")
 class EditItemViewModelTest {
 
     private static final LineItem ORIGINAL = new LineItem("Widget", 2, BigDecimal.valueOf(9.99));

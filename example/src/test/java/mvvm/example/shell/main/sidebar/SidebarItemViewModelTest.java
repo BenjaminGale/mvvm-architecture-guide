@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("SidebarItemViewModel")
+@DisplayName("Shell.SidebarItemViewModel")
 class SidebarItemViewModelTest {
 
     @Nested

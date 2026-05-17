@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("StatusBarViewModel")
+@DisplayName("Shell.StatusBarViewModel")
 class StatusBarViewModelTest {
 
     private static StatusItemViewModel item(LabelType label) {

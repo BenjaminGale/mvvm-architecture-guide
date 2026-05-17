@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("OrdersExplorerViewModel")
+@DisplayName("Orders.OrdersExplorerViewModel")
 class OrdersExplorerViewModelTest {
 
     private static final LocalDate RECENT = LocalDate.of(2026, 5, 10);

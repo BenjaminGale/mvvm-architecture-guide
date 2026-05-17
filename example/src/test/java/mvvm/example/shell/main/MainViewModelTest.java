@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("MainViewModel")
+@DisplayName("Shell.MainViewModel")
 class MainViewModelTest {
 
     private static final SidebarViewModel SIDEBAR = new SidebarViewModel(FXCollections.observableArrayList());

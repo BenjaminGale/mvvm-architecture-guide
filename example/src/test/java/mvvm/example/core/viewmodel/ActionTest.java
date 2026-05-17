@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Action")
+@DisplayName("ViewModel.Action")
 class ActionTest {
 
     @Nested

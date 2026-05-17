@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("ViewLocator")
+@DisplayName("View.ViewLocator")
 class ViewLocatorTest {
 
     private static class StubViewModel {}

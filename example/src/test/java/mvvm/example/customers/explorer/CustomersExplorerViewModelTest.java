@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("CustomersExplorerViewModel")
+@DisplayName("Customers.CustomersExplorerViewModel")
 class CustomersExplorerViewModelTest {
 
     private static Customer customer(String id, String name) {
