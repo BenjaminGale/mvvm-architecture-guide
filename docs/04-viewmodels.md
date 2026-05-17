@@ -13,6 +13,7 @@ This chapter introduces several supporting patterns for use with ViewModels:
 * **Requests** — short-lived interaction contracts.
 * **Contexts** — shared observable state objects.
 * **Actions** — executable interaction objects with observable execution state.
+* **ViewModel service interfaces** — adapter contracts defining the operations a ViewModel needs from the domain and data layers.
 
 Together these form the reactive coordination boundary between the view layer and the rest of the application.
 
@@ -50,7 +51,10 @@ Together these form the reactive coordination boundary between the view layer an
   * [4.6.1 The problem they solve](#461-the-problem-they-solve)
   * [4.6.2 Action interfaces](#462-action-interfaces)
   * [4.6.3 Binding Actions in views](#463-binding-actions-in-views)
-* [4.7 Architectural summary](#47-architectural-summary)
+* [4.7 ViewModel service interfaces](#47-viewmodel-service-interfaces)
+
+  * [4.7.1 Rules for ViewModel service interfaces](#471-rules-for-viewmodel-service-interfaces)
+* [4.8 Architectural summary](#48-architectural-summary)
 
 ---
 
@@ -785,7 +789,57 @@ Actions are optional utilities rather than a required part of MVVM itself. Their
 
 ---
 
-# 4.7 Architectural summary
+# 4.7 ViewModel service interfaces
+
+A ViewModel service interface defines the operations a specific ViewModel needs from the outside world. It is an adapter contract — implemented in the module layer — that decouples the ViewModel from the infrastructure beneath it.
+
+The interface is shaped by what the ViewModel needs, not by what the domain provides. It may aggregate operations from multiple repositories or domain operations behind a single dependency, hiding that detail from the ViewModel entirely.
+
+```java
+public interface OrderEditorService {
+    void saveOrder(Order order);
+    Order copyOrder(String orderId);
+    void deleteOrder(String orderId);
+}
+```
+
+The ViewModel depends only on this interface:
+
+```java
+public class OrderEditorViewModel {
+
+    private final OrderEditorService service;
+
+    public OrderEditorViewModel(Order order, OrderEditorService service, OrderEditorHost host) {
+        this.service = service;
+        ...
+    }
+}
+```
+
+The implementation is wired in the module layer, delegating to whichever repositories and domain operations are required:
+
+```java
+new OrderEditorService() {
+    public void saveOrder(Order order) { repository.save(order); }
+    public Order copyOrder(String id) { return orderCopier.copy(id); }
+    public void deleteOrder(String id) { repository.delete(id); }
+}
+```
+
+This keeps the ViewModel testable in isolation and free from knowledge of how operations are fulfilled.
+
+## 4.7.1 Rules for ViewModel service interfaces
+
+- defined in the same package as the ViewModel they serve
+- named after the ViewModel they serve (`OrderEditorService` for `OrderEditorViewModel`)
+- implemented in the module layer, not the domain layer
+- may aggregate operations from multiple repositories or domain operations
+- distinct from domain operations, which are named after the operation they perform and live in the domain package
+
+---
+
+# 4.8 Architectural summary
 
 The ViewModel layer presented in this chapter is centred around a small set of architectural principles:
 
@@ -812,4 +866,4 @@ The resulting architecture keeps:
 * presentation structure compositional,
 * and application coordination reactive rather than tightly coupled.
 
-The supporting patterns introduced throughout this chapter — hosts, requests, contexts and Actions — are compositional techniques used to maintain these boundaries consistently as applications grow in complexity.
+The supporting patterns introduced throughout this chapter — hosts, requests, contexts, Actions, and ViewModel service interfaces — are compositional techniques used to maintain these boundaries consistently as applications grow in complexity.

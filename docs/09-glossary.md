@@ -17,7 +17,8 @@ Quick-reference tables covering the layers, types, and roles introduced througho
 |---|-----------|---|
 | **Model** | Model     | Plain object representing a domain concept. Immutable or encapsulates domain rules. No observable properties, no UI imports. |
 | **Service** | Repository | Interface defining the persistence contract for a Model type. Concrete implementations live in `adapters`. |
-| **Service** | Service   | Retrieves and persists Models. Exposes operations the application needs, not a general-purpose CRUD API. Not injected directly into ViewModels. |
+| **Service** | Domain operation | Encapsulates business logic that spans multiple domain objects or does not belong to a single entity. Named after the operation it performs (`OrderCopier`, not `OrderService`). Does one thing. Lives in the domain package. |
+| **ViewModel** | ViewModel service interface | Adapter contract defining the operations a specific ViewModel needs from the domain and data layers. Shaped by the ViewModel's requirements, not the domain's structure. Defined alongside the ViewModel it serves; implemented in the module layer. |
 | **ViewModel** | Action    | Pairs a synchronous operation with an optional `canExecute` guard. Self-guarding: calling `execute` when disabled has no effect. |
 | **ViewModel** | AsyncAction | Pairs a long-running operation with an optional `canExecute` guard. Exposes `isExecuting`; automatically blocks re-entry while running. |
 | **ViewModel** | Context object | Shared observable state for a specific domain concern, injected into multiple ViewModels. Producer writes to it; consumer binds to it. Neither knows about the other. |

@@ -9,9 +9,9 @@ The Model and Service layers sit below the ViewModel layer. They are completely 
   * [3.1.1 Data carriers](#311-data-carriers)
   * [3.1.2 Rich domain objects](#312-rich-domain-objects)
 * [3.2 Repositories](#32-repositories)
-* [3.3 Services](#33-services)
+* [3.3 Domain operations](#33-domain-operations)
 
-  * [3.3.1 Responsibilities of services](#331-responsibilities-of-services)
+  * [3.3.1 Rules for domain operations](#331-rules-for-domain-operations)
 
 ---
 
@@ -111,70 +111,42 @@ Repositories are consumed exclusively by Services.
 
 ---
 
-## 3.3 Services
+## 3.3 Domain operations
 
-Services form the application layer above Repositories and below ViewModels. They implement meaningful business and application logic and are responsible for enforcing invariants that do not belong in the domain model itself.
+Domain operations encapsulate business logic that spans multiple domain objects or does not naturally belong to any single entity.
 
-Services are not CRUD facades over repositories. Methods that simply delegate persistence operations are avoided unless they add meaningful constraints or domain value.
+They are named after the operation they perform rather than the role they fill. An operation class named `OrderCopier` does one thing: it copies an order. This naming convention makes the scope of each class self-evident and resists the accumulation of unrelated responsibilities over time.
 
-### 3.3.1 Responsibilities of services
+### 3.3.1 Rules for domain operations
 
-A service is responsible for:
-- enforcing application-level rules and invariants
-- coordinating repository operations when needed
-- exposing intent-oriented operations rather than storage-oriented APIs
-- producing derived or computed results based on domain rules
+- named after the operation they perform, not a generic role (`OrderCopier`, not `OrderService`)
+- do one thing
+- depend only on repository interfaces and domain models
+- contain no presentation logic and have no knowledge of ViewModels
 
 ```java
-public class OrderService {
+public class OrderCopier {
 
     private final OrderRepository repository;
 
-    public OrderService(OrderRepository repository) {
+    public OrderCopier(OrderRepository repository) {
         this.repository = repository;
     }
 
-    public List<Order> fetchPendingOrders() {
-        return repository.findAll()
-            .stream()
-            .filter(Order::isOverdue)
-            .toList();
-    }
-
-    public Order save(Order order) {
-        var existing = repository.findById(order.id());
-
-        if (existing.isPresent()
-                && !existing.get().customerName().equals(order.customerName())) {
-            throw new IllegalStateException("Customer name cannot be changed on an existing order");
-        }
-
-        return repository.save(order);
-    }
-
-    public Order copy(UUID id) {
+    public Order copy(String id) {
         var source = repository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
 
         var copy = new Order(
-            UUID.randomUUID(),
+            UUID.randomUUID().toString(),
             source.customerName(),
             LocalDate.now(),
+            "COPY-" + source.reference(),
             source.lineItems()
         );
 
-        return repository.save(copy);
-    }
-
-    public void delete(UUID id) {
-        var order = repository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
-
-        if (order.isOverdue()) {
-            throw new IllegalStateException("Overdue orders cannot be deleted");
-        }
-
-        repository.delete(id);
+        repository.save(copy);
+        return copy;
     }
 }
 ```
