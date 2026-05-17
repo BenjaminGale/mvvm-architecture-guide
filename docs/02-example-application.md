@@ -4,7 +4,7 @@ This repository contains a sample order management application that demonstrates
 
 > Items marked **[planned]** are not yet implemented but are included here to describe the intended scope of the example application.
 
-**Requirements:** Java 21 or later.
+**Requirements:** Java 25 or later.
 
 ```bash
 cd example && ./gradlew run
