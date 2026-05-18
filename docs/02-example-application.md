@@ -37,7 +37,7 @@ A customer represents a person or organisation that places orders.
 | Operation | Type | Guard | Description |
 |---|---|---|---|
 | `DeleteCustomer` **[planned]** | Command | Customer has no orders | Permanently removes the customer |
-| `DeactivateCustomer` **[planned]** | Command | Customer has orders | Marks the customer as `INACTIVE`; any `WIP` orders are cancelled; any `FULFILLED` orders are cancelled and their allocated stock is returned to inventory. The user is asked to confirm before the operation proceeds. `SHIPPED` orders are retained for historical record. |
+| `DeactivateCustomer` **[planned]** | Command | Customer has orders | Marks the customer as `INACTIVE`; any `PENDING` orders are cancelled; any `FULFILLED` orders are cancelled and their allocated stock is returned to inventory. The user is asked to confirm before the operation proceeds. `SHIPPED` orders are retained for historical record. |
 
 ---
 
@@ -52,7 +52,7 @@ A product is a stocked item that can be added to an order. It holds a snapshot o
 | `unitPrice` | BigDecimal | Current selling price per unit |
 | `quantityInStock` | int | Total units held in inventory |
 
-`quantityAvailable` is derived as `quantityInStock` minus the sum of `quantityAllocated` across all line items referencing this product on `WIP` or `FULFILLED` orders.
+`quantityAvailable` is derived as `quantityInStock` minus the sum of `quantityAllocated` across all line items referencing this product on `PENDING` or `FULFILLED` orders.
 
 **Domain operations on Product**
 
@@ -71,7 +71,8 @@ An order represents a purchase placed by a customer, consisting of one or more l
 | `id` | UUID | Unique identifier |
 | `customerId` **[planned]** | UUID | The customer who placed the order |
 | `reference` | String | A short human-readable identifier |
-| `date` | LocalDate | The date the order was created |
+| `createdDate` | LocalDate | The date the order was created; set automatically and read-only |
+| `plannedShipDate` **[planned]** | LocalDate | The date the order is expected to ship; set by the user |
 | `completionDate` **[planned]** | LocalDate | The date the order was shipped or cancelled; absent while the order is open |
 | `status` **[planned]** | `OrderStatus` | The current lifecycle state of the order |
 | `lineItems` | `List<LineItem>` | The items on the order |
@@ -80,32 +81,32 @@ An order is **valid** when it has a non-empty reference, an associated customer,
 
 **OrderStatus** **[planned]**
 
-Orders follow a lifecycle driven by stock allocation. The transition between `WIP` and `FULFILLED` is automatic — it occurs whenever stock is allocated or returned, based on whether all line items are fully allocated.
+Orders follow a lifecycle driven by stock allocation. The transition between `PENDING` and `FULFILLED` is automatic — it occurs whenever stock is allocated or returned, based on whether all line items are fully allocated.
 
 ```
-WIP ⇌ FULFILLED → SHIPPED
- ↘       ↘
-  CANCELLED
+PENDING ⇌ FULFILLED → SHIPPED
+ ↘            ↘
+       CANCELLED
 ```
 
 | Value | Description |
 |---|---|
-| `WIP` | Order is being prepared; stock may be partially allocated |
+| `PENDING` | Order is being prepared; stock may be partially allocated |
 | `FULFILLED` | All line items are fully allocated; order is ready to ship |
 | `SHIPPED` | Order has been dispatched; stock is finalised and cannot be returned |
 | `CANCELLED` | Order was cancelled; any allocated stock has been returned to inventory |
 
-An order is considered **overdue** when it has not been shipped within 30 days of its `date` and is neither `SHIPPED` nor `CANCELLED`.
+An order is considered **overdue** when its `plannedShipDate` is in the past and it is neither `SHIPPED` nor `CANCELLED`.
 
 **Domain operations on Order**
 
 | Operation | Type | Guard | Description |
 |---|---|---|---|
-| `CopyOrder` | Command | Order must exist | Creates a new `WIP` order copied from an existing one, with a new ID, today's date, and a `COPY-` prefix on the reference; no stock is allocated |
-| `AllocateStock` **[planned]** | Command | Order is `WIP` or `FULFILLED`; line item is not fully allocated; product has sufficient available stock | Increases `LineItem.quantityAllocated`; decreases `Product.quantityAvailable`; transitions the order to `FULFILLED` if all line items are now fully allocated |
-| `ReturnStock` **[planned]** | Command | Order is `WIP` or `FULFILLED`; line item has allocated stock | Decreases `LineItem.quantityAllocated`; increases `Product.quantityAvailable`; transitions the order back to `WIP` if it was `FULFILLED` |
+| `CopyOrder` | Command | Order must exist | Creates a new `PENDING` order copied from an existing one, with a new ID, today's `createdDate`, no `plannedShipDate`, and a `COPY-` prefix on the reference; no stock is allocated |
+| `AllocateStock` **[planned]** | Command | Order is `PENDING` or `FULFILLED`; line item is not fully allocated; product has sufficient available stock | Increases `LineItem.quantityAllocated`; decreases `Product.quantityAvailable`; transitions the order to `FULFILLED` if all line items are now fully allocated |
+| `ReturnStock` **[planned]** | Command | Order is `PENDING` or `FULFILLED`; line item has allocated stock | Decreases `LineItem.quantityAllocated`; increases `Product.quantityAvailable`; transitions the order back to `PENDING` if it was `FULFILLED` |
 | `ShipOrder` **[planned]** | Command | Order is `FULFILLED` | Transitions the order to `SHIPPED`; reduces `Product.quantityInStock` by the allocated amounts; sets `completionDate` to today |
-| `CancelOrder` **[planned]** | Command | Order is `WIP` or `FULFILLED` | Returns all allocated stock to inventory; transitions the order to `CANCELLED`; sets `completionDate` to today |
+| `CancelOrder` **[planned]** | Command | Order is `PENDING` or `FULFILLED` | Returns all allocated stock to inventory; transitions the order to `CANCELLED`; sets `completionDate` to today |
 
 ---
 
@@ -132,7 +133,7 @@ Its **total** is `quantity × unitPrice`. A line item is **fully allocated** whe
 The orders explorer is the main list screen for browsing all orders.
 
 - Display all orders in a table, sorted by date descending
-- Columns: Reference, Customer, Date, Total, Status **[planned]** (`WIP` / `FULFILLED` / `SHIPPED` / `CANCELLED`), Overdue indicator
+- Columns: Reference, Customer, Date, Total, Status **[planned]** (`PENDING` / `FULFILLED` / `SHIPPED` / `CANCELLED`), Overdue indicator
 - Refresh the list
 - Open an order in the editor by selecting it
 - Show the total number of orders and the number of overdue orders in the status bar
@@ -147,7 +148,8 @@ The order editor opens when a user selects an existing order or creates a new on
 **Header**
 
 - Edit the order reference
-- Edit the order date
+- Display the `createdDate` (read-only)
+- Edit the `plannedShipDate` **[planned]**
 - Select a customer from a list of active customers **[planned]** *(currently a free-text field)*
 
 **Line Items**
@@ -165,10 +167,10 @@ The order editor opens when a user selects an existing order or creates a new on
 
 | Action | Guard | Description |
 |---|---|---|
-| Save | Order is `WIP` and valid | Persists the current state of the order |
+| Save | Order is `PENDING` and valid | Persists the current state of the order |
 | Ship **[planned]** | Order is `FULFILLED` | Marks the order as shipped; stock is finalised |
-| Cancel **[planned]** | Order is `WIP` or `FULFILLED` | Cancels the order; allocated stock is returned |
-| Copy | — | Creates a new `WIP` order copied from this one |
+| Cancel **[planned]** | Order is `PENDING` or `FULFILLED` | Cancels the order; allocated stock is returned |
+| Copy | — | Creates a new `PENDING` order copied from this one |
 | Delete | — | Permanently removes the order |
 
 ---
