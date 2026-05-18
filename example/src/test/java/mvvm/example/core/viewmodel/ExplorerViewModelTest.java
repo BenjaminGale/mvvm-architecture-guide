@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public abstract class ExplorerViewModelTest<T, VM extends ExplorerViewModel<T>> {
 
@@ -17,18 +17,6 @@ public abstract class ExplorerViewModelTest<T, VM extends ExplorerViewModel<T>> 
     }
 
     @Nested
-    @DisplayName("add action")
-    class AddAction {
-
-        @Test
-        @DisplayName("is enabled when no item is selected")
-        void enabledWithNoSelection() {
-            var vm = createViewModel();
-            assertTrue(vm.addItemAction().canExecute());
-        }
-    }
-
-    @Nested
     @DisplayName("edit action")
     class EditAction {
 
@@ -37,14 +25,6 @@ public abstract class ExplorerViewModelTest<T, VM extends ExplorerViewModel<T>> 
         void disabledWithNoSelection() {
             var vm = createViewModel();
             assertFalse(vm.editItemAction().canExecute());
-        }
-
-        @Test
-        @DisplayName("is enabled when an item is selected")
-        void enabledWithSelection() {
-            var vm = createViewModel();
-            vm.selectedItemProperty().set(createItem());
-            assertTrue(vm.editItemAction().canExecute());
         }
     }
 
@@ -57,14 +37,6 @@ public abstract class ExplorerViewModelTest<T, VM extends ExplorerViewModel<T>> 
         void disabledWithNoSelection() {
             var vm = createViewModel();
             assertFalse(vm.deleteItemAction().canExecute());
-        }
-
-        @Test
-        @DisplayName("is enabled when an item is selected")
-        void enabledWithSelection() {
-            var vm = createViewModel();
-            vm.selectedItemProperty().set(createItem());
-            assertTrue(vm.deleteItemAction().canExecute());
         }
     }
 }

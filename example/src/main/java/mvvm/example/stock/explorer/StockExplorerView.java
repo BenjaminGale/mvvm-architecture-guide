@@ -1,5 +1,6 @@
 package mvvm.example.stock.explorer;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
@@ -18,20 +19,25 @@ public class StockExplorerView extends BorderPane {
 
     public StockExplorerView(StockExplorerViewModel viewModel) {
         var table = new TableView<Product>();
-        table.setItems(viewModel.getProducts());
+        table.setItems(viewModel.items());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.getColumns().add(nameColumn());
         table.getColumns().add(unitPriceColumn());
         table.getColumns().add(quantityInStockColumn());
 
-        var toolbar = new ToolBar();
-        toolbar.getItems().add(new Button("Add"));
+        viewModel.selectedItemProperty().bind(table.getSelectionModel().selectedItemProperty());
+
+        var addButton = new Button("Add");
+        addButton.disableProperty().bind(viewModel.addItemAction().canExecuteProperty().not());
+        addButton.setOnAction(_ -> viewModel.addItemAction().execute());
+        var toolbar = new ToolBar(addButton);
 
         BorderPane.setMargin(table, new Insets(8));
         setTop(toolbar);
         setCenter(table);
 
         Controls.focusOnShow(table);
+        viewModel.fetchItemsAction().executeAsync(Platform::runLater);
     }
 
     private static TableColumn<Product, String> nameColumn() {

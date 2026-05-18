@@ -1,17 +1,40 @@
 package mvvm.example.stock.explorer;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import mvvm.example.core.viewmodel.ExplorerViewModel;
 import mvvm.example.stock.domain.Product;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class StockExplorerViewModel {
+public class StockExplorerViewModel extends ExplorerViewModel<Product> {
 
-    private final ObservableList<Product> products = FXCollections.observableArrayList();
+    private final StockExplorerService service;
 
     public StockExplorerViewModel(StockExplorerService service) {
-        products.setAll(
+        this.service = service;
+    }
+
+    @Override
+    protected ObservableBooleanValue canAddCondition() {
+        return new SimpleBooleanProperty(false);
+    }
+
+    @Override
+    protected ObservableBooleanValue canEditCondition() {
+        return new SimpleBooleanProperty(false);
+    }
+
+    @Override
+    protected ObservableBooleanValue canDeleteCondition() {
+        return new SimpleBooleanProperty(false);
+    }
+
+    @Override
+    protected CompletableFuture<List<Product>> fetchItemsAsync() {
+        return CompletableFuture.completedFuture(
             service.fetchProducts()
                 .stream()
                 .sorted(Comparator.comparing(Product::name))
@@ -19,7 +42,18 @@ public class StockExplorerViewModel {
         );
     }
 
-    public ObservableList<Product> getProducts() {
-        return products;
+    @Override
+    protected void addItem() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void editItem(Product product) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void deleteItem(Product product) {
+        throw new UnsupportedOperationException();
     }
 }
