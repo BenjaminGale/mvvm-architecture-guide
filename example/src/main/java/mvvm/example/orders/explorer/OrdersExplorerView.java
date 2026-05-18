@@ -1,5 +1,6 @@
 package mvvm.example.orders.explorer;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
@@ -22,7 +23,7 @@ public class OrdersExplorerView extends BorderPane {
 
     public OrdersExplorerView(OrdersExplorerViewModel viewModel) {
         var table = new TableView<Order>();
-        table.setItems(viewModel.getOrders());
+        table.setItems(viewModel.items());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.getColumns().add(referenceColumn());
         table.getColumns().add(customerColumn());
@@ -30,20 +31,20 @@ public class OrdersExplorerView extends BorderPane {
         table.getColumns().add(totalColumn());
         table.getColumns().add(overdueColumn());
 
-        viewModel
-            .selectedOrderProperty()
-            .bind(table.getSelectionModel().selectedItemProperty());
+        viewModel.selectedItemProperty().bind(table.getSelectionModel().selectedItemProperty());
 
-        var refreshButton = new Button("Add");
-        var toolbar = new ToolBar(refreshButton);
+        var addButton = new Button("Add");
+        addButton.disableProperty().bind(viewModel.addItemAction().canExecuteProperty().not());
+        var toolbar = new ToolBar(addButton);
 
         BorderPane.setMargin(table, new Insets(8));
         setTop(toolbar);
         setCenter(table);
 
-        TableViews.bind(table, viewModel.openOrderAction());
+        TableViews.bind(table, viewModel.editItemAction());
 
         Controls.focusOnShow(table);
+        viewModel.fetchItemsAction().executeAsync(Platform::runLater);
     }
 
     private static TableColumn<Order, String> referenceColumn() {

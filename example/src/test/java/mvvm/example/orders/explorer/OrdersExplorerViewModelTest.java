@@ -2,6 +2,7 @@ package mvvm.example.orders.explorer;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import mvvm.example.core.viewmodel.ExplorerViewModelTest;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.requests.EditOrderRequest;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Orders.OrdersExplorerViewModel")
-class OrdersExplorerViewModelTest {
+class OrdersExplorerViewModelTest extends ExplorerViewModelTest<Order, OrdersExplorerViewModel> {
 
     private static final LocalDate RECENT = LocalDate.of(2026, 5, 10);
     private static final LocalDate OLDER = LocalDate.of(2026, 5, 1);
@@ -43,8 +44,14 @@ class OrdersExplorerViewModelTest {
         statusItems = FXCollections.observableArrayList();
     }
 
-    private OrdersExplorerViewModel createViewModel() {
+    @Override
+    protected OrdersExplorerViewModel createViewModel() {
         return new OrdersExplorerViewModel(() -> List.copyOf(orders), host, statusItems);
+    }
+
+    @Override
+    protected Order createItem() {
+        return MockOrders.of("1", RECENT);
     }
 
     @Nested
@@ -56,13 +63,10 @@ class OrdersExplorerViewModelTest {
         @DisplayName("it loads orders from storage")
         void reloadsOrdersFromStorage(String caseName, List<Order> input, List<String> expectedOrder) {
             orders.addAll(input);
-
             var vm = createViewModel();
+            executeFetch(vm);
 
-            var actual = vm.getOrders()
-                .stream()
-                .map(Order::id)
-                .toList();
+            var actual = vm.items().stream().map(Order::id).toList();
 
             assertEquals(expectedOrder, actual);
         }
@@ -72,13 +76,10 @@ class OrdersExplorerViewModelTest {
         @DisplayName("it sorts orders by most recent date")
         void sortsOrdersByDateDescendingOnCreation(String caseName, List<Order> input, List<String> expectedOrder) {
             orders.addAll(input);
-
             var vm = createViewModel();
+            executeFetch(vm);
 
-            var actual = vm.getOrders()
-                .stream()
-                .map(Order::id)
-                .toList();
+            var actual = vm.items().stream().map(Order::id).toList();
 
             assertEquals(expectedOrder, actual);
         }
@@ -88,8 +89,8 @@ class OrdersExplorerViewModelTest {
         @DisplayName("it shows expected order count in status bar")
         void showsExpectedOrderCount(String caseName, List<Order> input, int expectedOrderCount, int expectedOverdueCount) {
             orders.addAll(input);
-
             var vm = createViewModel();
+            executeFetch(vm);
 
             assertEquals(expectedOrderCount, vm.ordersCountProperty().get());
         }
@@ -99,8 +100,8 @@ class OrdersExplorerViewModelTest {
         @DisplayName("it shows expected overdue count in status bar")
         void showsExpectedOverdueCount(String caseName, List<Order> input, int expectedOrderCount, int expectedOverdueCount) {
             orders.addAll(input);
-
             var vm = createViewModel();
+            executeFetch(vm);
 
             assertEquals(expectedOverdueCount, vm.overdueOrdersCountProperty().get());
         }
@@ -110,8 +111,8 @@ class OrdersExplorerViewModelTest {
         void addsOrderCountStatusItem() {
             orders.add(MockOrders.of("1", RECENT));
             orders.add(MockOrders.of("2", RECENT));
-
-            createViewModel();
+            var vm = createViewModel();
+            executeFetch(vm);
 
             assertEquals(2, statusItems.getFirst().countProperty().get());
             assertEquals(LabelType.All_ORDERS, statusItems.getFirst().label());
@@ -122,8 +123,8 @@ class OrdersExplorerViewModelTest {
         void addsOverdueCountStatusItem() {
             orders.add(MockOrders.of("1", RECENT));
             orders.add(MockOrders.of("2", OVERDUE));
-
-            createViewModel();
+            var vm = createViewModel();
+            executeFetch(vm);
 
             assertEquals(1, statusItems.getLast().countProperty().get());
             assertEquals(LabelType.OVERDUE_ORDERS, statusItems.getLast().label());
@@ -139,25 +140,13 @@ class OrdersExplorerViewModelTest {
         void navigationCallbackInvoked() {
             var order = MockOrders.of("1", RECENT);
             orders.add(order);
-
             var vm = createViewModel();
-            vm.selectedOrderProperty().set(order);
-            vm.openOrderAction().execute();
+            executeFetch(vm);
+
+            vm.selectedItemProperty().set(order);
+            vm.editItemAction().execute();
 
             verify(host).showOrderDetails(new EditOrderRequest(order.id()));
-        }
-    }
-
-    @Nested
-    @DisplayName("when no order is selected")
-    class WhenNoOrderIsSelected {
-
-        @Test
-        @DisplayName("it cannot open an order")
-        void cannotExecuteWhenNoOrderSelected() {
-            var vm = createViewModel();
-
-            assertFalse(vm.openOrderAction().canExecute());
         }
     }
 }
