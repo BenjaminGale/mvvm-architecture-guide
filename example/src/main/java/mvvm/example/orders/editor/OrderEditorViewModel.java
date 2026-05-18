@@ -3,8 +3,10 @@ package mvvm.example.orders.editor;
 import javafx.beans.binding.Bindings;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
+import mvvm.example.orders.domain.FulfilledOrder;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.PendingOrder;
 import mvvm.example.orders.requests.EditItemRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
@@ -90,8 +92,14 @@ public class OrderEditorViewModel {
     public LineItemsViewModel getLineItems() { return lineItems; }
 
     public Order buildUpdatedOrder() {
-        return order
-            .withHeader(header.buildHeader())
-            .withLineItems(lineItems.buildLineItems());
+        var customer = header.selectedCustomerProperty().get();
+        var plannedShipDate = header.plannedShipDateProperty().get();
+        var reference = header.referenceProperty().get();
+        var items = lineItems.buildLineItems();
+        return switch (order) {
+            case PendingOrder p -> new PendingOrder(p.id(), customer.id(), customer.name(), p.createdDate(), plannedShipDate, reference, items);
+            case FulfilledOrder f -> new FulfilledOrder(f.id(), customer.id(), customer.name(), f.createdDate(), plannedShipDate, reference, items);
+            default -> throw new IllegalStateException("Cannot update a " + order.status() + " order");
+        };
     }
 }

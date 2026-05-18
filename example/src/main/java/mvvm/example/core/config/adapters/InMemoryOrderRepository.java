@@ -1,9 +1,13 @@
 package mvvm.example.core.config.adapters;
 
+import mvvm.example.orders.domain.CancelledOrder;
+import mvvm.example.orders.domain.FulfilledOrder;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.domain.OrderStatus;
+import mvvm.example.orders.domain.PendingOrder;
+import mvvm.example.orders.domain.ShippedOrder;
 
 import static mvvm.example.core.config.adapters.InMemoryCustomerRepository.*;
 
@@ -121,7 +125,13 @@ public class InMemoryOrderRepository implements OrderRepository {
     }
 
     private void add(String reference, String customerId, String customerName, LocalDate createdDate, LocalDate plannedShipDate, OrderStatus status, LocalDate completionDate, List<LineItem> items) {
-        var order = new Order(UUID.randomUUID().toString(), customerId, customerName, createdDate, plannedShipDate, reference, status, completionDate, items);
+        var id = UUID.randomUUID().toString();
+        Order order = switch (status) {
+            case PENDING -> new PendingOrder(id, customerId, customerName, createdDate, plannedShipDate, reference, items);
+            case FULFILLED -> new FulfilledOrder(id, customerId, customerName, createdDate, plannedShipDate, reference, items);
+            case SHIPPED -> new ShippedOrder(id, customerId, customerName, createdDate, plannedShipDate, reference, completionDate, items);
+            case CANCELLED -> new CancelledOrder(id, customerId, customerName, createdDate, plannedShipDate, reference, completionDate, items);
+        };
         store.put(order.id(), order);
     }
 }

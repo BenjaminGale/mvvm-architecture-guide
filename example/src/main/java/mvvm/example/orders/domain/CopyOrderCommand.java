@@ -16,15 +16,13 @@ public class CopyOrderCommand {
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
 
-        var copy = new Order(
+        var copy = new PendingOrder(
             UUID.randomUUID().toString(),
             original.customerId(),
             original.customerName(),
             LocalDate.now(),
             null,
             "COPY-" + original.reference(),
-            OrderStatus.PENDING,
-            null,
             original.lineItems().stream().map(item -> new LineItem(item.description(), item.quantity(), 0, item.unitPrice())).toList()
         );
 

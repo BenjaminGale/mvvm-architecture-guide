@@ -5,6 +5,7 @@ import mvvm.example.customers.domain.CustomerStatus;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderStatus;
+import mvvm.example.orders.domain.PendingOrder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -98,7 +99,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the reference is blank")
         void invalidWhenReferenceBlank() {
-            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, A_DATE, "", OrderStatus.PENDING, null, List.of());
+            var order = new PendingOrder("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, A_DATE, "", List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());
@@ -107,7 +108,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the planned ship date is null")
         void invalidWhenPlannedShipDateNull() {
-            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, null, "REF-001", OrderStatus.PENDING, null, List.of());
+            var order = new PendingOrder("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, null, "REF-001", List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());
@@ -186,26 +187,4 @@ class OrderHeaderViewModelTest {
         }
     }
 
-    @Nested
-    @DisplayName("when the header record is built")
-    class WhenHeaderRecordIsBuilt {
-
-        @Test
-        @DisplayName("the header record reflects the current property values")
-        void reflectsCurrentPropertyValues() {
-            var vm = validViewModel();
-            var newCustomer = new Customer("cust-2", "New Customer", "new@example.com", CustomerStatus.ACTIVE);
-            vm.selectedCustomerProperty().set(newCustomer);
-            vm.referenceProperty().set("REF-999");
-            var newDate = LocalDate.of(2025, 6, 1);
-            vm.plannedShipDateProperty().set(newDate);
-
-            var header = vm.buildHeader();
-
-            assertEquals("cust-2", header.customerId());
-            assertEquals("New Customer", header.customerName());
-            assertEquals("REF-999", header.reference());
-            assertEquals(newDate, header.plannedShipDate());
-        }
-    }
 }

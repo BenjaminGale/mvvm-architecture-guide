@@ -59,9 +59,4 @@ public class OrderHeaderViewModel {
     public ObjectProperty<LocalDate> plannedShipDateProperty() { return plannedShipDate; }
     public StringProperty referenceProperty() { return reference; }
     public ReadOnlyBooleanProperty validProperty() { return valid; }
-
-    public Order.Header buildHeader() {
-        var customer = selectedCustomer.get();
-        return new Order.Header(customer.id(), customer.name(), plannedShipDate.get(), reference.get());
-    }
 }
