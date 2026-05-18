@@ -1,47 +1,59 @@
 package mvvm.example.customers.explorer;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import mvvm.example.core.viewmodel.ExplorerViewModel;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
 import mvvm.example.customers.requests.EditCustomerRequest;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class CustomersExplorerViewModel {
+public class CustomersExplorerViewModel extends ExplorerViewModel<Customer> {
 
-    private final ObservableList<Customer> customers = FXCollections.observableArrayList();
     private final CustomersExplorerService service;
     private final CustomerExplorerHost host;
 
     public CustomersExplorerViewModel(CustomersExplorerService service, CustomerExplorerHost host) {
         this.service = service;
         this.host = host;
-        load();
     }
 
-    public ObservableList<Customer> getCustomers() {
-        return customers;
+    @Override
+    protected ObservableBooleanValue canDeleteCondition() {
+        return new SimpleBooleanProperty(false);
     }
 
-    public void openCustomer(Customer customer) {
-        if (customer != null) host.editCustomer(EditCustomerRequest.forCustomer(customer.id(), this::refresh));
+    @Override
+    protected CompletableFuture<List<Customer>> fetchItemsAsync() {
+        return CompletableFuture.completedFuture(
+            service.fetchCustomers()
+                .stream()
+                .filter(c -> c.status() == CustomerStatus.ACTIVE)
+                .sorted(Comparator.comparing(Customer::name))
+                .toList()
+        );
     }
 
-    public void addCustomer() {
+    @Override
+    protected void addItem() {
         host.editCustomer(EditCustomerRequest.newCustomer(this::refresh));
     }
 
-    private void refresh() {
-        load();
+    @Override
+    protected void editItem(Customer customer) {
+        host.editCustomer(EditCustomerRequest.forCustomer(customer.id(), this::refresh));
     }
 
-    private void load() {
-        var sorted = service.fetchCustomers()
-            .stream()
-            .filter(c -> c.status() == CustomerStatus.ACTIVE)
-            .sorted(Comparator.comparing(Customer::name))
-            .toList();
-        customers.setAll(sorted);
+    @Override
+    protected void deleteItem(Customer customer) {
+        throw new UnsupportedOperationException();
+    }
+
+    private void refresh() {
+        fetchItemsAction().executeAsync(Platform::runLater);
     }
 }
