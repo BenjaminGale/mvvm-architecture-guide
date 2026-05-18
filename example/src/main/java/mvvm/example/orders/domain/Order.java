@@ -2,7 +2,9 @@ package mvvm.example.orders.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public record Order(String id, String customerId, String customerName, LocalDate createdDate, LocalDate plannedShipDate, String reference, OrderStatus status, LocalDate completionDate, List<LineItem> lineItems) {
 
@@ -16,6 +18,20 @@ public record Order(String id, String customerId, String customerName, LocalDate
     @Deprecated
     public Order(String id, String customerName, LocalDate createdDate, String reference, List<LineItem> lineItems) {
         this(id, null, customerName, createdDate, null, reference, OrderStatus.PENDING, null, lineItems);
+    }
+
+    public static Order empty() {
+        return new Order(
+            UUID.randomUUID().toString(),
+            null,
+            "",
+            LocalDate.now(),
+            LocalDate.now(),
+            "",
+            OrderStatus.PENDING,
+            null,
+            new ArrayList<>()
+        );
     }
 
     public BigDecimal total() {

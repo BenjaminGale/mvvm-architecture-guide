@@ -35,7 +35,9 @@ public class OrderEditorViewModel {
         this.host = host;
 
         // TODO: This shouldn't be in the constructor...
-        this.order = service.fetchOrder(request.orderId());
+        this.order = request.isNew()
+            ? Order.empty()
+            : service.fetchOrder(request.orderId());
 
         var currentCustomer = order.customerId() != null
             ? service.findCustomer(order.customerId()).orElse(null)
@@ -63,7 +65,7 @@ public class OrderEditorViewModel {
 
     private void onCopy() {
         var copiedId = service.copyOrder(order.id());
-        host.openOrder(new EditOrderRequest(copiedId));
+        host.openOrder(EditOrderRequest.of(copiedId));
     }
 
     private void addRow() {

@@ -146,7 +146,22 @@ class OrdersExplorerViewModelTest extends ExplorerViewModelTest<Order, OrdersExp
             vm.selectedItemProperty().set(order);
             vm.editItemAction().execute();
 
-            verify(host).showOrderDetails(new EditOrderRequest(order.id()));
+            verify(host).showOrderDetails(EditOrderRequest.of(order.id()));
+        }
+    }
+
+    @Nested
+    @DisplayName("when a new order is added")
+    class WhenANewOrderIsAdded {
+
+        @Test
+        @DisplayName("it shows the order details for a new order")
+        void navigationCallbackInvoked() {
+            var vm = createViewModel();
+
+            vm.addItemAction().execute();
+
+            verify(host).showOrderDetails(EditOrderRequest.forNewOrder());
         }
     }
 }

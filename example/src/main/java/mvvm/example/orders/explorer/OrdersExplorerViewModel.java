@@ -47,11 +47,6 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<Order> {
     }
 
     @Override
-    protected ObservableBooleanValue canAddCondition() {
-        return new SimpleBooleanProperty(false);
-    }
-
-    @Override
     protected ObservableBooleanValue canDeleteCondition() {
         return new SimpleBooleanProperty(false);
     }
@@ -68,12 +63,12 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<Order> {
 
     @Override
     protected void addItem() {
-        throw new UnsupportedOperationException();
+        host.showOrderDetails(EditOrderRequest.forNewOrder());
     }
 
     @Override
     protected void editItem(Order order) {
-        host.showOrderDetails(new EditOrderRequest(order.id()));
+        host.showOrderDetails(EditOrderRequest.of(order.id()));
     }
 
     @Override

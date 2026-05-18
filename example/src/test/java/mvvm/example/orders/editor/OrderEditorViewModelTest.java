@@ -26,7 +26,7 @@ class OrderEditorViewModelTest {
     }
 
     private static OrderEditorViewModel vmFor(Order order) {
-        return new OrderEditorViewModel(new EditOrderRequest(order.id()), serviceFor(order), mock(OrderEditorHost.class));
+        return new OrderEditorViewModel(EditOrderRequest.of(order.id()), serviceFor(order), mock(OrderEditorHost.class));
     }
 
     @Nested
@@ -93,7 +93,7 @@ class OrderEditorViewModelTest {
         void orderIsPersisted() {
             var order = MockOrders.validOrderWithLineItems();
             var service = serviceFor(order);
-            var vm = new OrderEditorViewModel(new EditOrderRequest(order.id()), service, mock(OrderEditorHost.class));
+            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), service, mock(OrderEditorHost.class));
 
             vm.save.executeAsync(Runnable::run).join();
 
@@ -110,7 +110,7 @@ class OrderEditorViewModelTest {
         void orderIsRemoved() {
             var order = MockOrders.validOrderWithLineItems();
             var service = serviceFor(order);
-            var vm = new OrderEditorViewModel(new EditOrderRequest(order.id()), service, mock(OrderEditorHost.class));
+            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), service, mock(OrderEditorHost.class));
 
             vm.delete.execute();
 
@@ -129,12 +129,35 @@ class OrderEditorViewModelTest {
             var service = serviceFor(order);
             when(service.copyOrder(order.id())).thenReturn("copied-" + order.id());
             var host = mock(OrderEditorHost.class);
-            var vm = new OrderEditorViewModel(new EditOrderRequest(order.id()), service, host);
+            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), service, host);
 
             vm.copy.execute();
 
             verify(service).copyOrder(order.id());
-            verify(host).openOrder(new EditOrderRequest("copied-" + order.id()));
+            verify(host).openOrder(EditOrderRequest.of("copied-" + order.id()));
+        }
+    }
+
+    @Nested
+    @DisplayName("when created for a new order")
+    class WhenCreatedForNewOrder {
+
+        @Test
+        @DisplayName("canSave is false when no fields have been filled")
+        void canSaveIsFalseInitially() {
+            var service = mock(OrderEditorService.class);
+            var vm = new OrderEditorViewModel(EditOrderRequest.forNewOrder(), service, mock(OrderEditorHost.class));
+
+            assertFalse(vm.save.canExecute());
+        }
+
+        @Test
+        @DisplayName("does not fetch an order from the service")
+        void doesNotFetchOrder() {
+            var service = mock(OrderEditorService.class);
+            new OrderEditorViewModel(EditOrderRequest.forNewOrder(), service, mock(OrderEditorHost.class));
+
+            verify(service, never()).fetchOrder(any());
         }
     }
 
@@ -148,7 +171,7 @@ class OrderEditorViewModelTest {
             var order = MockOrders.validOrderWithLineItems();
             var service = serviceFor(order);
 
-            new OrderEditorViewModel(new EditOrderRequest(order.id()), service, mock(OrderEditorHost.class));
+            new OrderEditorViewModel(EditOrderRequest.of(order.id()), service, mock(OrderEditorHost.class));
 
             verify(service).findCustomer(MockOrders.ACME_CUSTOMER_ID);
         }
@@ -163,7 +186,7 @@ class OrderEditorViewModelTest {
         void hostShowsCustomerSelector() {
             var order = MockOrders.validOrderWithLineItems();
             var host = mock(OrderEditorHost.class);
-            var vm = new OrderEditorViewModel(new EditOrderRequest(order.id()), serviceFor(order), host);
+            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), serviceFor(order), host);
 
             vm.getHeader().selectCustomer.execute();
 
