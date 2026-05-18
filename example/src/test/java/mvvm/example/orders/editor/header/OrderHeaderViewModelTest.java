@@ -144,6 +144,33 @@ class OrderHeaderViewModelTest {
     }
 
     @Nested
+    @DisplayName("when select customer is triggered")
+    class WhenSelectCustomerTriggered {
+
+        @Test
+        @DisplayName("the host callback is invoked")
+        void hostCallbackInvoked() {
+            var hostCalled = new boolean[]{false};
+            var vm = new OrderHeaderViewModel(MockOrders.validOrderWithLineItems(), MockOrders.ACME_CUSTOMER, request -> hostCalled[0] = true);
+
+            vm.selectCustomer.execute();
+
+            assertTrue(hostCalled[0]);
+        }
+
+        @Test
+        @DisplayName("the request carries the currently selected customer")
+        void requestCarriesCurrentCustomer() {
+            var capturedRequest = new mvvm.example.orders.requests.SelectCustomerRequest[]{null};
+            var vm = new OrderHeaderViewModel(MockOrders.validOrderWithLineItems(), MockOrders.ACME_CUSTOMER, request -> capturedRequest[0] = request);
+
+            vm.selectCustomer.execute();
+
+            assertEquals(MockOrders.ACME_CUSTOMER, capturedRequest[0].getCurrent());
+        }
+    }
+
+    @Nested
     @DisplayName("when the header record is built")
     class WhenHeaderRecordIsBuilt {
 

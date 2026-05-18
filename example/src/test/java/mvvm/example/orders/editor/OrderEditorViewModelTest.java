@@ -3,6 +3,7 @@ package mvvm.example.orders.editor;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.requests.EditOrderRequest;
+import mvvm.example.orders.requests.SelectCustomerRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -134,6 +135,39 @@ class OrderEditorViewModelTest {
 
             verify(service).copyOrder(order.id());
             verify(host).openOrder(new EditOrderRequest("copied-" + order.id()));
+        }
+    }
+
+    @Nested
+    @DisplayName("when created")
+    class WhenCreatedWithCustomer {
+
+        @Test
+        @DisplayName("the customer is fetched from the service")
+        void customerFetchedFromService() {
+            var order = MockOrders.validOrderWithLineItems();
+            var service = serviceFor(order);
+
+            new OrderEditorViewModel(new EditOrderRequest(order.id()), service, mock(OrderEditorHost.class));
+
+            verify(service).findCustomer(MockOrders.ACME_CUSTOMER_ID);
+        }
+    }
+
+    @Nested
+    @DisplayName("when the customer selector is triggered")
+    class WhenCustomerSelectorTriggered {
+
+        @Test
+        @DisplayName("the host is asked to show the customer selector")
+        void hostShowsCustomerSelector() {
+            var order = MockOrders.validOrderWithLineItems();
+            var host = mock(OrderEditorHost.class);
+            var vm = new OrderEditorViewModel(new EditOrderRequest(order.id()), serviceFor(order), host);
+
+            vm.getHeader().selectCustomer.execute();
+
+            verify(host).showCustomerSelector(any());
         }
     }
 
