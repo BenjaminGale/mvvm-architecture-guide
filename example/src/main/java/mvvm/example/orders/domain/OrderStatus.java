@@ -1,7 +1,7 @@
 package mvvm.example.orders.domain;
 
 public enum OrderStatus {
-    WIP("WIP"),
+    PENDING("Pending"),
     FULFILLED("Fulfilled"),
     SHIPPED("Shipped"),
     CANCELLED("Cancelled");

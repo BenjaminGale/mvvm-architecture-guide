@@ -20,18 +20,18 @@ public class MockOrders {
     public static final Customer ACME_CUSTOMER = new Customer(ACME_CUSTOMER_ID, "Acme Ltd", "acme@example.com", CustomerStatus.ACTIVE);
 
     public static Order of(String id, LocalDate date) {
-        return new Order(id, ACME_CUSTOMER_ID, "Acme Ltd", date, "REF-" + id, OrderStatus.WIP, null, List.of());
+        return new Order(id, ACME_CUSTOMER_ID, "Acme Ltd", date, date, "REF-" + id, OrderStatus.PENDING, null, List.of());
     }
 
     public static Order validOrderWithLineItems() {
-        return new Order("id-1", ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, "REF-001", OrderStatus.WIP, null, List.of(A_LINE_ITEM));
+        return new Order("id-1", ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, A_DATE, "REF-001", OrderStatus.PENDING, null, List.of(A_LINE_ITEM));
     }
 
     public static Order orderWithNoCustomer() {
-        return new Order("id-1", null, null, A_DATE, "REF-001", OrderStatus.WIP, null, List.of(A_LINE_ITEM));
+        return new Order("id-1", null, null, A_DATE, A_DATE, "REF-001", OrderStatus.PENDING, null, List.of(A_LINE_ITEM));
     }
 
     public static Order orderWithNoLineItems() {
-        return new Order("id-1", ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, "REF-001", OrderStatus.WIP, null, List.of());
+        return new Order("id-1", ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, A_DATE, "REF-001", OrderStatus.PENDING, null, List.of());
     }
 }

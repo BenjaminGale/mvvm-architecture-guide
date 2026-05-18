@@ -10,6 +10,7 @@ import javafx.beans.property.StringProperty;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderStatus;
 import mvvm.example.orders.requests.SelectCustomerRequest;
 
 import java.time.LocalDate;
@@ -19,18 +20,22 @@ public class OrderHeaderViewModel {
 
     public final Action selectCustomer;
 
+    private final LocalDate createdDate;
+    private final OrderStatus status;
     private final ObjectProperty<Customer> selectedCustomer = new SimpleObjectProperty<>();
-    private final ObjectProperty<LocalDate> orderDate = new SimpleObjectProperty<>();
+    private final ObjectProperty<LocalDate> plannedShipDate = new SimpleObjectProperty<>();
     private final StringProperty reference = new SimpleStringProperty();
     private final BooleanProperty valid = new SimpleBooleanProperty(false);
 
     public OrderHeaderViewModel(Order order, Customer currentCustomer, Consumer<SelectCustomerRequest> selectCustomerHost) {
+        createdDate = order.createdDate();
+        status = order.status();
         selectedCustomer.set(currentCustomer);
-        orderDate.set(order.date());
+        plannedShipDate.set(order.plannedShipDate());
         reference.set(order.reference());
 
         selectedCustomer.addListener(obs -> validate());
-        orderDate.addListener(obs -> validate());
+        plannedShipDate.addListener(obs -> validate());
         reference.addListener(obs -> validate());
 
         selectCustomer = new Action(() -> selectCustomerHost.accept(
@@ -42,19 +47,21 @@ public class OrderHeaderViewModel {
 
     private void validate() {
         valid.set(selectedCustomer.get() != null
-            && orderDate.get() != null
+            && plannedShipDate.get() != null
             && reference.get() != null
             && !reference.get().isBlank()
         );
     }
 
+    public LocalDate createdDate() { return createdDate; }
+    public OrderStatus status() { return status; }
     public ObjectProperty<Customer> selectedCustomerProperty() { return selectedCustomer; }
-    public ObjectProperty<LocalDate> orderDateProperty() { return orderDate; }
+    public ObjectProperty<LocalDate> plannedShipDateProperty() { return plannedShipDate; }
     public StringProperty referenceProperty() { return reference; }
     public ReadOnlyBooleanProperty validProperty() { return valid; }
 
     public Order.Header buildHeader() {
         var customer = selectedCustomer.get();
-        return new Order.Header(customer.id(), customer.name(), orderDate.get(), reference.get());
+        return new Order.Header(customer.id(), customer.name(), plannedShipDate.get(), reference.get());
     }
 }

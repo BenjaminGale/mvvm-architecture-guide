@@ -61,7 +61,7 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<Order> {
         return CompletableFuture.completedFuture(
             service.fetchAllOrders()
                 .stream()
-                .sorted(Comparator.comparing(Order::date).reversed())
+                .sorted(Comparator.comparing(Order::createdDate).reversed())
                 .toList()
         );
     }

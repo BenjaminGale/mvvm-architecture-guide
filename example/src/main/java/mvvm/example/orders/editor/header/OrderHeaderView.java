@@ -15,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import mvvm.example.core.view.controls.Controls;
 
+import java.time.format.DateTimeFormatter;
+
 public class OrderHeaderView extends BorderPane {
 
     public OrderHeaderView(OrderHeaderViewModel viewModel) {
@@ -44,6 +46,11 @@ public class OrderHeaderView extends BorderPane {
         var orderDatePicker = new DatePicker();
         var referenceField = new TextField();
 
+        var createdDateLabel = new Label(viewModel.createdDate() != null
+            ? viewModel.createdDate().format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+            : "");
+        var statusLabel = new Label(viewModel.status().displayName());
+
         var form = new GridPane();
         form.setHgap(8);
         form.setVgap(8);
@@ -52,11 +59,17 @@ public class OrderHeaderView extends BorderPane {
         form.add(new Label("Customer"), 0, 0);
         form.add(customerRow, 1, 0);
 
-        form.add(new Label("Date"), 0, 1);
-        form.add(orderDatePicker, 1, 1);
+        form.add(new Label("Created"), 0, 1);
+        form.add(createdDateLabel, 1, 1);
 
-        form.add(new Label("Reference"), 0, 2);
-        form.add(referenceField, 1, 2);
+        form.add(new Label("Status"), 0, 2);
+        form.add(statusLabel, 1, 2);
+
+        form.add(new Label("Ship By"), 0, 3);
+        form.add(orderDatePicker, 1, 3);
+
+        form.add(new Label("Reference"), 0, 4);
+        form.add(referenceField, 1, 4);
 
         var labelCol = new ColumnConstraints();
         var fieldCol = new ColumnConstraints();
@@ -69,7 +82,7 @@ public class OrderHeaderView extends BorderPane {
         setTop(toolbar);
         setCenter(form);
 
-        orderDatePicker.valueProperty().bindBidirectional(viewModel.orderDateProperty());
+        orderDatePicker.valueProperty().bindBidirectional(viewModel.plannedShipDateProperty());
         referenceField.textProperty().bindBidirectional(viewModel.referenceProperty());
 
         Controls.focusOnShow(selectBtn);

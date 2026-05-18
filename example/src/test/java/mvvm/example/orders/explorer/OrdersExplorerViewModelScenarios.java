@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 
 public class OrdersExplorerViewModelScenarios {
 
-    private static final LocalDate RECENT = LocalDate.of(2026, 5, 10);
-    private static final LocalDate OLDER = LocalDate.of(2026, 5, 1);
+    private static final LocalDate RECENT = LocalDate.of(2026, 6, 10);
+    private static final LocalDate OLDER = LocalDate.of(2026, 6, 1);
     private static final LocalDate OVERDUE = LocalDate.of(2026, 4, 1);
 
     public static Stream<Arguments> statusMessageCases() {

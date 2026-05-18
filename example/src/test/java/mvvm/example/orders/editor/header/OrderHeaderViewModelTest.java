@@ -40,11 +40,11 @@ class OrderHeaderViewModelTest {
         }
 
         @Test
-        @DisplayName("the order date property is populated from the order")
-        void orderDatePopulated() {
+        @DisplayName("the planned ship date property is populated from the order")
+        void plannedShipDatePopulated() {
             var vm = validViewModel();
 
-            assertEquals(A_DATE, vm.orderDateProperty().get());
+            assertEquals(A_DATE, vm.plannedShipDateProperty().get());
         }
 
         @Test
@@ -53,6 +53,22 @@ class OrderHeaderViewModelTest {
             var vm = validViewModel();
 
             assertEquals("REF-001", vm.referenceProperty().get());
+        }
+
+        @Test
+        @DisplayName("the created date is populated from the order")
+        void createdDatePopulated() {
+            var vm = validViewModel();
+
+            assertEquals(A_DATE, vm.createdDate());
+        }
+
+        @Test
+        @DisplayName("the status is populated from the order")
+        void statusPopulated() {
+            var vm = validViewModel();
+
+            assertEquals(OrderStatus.PENDING, vm.status());
         }
     }
 
@@ -82,16 +98,16 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the reference is blank")
         void invalidWhenReferenceBlank() {
-            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, "", OrderStatus.WIP, null, List.of());
+            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, A_DATE, "", OrderStatus.PENDING, null, List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());
         }
 
         @Test
-        @DisplayName("the header is invalid when the order date is null")
-        void invalidWhenOrderDateNull() {
-            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", null, "REF-001", OrderStatus.WIP, null, List.of());
+        @DisplayName("the header is invalid when the planned ship date is null")
+        void invalidWhenPlannedShipDateNull() {
+            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, null, "REF-001", OrderStatus.PENDING, null, List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());
@@ -133,11 +149,11 @@ class OrderHeaderViewModelTest {
         }
 
         @Test
-        @DisplayName("the header becomes invalid when the order date is cleared")
-        void becomesInvalidWhenOrderDateCleared() {
+        @DisplayName("the header becomes invalid when the planned ship date is cleared")
+        void becomesInvalidWhenPlannedShipDateCleared() {
             var vm = validViewModel();
 
-            vm.orderDateProperty().set(null);
+            vm.plannedShipDateProperty().set(null);
 
             assertFalse(vm.validProperty().get());
         }
@@ -182,14 +198,14 @@ class OrderHeaderViewModelTest {
             vm.selectedCustomerProperty().set(newCustomer);
             vm.referenceProperty().set("REF-999");
             var newDate = LocalDate.of(2025, 6, 1);
-            vm.orderDateProperty().set(newDate);
+            vm.plannedShipDateProperty().set(newDate);
 
             var header = vm.buildHeader();
 
             assertEquals("cust-2", header.customerId());
             assertEquals("New Customer", header.customerName());
             assertEquals("REF-999", header.reference());
-            assertEquals(newDate, header.date());
+            assertEquals(newDate, header.plannedShipDate());
         }
     }
 }

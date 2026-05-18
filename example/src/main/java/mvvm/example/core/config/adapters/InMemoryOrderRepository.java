@@ -48,7 +48,8 @@ public class InMemoryOrderRepository implements OrderRepository {
             "ORD-001",
             ACME_CORP, "Acme Corp",
             LocalDate.now().minusDays(5),
-            OrderStatus.WIP,
+            LocalDate.now().plusDays(10),
+            OrderStatus.PENDING,
             null,
             List.of(
                 new LineItem("Widget A", 10, new BigDecimal("9.99")),
@@ -60,7 +61,8 @@ public class InMemoryOrderRepository implements OrderRepository {
             "ORD-002",
             GLOBEX_INC, "Globex Inc",
             LocalDate.now().minusDays(45),
-            OrderStatus.WIP,
+            LocalDate.now().minusDays(15),
+            OrderStatus.PENDING,
             null,
             List.of(
                 new LineItem("Gizmo X", 2, new BigDecimal("149.00"))
@@ -71,6 +73,7 @@ public class InMemoryOrderRepository implements OrderRepository {
             "ORD-003",
             INITECH, "Initech",
             LocalDate.now().minusDays(8),
+            LocalDate.now().plusDays(5),
             OrderStatus.FULFILLED,
             null,
             List.of(
@@ -83,6 +86,7 @@ public class InMemoryOrderRepository implements OrderRepository {
             "ORD-004",
             UMBRELLA_LTD, "Umbrella Ltd",
             LocalDate.now().minusDays(60),
+            LocalDate.now().minusDays(55),
             OrderStatus.SHIPPED,
             LocalDate.now().minusDays(55),
             List.of(
@@ -94,6 +98,7 @@ public class InMemoryOrderRepository implements OrderRepository {
             "ORD-005",
             SOYLENT_CORP, "Soylent Corp",
             LocalDate.now().minusDays(40),
+            LocalDate.now().minusDays(38),
             OrderStatus.CANCELLED,
             LocalDate.now().minusDays(38),
             List.of(
@@ -105,7 +110,8 @@ public class InMemoryOrderRepository implements OrderRepository {
             "ORD-006",
             CYBERDYNE_SYSTEMS, "Cyberdyne Systems",
             LocalDate.now().minusDays(35),
-            OrderStatus.WIP,
+            LocalDate.now().minusDays(5),
+            OrderStatus.PENDING,
             null,
             List.of(
                 new LineItem("Widget A", 10, new BigDecimal("9.99")),
@@ -114,8 +120,8 @@ public class InMemoryOrderRepository implements OrderRepository {
         );
     }
 
-    private void add(String reference, String customerId, String customerName, LocalDate date, OrderStatus status, LocalDate completionDate, List<LineItem> items) {
-        var order = new Order(UUID.randomUUID().toString(), customerId, customerName, date, reference, status, completionDate, items);
+    private void add(String reference, String customerId, String customerName, LocalDate createdDate, LocalDate plannedShipDate, OrderStatus status, LocalDate completionDate, List<LineItem> items) {
+        var order = new Order(UUID.randomUUID().toString(), customerId, customerName, createdDate, plannedShipDate, reference, status, completionDate, items);
         store.put(order.id(), order);
     }
 }
