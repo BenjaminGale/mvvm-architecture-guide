@@ -43,6 +43,7 @@ public class ShellModule {
     public OrdersModule createOrdersModule() {
         return new OrdersModule(
             orderRepository,
+            customerRepository,
             view,
             shell,
             new CopyOrderCommand(orderRepository));

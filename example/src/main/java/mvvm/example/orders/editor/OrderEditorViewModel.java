@@ -37,7 +37,11 @@ public class OrderEditorViewModel {
         // TODO: This shouldn't be in the constructor...
         this.order = service.fetchOrder(request.orderId());
 
-        this.header = new OrderHeaderViewModel(order);
+        var currentCustomer = order.customerId() != null
+            ? service.findCustomer(order.customerId()).orElse(null)
+            : null;
+
+        this.header = new OrderHeaderViewModel(order, currentCustomer, host::showCustomerSelector);
         this.lineItems = new LineItemsViewModel(order.lineItems(), this::editRow, this::addRow);
 
         this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));

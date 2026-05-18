@@ -1,10 +1,14 @@
 package mvvm.example.core.config;
 
 import mvvm.example.core.view.ViewServices;
+import mvvm.example.customers.domain.Customer;
+import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.CopyOrderCommand;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.editor.*;
+import mvvm.example.orders.editor.header.CustomerSelectorView;
+import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
 import mvvm.example.orders.requests.EditItemRequest;
 import mvvm.example.orders.editor.lineitems.editor.EditItemView;
 import mvvm.example.orders.editor.lineitems.editor.EditItemViewModel;
@@ -15,18 +19,24 @@ import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 import mvvm.example.orders.requests.EditOrderRequest;
+import mvvm.example.orders.requests.SelectCustomerRequest;
 import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
+
+import java.util.List;
+import java.util.Optional;
 
 public class OrdersModule {
 
     private final OrderRepository orderRepository;
+    private final CustomerRepository customerRepository;
     private final ViewServices view;
     private final ShellContext shell;
     private final CopyOrderCommand copyOrderCommand;
 
-    public OrdersModule(OrderRepository orderRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
+    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
         this.orderRepository = orderRepository;
+        this.customerRepository = customerRepository;
         this.view = view;
         this.shell = shell;
         this.copyOrderCommand = copyOrderCommand;
@@ -36,6 +46,7 @@ public class OrdersModule {
         view.viewLocator().register(LineItemsViewModel.class, LineItemsView::new);
         view.viewLocator().register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, view.viewLocator()));
         view.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
+        view.dialogManager().register(CustomerSelectorViewModel.class, CustomerSelectorView::dialog);
     }
 
     public SidebarItemViewModel sidebarItem() {
@@ -59,6 +70,7 @@ public class OrdersModule {
             request,
             new OrderEditorService() {
                 @Override public Order fetchOrder(String orderId) { return orderRepository.findById(orderId).orElseThrow(); }
+                @Override public Optional<Customer> findCustomer(String customerId) { return customerRepository.findById(customerId); }
                 @Override public void saveOrder(Order order) { orderRepository.save(order); }
                 @Override public String copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
@@ -67,10 +79,12 @@ public class OrdersModule {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
                 @Override public void openOrder(EditOrderRequest copyRequest) { shell.show(() -> orderEditorViewModel(copyRequest)); }
                 @Override public void showItemEditor(EditItemRequest request) { view.dialogManager().show(editItemViewModel(request)); }
+                @Override public void showCustomerSelector(SelectCustomerRequest request) { view.dialogManager().show(new CustomerSelectorViewModel(request, customerRepository.findAll())); }
             });
     }
 
     private EditItemViewModel editItemViewModel(EditItemRequest request) {
         return new EditItemViewModel(request);
     }
+
 }

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -16,6 +18,9 @@ class OrderEditorViewModelTest {
     private static OrderEditorService serviceFor(Order order) {
         var service = mock(OrderEditorService.class);
         when(service.fetchOrder(order.id())).thenReturn(order);
+        if (order.customerId() != null) {
+            when(service.findCustomer(order.customerId())).thenReturn(Optional.of(MockOrders.ACME_CUSTOMER));
+        }
         return service;
     }
 
@@ -28,9 +33,9 @@ class OrderEditorViewModelTest {
     class WhenCreated {
 
         @Test
-        @DisplayName("canSave is false when the customer name is blank")
-        void canSaveIsFalseWhenCustomerNameBlank() {
-            var vm = vmFor(MockOrders.orderWithBlankCustomerName());
+        @DisplayName("canSave is false when no customer is selected")
+        void canSaveIsFalseWhenNoCustomer() {
+            var vm = vmFor(MockOrders.orderWithNoCustomer());
 
             assertFalse(vm.save.canExecute());
         }
@@ -57,11 +62,11 @@ class OrderEditorViewModelTest {
     class WhenFieldsAreEdited {
 
         @Test
-        @DisplayName("canSave becomes true when a blank customer name is populated")
+        @DisplayName("canSave becomes true when a customer is selected")
         void canSaveBecomesTrue() {
-            var vm = vmFor(MockOrders.orderWithBlankCustomerName());
+            var vm = vmFor(MockOrders.orderWithNoCustomer());
 
-            vm.getHeader().customerNameProperty().set("Acme Ltd");
+            vm.getHeader().selectedCustomerProperty().set(MockOrders.ACME_CUSTOMER);
 
             assertTrue(vm.save.canExecute());
         }
@@ -140,11 +145,11 @@ class OrderEditorViewModelTest {
         @DisplayName("the order reflects the current header and line item values")
         void orderReflectsCurrentValues() {
             var vm = vmFor(MockOrders.validOrderWithLineItems());
-            vm.getHeader().customerNameProperty().set("New Customer");
 
             var updated = vm.buildUpdatedOrder();
 
-            assertEquals("New Customer", updated.customerName());
+            assertEquals(MockOrders.ACME_CUSTOMER_ID, updated.customerId());
+            assertEquals("Acme Ltd", updated.customerName());
             assertEquals(1, updated.lineItems().size());
         }
     }

@@ -1,6 +1,10 @@
 package mvvm.example.orders.editor.header;
 
+import mvvm.example.customers.domain.Customer;
+import mvvm.example.customers.domain.CustomerStatus;
+import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,8 +19,12 @@ class OrderHeaderViewModelTest {
 
     private static final LocalDate A_DATE = LocalDate.of(2025, 1, 15);
 
-    private static Order validOrder() {
-        return new Order("id-1", "Acme Ltd", A_DATE, "REF-001", List.of());
+    private static OrderHeaderViewModel viewModelFor(Order order, Customer customer) {
+        return new OrderHeaderViewModel(order, customer, request -> {});
+    }
+
+    private static OrderHeaderViewModel validViewModel() {
+        return viewModelFor(MockOrders.validOrderWithLineItems(), MockOrders.ACME_CUSTOMER);
     }
 
     @Nested
@@ -24,17 +32,17 @@ class OrderHeaderViewModelTest {
     class WhenCreated {
 
         @Test
-        @DisplayName("the customer name property is populated from the order")
-        void customerNamePopulated() {
-            var vm = new OrderHeaderViewModel(validOrder());
+        @DisplayName("the selected customer property is populated from the given customer")
+        void customerPopulated() {
+            var vm = validViewModel();
 
-            assertEquals("Acme Ltd", vm.customerNameProperty().get());
+            assertEquals(MockOrders.ACME_CUSTOMER, vm.selectedCustomerProperty().get());
         }
 
         @Test
         @DisplayName("the order date property is populated from the order")
         void orderDatePopulated() {
-            var vm = new OrderHeaderViewModel(validOrder());
+            var vm = validViewModel();
 
             assertEquals(A_DATE, vm.orderDateProperty().get());
         }
@@ -42,7 +50,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the reference property is populated from the order")
         void referencePopulated() {
-            var vm = new OrderHeaderViewModel(validOrder());
+            var vm = validViewModel();
 
             assertEquals("REF-001", vm.referenceProperty().get());
         }
@@ -55,9 +63,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is valid")
         void headerIsValid() {
-            var vm = new OrderHeaderViewModel(validOrder());
-
-            assertTrue(vm.validProperty().get());
+            assertTrue(validViewModel().validProperty().get());
         }
     }
 
@@ -66,9 +72,9 @@ class OrderHeaderViewModelTest {
     class WhenAFieldIsMissing {
 
         @Test
-        @DisplayName("the header is invalid when the customer name is blank")
-        void invalidWhenCustomerNameBlank() {
-            var vm = new OrderHeaderViewModel(new Order("id-1", "", A_DATE, "REF-001", List.of()));
+        @DisplayName("the header is invalid when no customer is selected")
+        void invalidWhenNoCustomer() {
+            var vm = viewModelFor(MockOrders.validOrderWithLineItems(), null);
 
             assertFalse(vm.validProperty().get());
         }
@@ -76,7 +82,8 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the reference is blank")
         void invalidWhenReferenceBlank() {
-            var vm = new OrderHeaderViewModel(new Order("id-1", "Acme Ltd", A_DATE, "", List.of()));
+            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, "", OrderStatus.WIP, null, List.of());
+            var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());
         }
@@ -84,7 +91,8 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the order date is null")
         void invalidWhenOrderDateNull() {
-            var vm = new OrderHeaderViewModel(new Order("id-1", "Acme Ltd", null, "REF-001", List.of()));
+            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", null, "REF-001", OrderStatus.WIP, null, List.of());
+            var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());
         }
@@ -95,21 +103,21 @@ class OrderHeaderViewModelTest {
     class WhenFieldsAreEdited {
 
         @Test
-        @DisplayName("the header becomes invalid when the customer name is cleared")
-        void becomesInvalidWhenCustomerNameCleared() {
-            var vm = new OrderHeaderViewModel(validOrder());
+        @DisplayName("the header becomes invalid when the customer is cleared")
+        void becomesInvalidWhenCustomerCleared() {
+            var vm = validViewModel();
 
-            vm.customerNameProperty().set("");
+            vm.selectedCustomerProperty().set(null);
 
             assertFalse(vm.validProperty().get());
         }
 
         @Test
-        @DisplayName("the header becomes valid when a blank customer name is populated")
-        void becomesValidWhenCustomerNamePopulated() {
-            var vm = new OrderHeaderViewModel(new Order("id-1", "", A_DATE, "REF-001", List.of()));
+        @DisplayName("the header becomes valid when a customer is selected")
+        void becomesValidWhenCustomerSelected() {
+            var vm = viewModelFor(MockOrders.validOrderWithLineItems(), null);
 
-            vm.customerNameProperty().set("Acme Ltd");
+            vm.selectedCustomerProperty().set(MockOrders.ACME_CUSTOMER);
 
             assertTrue(vm.validProperty().get());
         }
@@ -117,7 +125,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header becomes invalid when the reference is cleared")
         void becomesInvalidWhenReferenceCleared() {
-            var vm = new OrderHeaderViewModel(validOrder());
+            var vm = validViewModel();
 
             vm.referenceProperty().set("");
 
@@ -127,7 +135,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header becomes invalid when the order date is cleared")
         void becomesInvalidWhenOrderDateCleared() {
-            var vm = new OrderHeaderViewModel(validOrder());
+            var vm = validViewModel();
 
             vm.orderDateProperty().set(null);
 
@@ -142,14 +150,16 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header record reflects the current property values")
         void reflectsCurrentPropertyValues() {
-            var vm = new OrderHeaderViewModel(validOrder());
-            vm.customerNameProperty().set("New Customer");
+            var vm = validViewModel();
+            var newCustomer = new Customer("cust-2", "New Customer", "new@example.com", CustomerStatus.ACTIVE);
+            vm.selectedCustomerProperty().set(newCustomer);
             vm.referenceProperty().set("REF-999");
             var newDate = LocalDate.of(2025, 6, 1);
             vm.orderDateProperty().set(newDate);
 
             var header = vm.buildHeader();
 
+            assertEquals("cust-2", header.customerId());
             assertEquals("New Customer", header.customerName());
             assertEquals("REF-999", header.reference());
             assertEquals(newDate, header.date());

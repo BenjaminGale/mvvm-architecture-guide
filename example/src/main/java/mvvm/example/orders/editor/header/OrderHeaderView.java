@@ -1,6 +1,9 @@
 package mvvm.example.orders.editor.header;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -8,13 +11,36 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import mvvm.example.core.view.controls.Controls;
 
 public class OrderHeaderView extends BorderPane {
 
     public OrderHeaderView(OrderHeaderViewModel viewModel) {
-        var customerNameField = new TextField();
+        var customerNameLabel = new Label();
+        customerNameLabel.textProperty().bind(
+            Bindings.createStringBinding(
+                () -> {
+                    var customer = viewModel.selectedCustomerProperty().get();
+                    return customer != null ? customer.name() : "No customer selected";
+                },
+                viewModel.selectedCustomerProperty()
+            )
+        );
+        customerNameLabel.styleProperty().bind(
+            Bindings.when(viewModel.selectedCustomerProperty().isNull())
+                .then("-fx-text-fill: -fx-mid-text-color;")
+                .otherwise("")
+        );
+
+        var selectBtn = new Button("Select…");
+        selectBtn.setOnAction(e -> viewModel.selectCustomer.execute());
+        selectBtn.disableProperty().bind(viewModel.selectCustomer.canExecuteProperty().not());
+
+        var customerRow = new HBox(8, customerNameLabel, selectBtn);
+        customerRow.setAlignment(Pos.CENTER_LEFT);
+
         var orderDatePicker = new DatePicker();
         var referenceField = new TextField();
 
@@ -24,7 +50,7 @@ public class OrderHeaderView extends BorderPane {
         form.setPadding(new Insets(8));
 
         form.add(new Label("Customer"), 0, 0);
-        form.add(customerNameField, 1, 0);
+        form.add(customerRow, 1, 0);
 
         form.add(new Label("Date"), 0, 1);
         form.add(orderDatePicker, 1, 1);
@@ -43,10 +69,9 @@ public class OrderHeaderView extends BorderPane {
         setTop(toolbar);
         setCenter(form);
 
-        customerNameField.textProperty().bindBidirectional(viewModel.customerNameProperty());
         orderDatePicker.valueProperty().bindBidirectional(viewModel.orderDateProperty());
         referenceField.textProperty().bindBidirectional(viewModel.referenceProperty());
 
-        Controls.focusOnShow(customerNameField);
+        Controls.focusOnShow(selectBtn);
     }
 }
