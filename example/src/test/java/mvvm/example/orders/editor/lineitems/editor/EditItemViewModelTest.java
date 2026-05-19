@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.mockito.ArgumentCaptor;
@@ -20,7 +21,7 @@ class EditItemViewModelTest {
     private static final LineItem ORIGINAL = new LineItem("Widget", 2, BigDecimal.valueOf(9.99));
 
     private static EditItemViewModel viewModelFor(LineItem item) {
-        return new EditItemViewModel(new EditItemRequest(item, confirmed -> {}));
+        return new EditItemViewModel(new EditItemRequest(item, Set.of(), confirmed -> {}), r -> {});
     }
 
     @Nested
@@ -60,7 +61,7 @@ class EditItemViewModelTest {
         @DisplayName("the request callback is invoked with the updated item")
         void requestCallbackInvokedWithUpdatedItem() {
             Consumer<LineItem> listener = mock();
-            var vm = new EditItemViewModel(new EditItemRequest(ORIGINAL, listener));
+            var vm = new EditItemViewModel(new EditItemRequest(ORIGINAL, Set.of(), listener), r -> {});
 
             vm.confirm();
 
@@ -71,7 +72,7 @@ class EditItemViewModelTest {
         @DisplayName("the confirmed item reflects the edited property values")
         void confirmedItemReflectsEditedValues() {
             Consumer<LineItem> listener = mock();
-            var vm = new EditItemViewModel(new EditItemRequest(ORIGINAL, listener));
+            var vm = new EditItemViewModel(new EditItemRequest(ORIGINAL, Set.of(), listener), r -> {});
             vm.descriptionProperty().set("Gadget");
             vm.quantityProperty().set(5);
             vm.unitPriceProperty().set(BigDecimal.valueOf(19.99));

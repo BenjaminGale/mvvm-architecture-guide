@@ -15,6 +15,8 @@ import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
 import mvvm.example.orders.requests.EditItemRequest;
 import mvvm.example.orders.editor.lineitems.editor.EditItemView;
 import mvvm.example.orders.editor.lineitems.editor.EditItemViewModel;
+import mvvm.example.orders.editor.lineitems.selector.ProductSelectorView;
+import mvvm.example.orders.editor.lineitems.selector.ProductSelectorViewModel;
 import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsView;
@@ -54,6 +56,7 @@ public class OrdersModule {
         view.viewLocator().register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, view.viewLocator()));
         view.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
         view.dialogManager().register(CustomerSelectorViewModel.class, CustomerSelectorView::dialog);
+        view.dialogManager().register(ProductSelectorViewModel.class, ProductSelectorView::dialog);
     }
 
     public SidebarItemViewModel sidebarItem() {
@@ -91,7 +94,7 @@ public class OrdersModule {
     }
 
     private EditItemViewModel editItemViewModel(EditItemRequest request) {
-        return new EditItemViewModel(request);
+        return new EditItemViewModel(request, r -> view.dialogManager().show(new ProductSelectorViewModel(r, productRepository.findAll())));
     }
 
 }
