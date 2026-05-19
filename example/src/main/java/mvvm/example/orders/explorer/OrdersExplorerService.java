@@ -1,9 +1,11 @@
 package mvvm.example.orders.explorer;
 
-import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderSummary;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+@FunctionalInterface
 public interface OrdersExplorerService {
-    List<Order> fetchAllOrders();
+    CompletableFuture<List<OrderSummary>> fetchOrderSummaries();
 }

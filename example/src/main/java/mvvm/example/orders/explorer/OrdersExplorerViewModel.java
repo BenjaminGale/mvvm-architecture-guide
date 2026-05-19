@@ -5,7 +5,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
-import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderSummary;
 import mvvm.example.orders.requests.EditOrderRequest;
 import mvvm.example.shell.main.statusbar.LabelType;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class OrdersExplorerViewModel extends ExplorerViewModel<Order> {
+public class OrdersExplorerViewModel extends ExplorerViewModel<OrderSummary> {
 
     private final IntegerProperty ordersCount = new SimpleIntegerProperty(this, "ordersCount", 0);
     private final IntegerProperty overdueOrdersCount = new SimpleIntegerProperty(this, "overdueOrdersCount", 0);
@@ -26,10 +26,10 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<Order> {
         this.service = service;
         this.host = host;
 
-        items().addListener((ListChangeListener<Order>) _ -> {
+        items().addListener((ListChangeListener<OrderSummary>) _ -> {
             var list = items().stream().toList();
             ordersCount.set(list.size());
-            overdueOrdersCount.set((int) list.stream().filter(Order::isOverdue).count());
+            overdueOrdersCount.set((int) list.stream().filter(OrderSummary::isOverdue).count());
         });
 
         statusItems.addAll(
@@ -52,11 +52,10 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<Order> {
     }
 
     @Override
-    protected CompletableFuture<List<Order>> fetchItemsAsync() {
-        return CompletableFuture.completedFuture(
-            service.fetchAllOrders()
-                .stream()
-                .sorted(Comparator.comparing(Order::createdDate).reversed())
+    protected CompletableFuture<List<OrderSummary>> fetchItemsAsync() {
+        return service.fetchOrderSummaries().thenApply(list ->
+            list.stream()
+                .sorted(Comparator.comparing(OrderSummary::createdDate).reversed())
                 .toList()
         );
     }
@@ -67,12 +66,12 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<Order> {
     }
 
     @Override
-    protected void editItem(Order order) {
-        host.showOrderDetails(EditOrderRequest.of(order.id()));
+    protected void editItem(OrderSummary summary) {
+        host.showOrderDetails(EditOrderRequest.of(summary.id()));
     }
 
     @Override
-    protected void deleteItem(Order order) {
+    protected void deleteItem(OrderSummary summary) {
         throw new UnsupportedOperationException();
     }
 }

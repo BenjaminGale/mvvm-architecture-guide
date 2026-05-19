@@ -8,14 +8,14 @@ import mvvm.example.core.view.ExplorerView;
 import mvvm.example.core.view.controls.CurrencyTableCell;
 import mvvm.example.core.view.controls.LocalDateTableCell;
 import mvvm.example.core.view.controls.TableViews;
-import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderSummary;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class OrdersExplorerView extends ExplorerView<Order> {
+public class OrdersExplorerView extends ExplorerView<OrderSummary> {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
@@ -23,11 +23,11 @@ public class OrdersExplorerView extends ExplorerView<Order> {
         super(viewModel);
         TableViews.bind(table(), viewModel.editItemAction());
         table().setRowFactory(_ -> {
-            var row = new TableRow<Order>() {
+            var row = new TableRow<OrderSummary>() {
                 @Override
-                protected void updateItem(Order order, boolean empty) {
-                    super.updateItem(order, empty);
-                    setStyle(!empty && order != null && order.isOverdue() && !isSelected()
+                protected void updateItem(OrderSummary summary, boolean empty) {
+                    super.updateItem(summary, empty);
+                    setStyle(!empty && summary != null && summary.isOverdue() && !isSelected()
                         ? "-fx-background-color: #fff3cd;"
                         : "");
                 }
@@ -38,8 +38,8 @@ public class OrdersExplorerView extends ExplorerView<Order> {
             });
 
             row.selectedProperty().addListener((obs, old, selected) -> {
-                var order = row.getItem();
-                row.setStyle(order != null && !row.isEmpty() && order.isOverdue() && !selected
+                var summary = row.getItem();
+                row.setStyle(summary != null && !row.isEmpty() && summary.isOverdue() && !selected
                     ? "-fx-background-color: #fff3cd;"
                     : "");
             });
@@ -49,44 +49,44 @@ public class OrdersExplorerView extends ExplorerView<Order> {
     }
 
     @Override
-    protected List<TableColumn<Order, ?>> columns() {
+    protected List<TableColumn<OrderSummary, ?>> columns() {
         return List.of(referenceColumn(), customerColumn(), createdDateColumn(), plannedShipDateColumn(), statusColumn(), totalColumn());
     }
 
-    private static TableColumn<Order, String> referenceColumn() {
-        var col = new TableColumn<Order, String>("Reference");
+    private static TableColumn<OrderSummary, String> referenceColumn() {
+        var col = new TableColumn<OrderSummary, String>("Reference");
         col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().reference()));
         return col;
     }
 
-    private static TableColumn<Order, String> customerColumn() {
-        var col = new TableColumn<Order, String>("Customer");
+    private static TableColumn<OrderSummary, String> customerColumn() {
+        var col = new TableColumn<OrderSummary, String>("Customer");
         col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().customerName()));
         return col;
     }
 
-    private static TableColumn<Order, LocalDate> createdDateColumn() {
-        var col = new TableColumn<Order, LocalDate>("Created");
+    private static TableColumn<OrderSummary, LocalDate> createdDateColumn() {
+        var col = new TableColumn<OrderSummary, LocalDate>("Created");
         col.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().createdDate()));
         col.setCellFactory(LocalDateTableCell.forTableColumn(DATE_FORMAT));
         return col;
     }
 
-    private static TableColumn<Order, LocalDate> plannedShipDateColumn() {
-        var col = new TableColumn<Order, LocalDate>("Ship By");
+    private static TableColumn<OrderSummary, LocalDate> plannedShipDateColumn() {
+        var col = new TableColumn<OrderSummary, LocalDate>("Ship By");
         col.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().plannedShipDate()));
         col.setCellFactory(LocalDateTableCell.forTableColumn(DATE_FORMAT));
         return col;
     }
 
-    private static TableColumn<Order, String> statusColumn() {
-        var col = new TableColumn<Order, String>("Status");
-        col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().status().displayName()));
+    private static TableColumn<OrderSummary, String> statusColumn() {
+        var col = new TableColumn<OrderSummary, String>("Status");
+        col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().status()));
         return col;
     }
 
-    private static TableColumn<Order, BigDecimal> totalColumn() {
-        var col = new TableColumn<Order, BigDecimal>("Total");
+    private static TableColumn<OrderSummary, BigDecimal> totalColumn() {
+        var col = new TableColumn<OrderSummary, BigDecimal>("Total");
         col.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().total()));
         col.setCellFactory(CurrencyTableCell.forTableColumn());
         return col;

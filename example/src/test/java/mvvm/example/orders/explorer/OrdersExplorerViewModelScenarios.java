@@ -1,6 +1,7 @@
 package mvvm.example.orders.explorer;
 
 import mvvm.example.orders.MockOrders;
+import mvvm.example.orders.domain.OrderSummary;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.time.LocalDate;
@@ -21,24 +22,24 @@ public class OrdersExplorerViewModelScenarios {
                 0, 0
             ),
             Arguments.of(
-                "single non-overdue order",
-                List.of(MockOrders.of("1", RECENT)),
+                "single non-isOverdue order",
+                List.of(MockOrders.summaryOf("1", RECENT)),
                 1, 0
             ),
             Arguments.of(
-                "mixed overdue and non-overdue orders",
+                "mixed isOverdue and non-isOverdue orders",
                 List.of(
-                    MockOrders.of("1", RECENT),
-                    MockOrders.of("2", OVERDUE)
+                    MockOrders.summaryOf("1", RECENT),
+                    MockOrders.summaryOf("2", OVERDUE)
                 ),
                 2, 1
             ),
             Arguments.of(
-                "all orders overdue",
+                "all orders isOverdue",
                 List.of(
-                    MockOrders.of("1", OVERDUE),
-                    MockOrders.of("2", OVERDUE),
-                    MockOrders.of("3", OVERDUE)
+                    MockOrders.summaryOf("1", OVERDUE),
+                    MockOrders.summaryOf("2", OVERDUE),
+                    MockOrders.summaryOf("3", OVERDUE)
                 ),
                 3, 3
             )
@@ -50,25 +51,25 @@ public class OrdersExplorerViewModelScenarios {
             Arguments.of(
                 "reverse chronological input",
                 List.of(
-                    MockOrders.of("older", OLDER),
-                    MockOrders.of("recent", RECENT)
+                    MockOrders.summaryOf("older", OLDER),
+                    MockOrders.summaryOf("recent", RECENT)
                 ),
                 List.of("recent", "older")
             ),
             Arguments.of(
                 "already sorted input",
                 List.of(
-                    MockOrders.of("recent", RECENT),
-                    MockOrders.of("older", OLDER)
+                    MockOrders.summaryOf("recent", RECENT),
+                    MockOrders.summaryOf("older", OLDER)
                 ),
                 List.of("recent", "older")
             ),
             Arguments.of(
                 "same-date orders preserve insertion order",
                 List.of(
-                    MockOrders.of("A", RECENT),
-                    MockOrders.of("B", RECENT),
-                    MockOrders.of("C", RECENT)
+                    MockOrders.summaryOf("A", RECENT),
+                    MockOrders.summaryOf("B", RECENT),
+                    MockOrders.summaryOf("C", RECENT)
                 ),
                 List.of("A", "B", "C")
             )
@@ -84,15 +85,15 @@ public class OrdersExplorerViewModelScenarios {
             ),
             Arguments.of(
                 "single order",
-                List.of(MockOrders.of("1", RECENT)),
+                List.of(MockOrders.summaryOf("1", RECENT)),
                 List.of("1")
             ),
             Arguments.of(
                 "multiple orders",
                 List.of(
-                    MockOrders.of("1", RECENT),
-                    MockOrders.of("2", RECENT),
-                    MockOrders.of("3", RECENT)
+                    MockOrders.summaryOf("1", RECENT),
+                    MockOrders.summaryOf("2", RECENT),
+                    MockOrders.summaryOf("3", RECENT)
                 ),
                 List.of("1", "2", "3")
             )

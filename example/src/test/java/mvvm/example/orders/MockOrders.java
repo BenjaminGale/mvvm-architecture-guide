@@ -4,6 +4,7 @@ import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderSummary;
 import mvvm.example.orders.domain.PendingOrder;
 
 import java.math.BigDecimal;
@@ -33,5 +34,10 @@ public class MockOrders {
 
     public static Order orderWithNoLineItems() {
         return new PendingOrder("id-1", ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, A_DATE, "REF-001", List.of());
+    }
+
+    public static OrderSummary summaryOf(String id, LocalDate date) {
+        boolean overdue = date.isBefore(LocalDate.now());
+        return new OrderSummary(id, "REF-" + id, "Acme Ltd", date, date, "Pending", BigDecimal.ZERO, overdue);
     }
 }

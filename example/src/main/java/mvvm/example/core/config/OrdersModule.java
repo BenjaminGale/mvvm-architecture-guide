@@ -4,6 +4,7 @@ import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.CopyOrderCommand;
+import mvvm.example.orders.domain.GetOrderSummariesQuery;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.editor.*;
@@ -59,7 +60,7 @@ public class OrdersModule {
 
     public OrdersExplorerViewModel ordersExplorerViewModel() {
         return new OrdersExplorerViewModel(
-            orderRepository::findAll,
+            new GetOrderSummariesQuery(orderRepository, customerRepository)::execute,
             request -> shell.show(() -> orderEditorViewModel(request)),
             shell.statusItems()
         );
