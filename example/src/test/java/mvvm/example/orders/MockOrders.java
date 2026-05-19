@@ -21,19 +21,19 @@ public class MockOrders {
     public static final Customer ACME_CUSTOMER = new Customer(ACME_CUSTOMER_ID, "Acme Ltd", "acme@example.com", CustomerStatus.ACTIVE);
 
     public static Order of(String id, LocalDate date) {
-        return new PendingOrder(id, ACME_CUSTOMER_ID, "Acme Ltd", date, date, "REF-" + id, List.of());
+        return new PendingOrder(id, ACME_CUSTOMER_ID, date, date, "REF-" + id, List.of());
     }
 
     public static Order validOrderWithLineItems() {
-        return new PendingOrder("id-1", ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, A_DATE, "REF-001", List.of(A_LINE_ITEM));
+        return new PendingOrder("id-1", ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", List.of(A_LINE_ITEM));
     }
 
     public static Order orderWithNoCustomer() {
-        return new PendingOrder("id-1", null, null, A_DATE, A_DATE, "REF-001", List.of(A_LINE_ITEM));
+        return new PendingOrder("id-1", null, A_DATE, A_DATE, "REF-001", List.of(A_LINE_ITEM));
     }
 
     public static Order orderWithNoLineItems() {
-        return new PendingOrder("id-1", ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, A_DATE, "REF-001", List.of());
+        return new PendingOrder("id-1", ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", List.of());
     }
 
     public static OrderSummary summaryOf(String id, LocalDate date) {

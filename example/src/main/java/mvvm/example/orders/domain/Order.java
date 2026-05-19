@@ -10,7 +10,6 @@ public sealed interface Order permits PendingOrder, FulfilledOrder, ShippedOrder
 
     String id();
     String customerId();
-    String customerName();
     LocalDate createdDate();
     LocalDate plannedShipDate();
     String reference();
@@ -31,7 +30,6 @@ public sealed interface Order permits PendingOrder, FulfilledOrder, ShippedOrder
         return new PendingOrder(
             UUID.randomUUID().toString(),
             null,
-            "",
             LocalDate.now(),
             LocalDate.now(),
             "",

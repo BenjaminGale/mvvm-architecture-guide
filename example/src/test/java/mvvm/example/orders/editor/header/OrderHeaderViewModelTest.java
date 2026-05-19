@@ -99,7 +99,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the reference is blank")
         void invalidWhenReferenceBlank() {
-            var order = new PendingOrder("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, A_DATE, "", List.of());
+            var order = new PendingOrder("id-1", MockOrders.ACME_CUSTOMER_ID, A_DATE, A_DATE, "", List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());
@@ -108,7 +108,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the planned ship date is null")
         void invalidWhenPlannedShipDateNull() {
-            var order = new PendingOrder("id-1", MockOrders.ACME_CUSTOMER_ID, "Acme Ltd", A_DATE, null, "REF-001", List.of());
+            var order = new PendingOrder("id-1", MockOrders.ACME_CUSTOMER_ID, A_DATE, null, "REF-001", List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());

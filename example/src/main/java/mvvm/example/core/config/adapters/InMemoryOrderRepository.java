@@ -50,7 +50,7 @@ public class InMemoryOrderRepository implements OrderRepository {
     private void seed() {
         add(
             "ORD-001",
-            ACME_CORP, "Acme Corp",
+            ACME_CORP,
             LocalDate.now().minusDays(5),
             LocalDate.now().plusDays(10),
             OrderStatus.PENDING,
@@ -63,7 +63,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-002",
-            GLOBEX_INC, "Globex Inc",
+            GLOBEX_INC,
             LocalDate.now().minusDays(45),
             LocalDate.now().minusDays(15),
             OrderStatus.PENDING,
@@ -75,7 +75,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-003",
-            INITECH, "Initech",
+            INITECH,
             LocalDate.now().minusDays(8),
             LocalDate.now().plusDays(5),
             OrderStatus.FULFILLED,
@@ -88,7 +88,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-004",
-            UMBRELLA_LTD, "Umbrella Ltd",
+            UMBRELLA_LTD,
             LocalDate.now().minusDays(60),
             LocalDate.now().minusDays(55),
             OrderStatus.SHIPPED,
@@ -100,7 +100,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-005",
-            SOYLENT_CORP, "Soylent Corp",
+            SOYLENT_CORP,
             LocalDate.now().minusDays(40),
             LocalDate.now().minusDays(38),
             OrderStatus.CANCELLED,
@@ -112,7 +112,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 
         add(
             "ORD-006",
-            CYBERDYNE_SYSTEMS, "Cyberdyne Systems",
+            CYBERDYNE_SYSTEMS,
             LocalDate.now().minusDays(35),
             LocalDate.now().minusDays(5),
             OrderStatus.PENDING,
@@ -124,13 +124,13 @@ public class InMemoryOrderRepository implements OrderRepository {
         );
     }
 
-    private void add(String reference, String customerId, String customerName, LocalDate createdDate, LocalDate plannedShipDate, OrderStatus status, LocalDate completionDate, List<LineItem> items) {
+    private void add(String reference, String customerId, LocalDate createdDate, LocalDate plannedShipDate, OrderStatus status, LocalDate completionDate, List<LineItem> items) {
         var id = UUID.randomUUID().toString();
         Order order = switch (status) {
-            case PENDING -> new PendingOrder(id, customerId, customerName, createdDate, plannedShipDate, reference, items);
-            case FULFILLED -> new FulfilledOrder(id, customerId, customerName, createdDate, plannedShipDate, reference, items);
-            case SHIPPED -> new ShippedOrder(id, customerId, customerName, createdDate, plannedShipDate, reference, completionDate, items);
-            case CANCELLED -> new CancelledOrder(id, customerId, customerName, createdDate, plannedShipDate, reference, completionDate, items);
+            case PENDING -> new PendingOrder(id, customerId, createdDate, plannedShipDate, reference, items);
+            case FULFILLED -> new FulfilledOrder(id, customerId, createdDate, plannedShipDate, reference, items);
+            case SHIPPED -> new ShippedOrder(id, customerId, createdDate, plannedShipDate, reference, completionDate, items);
+            case CANCELLED -> new CancelledOrder(id, customerId, createdDate, plannedShipDate, reference, completionDate, items);
         };
         store.put(order.id(), order);
     }

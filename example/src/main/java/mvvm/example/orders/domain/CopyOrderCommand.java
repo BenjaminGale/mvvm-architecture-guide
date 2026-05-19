@@ -19,7 +19,6 @@ public class CopyOrderCommand {
         var copy = new PendingOrder(
             UUID.randomUUID().toString(),
             original.customerId(),
-            original.customerName(),
             LocalDate.now(),
             null,
             "COPY-" + original.reference(),

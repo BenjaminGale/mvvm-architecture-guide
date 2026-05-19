@@ -206,7 +206,6 @@ class OrderEditorViewModelTest {
             var updated = vm.buildUpdatedOrder();
 
             assertEquals(MockOrders.ACME_CUSTOMER_ID, updated.customerId());
-            assertEquals("Acme Ltd", updated.customerName());
             assertEquals(1, updated.lineItems().size());
         }
     }

@@ -18,11 +18,11 @@ class OrderTest {
     private static final LocalDate TOMORROW = TODAY.plusDays(1);
 
     private static PendingOrder pendingOrder(LocalDate plannedShipDate) {
-        return new PendingOrder("id", "cust-1", "Acme", TODAY, plannedShipDate, "REF-001", List.of());
+        return new PendingOrder("id", "cust-1",TODAY, plannedShipDate, "REF-001", List.of());
     }
 
     private static FulfilledOrder fulfilledOrder(LocalDate plannedShipDate) {
-        return new FulfilledOrder("id", "cust-1", "Acme", TODAY, plannedShipDate, "REF-001", List.of());
+        return new FulfilledOrder("id", "cust-1",TODAY, plannedShipDate, "REF-001", List.of());
     }
 
     @Nested
@@ -56,14 +56,14 @@ class OrderTest {
         @Test
         @DisplayName("shipped order is never overdue")
         void shippedOrderIsNeverOverdue() {
-            var order = new ShippedOrder("id", "cust-1", "Acme", TODAY, YESTERDAY, "REF-001", TODAY, List.of());
+            var order = new ShippedOrder("id", "cust-1",TODAY, YESTERDAY, "REF-001", TODAY, List.of());
             assertFalse(order.isOverdue());
         }
 
         @Test
         @DisplayName("cancelled order is never overdue")
         void cancelledOrderIsNeverOverdue() {
-            var order = new CancelledOrder("id", "cust-1", "Acme", TODAY, YESTERDAY, "REF-001", TODAY, List.of());
+            var order = new CancelledOrder("id", "cust-1",TODAY, YESTERDAY, "REF-001", TODAY, List.of());
             assertFalse(order.isOverdue());
         }
     }
@@ -81,7 +81,7 @@ class OrderTest {
         @Test
         @DisplayName("returns the sum of all line item totals")
         void sumOfLineItemTotals() {
-            var order = new PendingOrder("id", "cust-1", "Acme", TODAY, TOMORROW, "REF-001", List.of(
+            var order = new PendingOrder("id", "cust-1",TODAY, TOMORROW, "REF-001", List.of(
                 new LineItem("Widget A", 2, 0, new BigDecimal("10.00")),
                 new LineItem("Widget B", 3, 0, new BigDecimal("5.00"))
             ));

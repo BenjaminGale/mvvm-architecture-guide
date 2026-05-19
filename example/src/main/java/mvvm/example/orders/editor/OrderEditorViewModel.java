@@ -97,8 +97,8 @@ public class OrderEditorViewModel {
         var reference = header.referenceProperty().get();
         var items = lineItems.buildLineItems();
         return switch (order) {
-            case PendingOrder p -> new PendingOrder(p.id(), customer.id(), customer.name(), p.createdDate(), plannedShipDate, reference, items);
-            case FulfilledOrder f -> new FulfilledOrder(f.id(), customer.id(), customer.name(), f.createdDate(), plannedShipDate, reference, items);
+            case PendingOrder p -> new PendingOrder(p.id(), customer.id(), p.createdDate(), plannedShipDate, reference, items);
+            case FulfilledOrder f -> new FulfilledOrder(f.id(), customer.id(), f.createdDate(), plannedShipDate, reference, items);
             default -> throw new IllegalStateException("Cannot update a " + order.status() + " order");
         };
     }
