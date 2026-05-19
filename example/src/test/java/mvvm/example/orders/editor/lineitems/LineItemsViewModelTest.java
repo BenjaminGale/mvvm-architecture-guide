@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -178,6 +179,18 @@ class LineItemsViewModelTest {
             var vm = withItems(item("a"));
 
             assertFalse(vm.deleteItemAction().canExecute());
+        }
+
+        @Test
+        @DisplayName("the delete callback is invoked with the removed item")
+        void deleteCallbackInvokedWithItem() {
+            Consumer<LineItem> onDelete = mock();
+            var vm = new LineItemsViewModel(List.of(item("a")), stubFetch(), () -> {}, (i, it) -> {}, onDelete);
+            vm.selectedItemProperty().set(vm.items().getFirst());
+
+            vm.deleteItemAction().execute();
+
+            verify(onDelete).accept(any(LineItem.class));
         }
     }
 
