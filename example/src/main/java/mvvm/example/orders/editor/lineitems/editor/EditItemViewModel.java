@@ -30,6 +30,7 @@ public class EditItemViewModel {
     public void confirm() {
         request.confirmChanges(
             new LineItem(
+                request.getItem().productId(),
                 description.get(),
                 quantity.get(),
                 request.getItem().quantityAllocated(),

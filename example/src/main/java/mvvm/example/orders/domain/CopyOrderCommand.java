@@ -22,7 +22,7 @@ public class CopyOrderCommand {
             LocalDate.now(),
             null,
             "COPY-" + original.reference(),
-            original.lineItems().stream().map(item -> new LineItem(item.description(), item.quantity(), 0, item.unitPrice())).toList()
+            original.lineItems().stream().map(item -> new LineItem(item.productId(), item.description(), item.quantity(), 0, item.unitPrice())).toList()
         );
 
         repository.save(copy);
