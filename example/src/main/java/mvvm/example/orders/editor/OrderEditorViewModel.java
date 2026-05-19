@@ -12,7 +12,10 @@ import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
 import mvvm.example.orders.requests.EditOrderRequest;
 
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class OrderEditorViewModel {
 
@@ -46,7 +49,7 @@ public class OrderEditorViewModel {
             : null;
 
         this.header = new OrderHeaderViewModel(order, currentCustomer, host::showCustomerSelector);
-        this.lineItems = new LineItemsViewModel(order.lineItems(), this::editRow, this::addRow);
+        this.lineItems = new LineItemsViewModel(order.lineItems(), items -> service.fetchLineItemSummaries(items, order.id()), this::addRow, this::editRow, item -> service.deleteLineItem(item.productId(), order.id()));
 
         this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));
         this.delete = new Action(this::onDelete);
@@ -71,21 +74,22 @@ public class OrderEditorViewModel {
     }
 
     private void addRow() {
-        host.showItemEditor(
-            new EditItemRequest(
-                LineItem.empty(),
-                lineItems::addConfirmedRow
-            )
-        );
+        Set<String> excluded = lineItems.buildLineItems().stream()
+            .map(LineItem::productId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+        host.showItemEditor(new EditItemRequest(LineItem.empty(), excluded, lineItems::addConfirmedRow));
     }
 
     private void editRow(int index, LineItem item) {
-        host.showItemEditor(
-            new EditItemRequest(
-                item,
-                updated -> lineItems.updateConfirmedRow(index, updated)
-            )
-        );
+        Set<String> excluded = lineItems.buildLineItems().stream()
+            .map(LineItem::productId)
+            .filter(Objects::nonNull)
+            .filter(id -> !id.equals(item.productId()))
+            .collect(Collectors.toSet());
+
+        host.showItemEditor(new EditItemRequest(item, excluded, updated -> lineItems.updateConfirmedRow(index, updated)));
     }
 
     public OrderHeaderViewModel getHeader()  { return header; }

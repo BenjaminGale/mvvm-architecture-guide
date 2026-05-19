@@ -15,7 +15,7 @@ public class MockOrders {
     private MockOrders() {}
 
     private static final LocalDate A_DATE = LocalDate.of(2025, 1, 15);
-    private static final LineItem A_LINE_ITEM = new LineItem("Widget", 1, BigDecimal.TEN);
+    private static final LineItem A_LINE_ITEM = new LineItem("prod-widget", "Widget", 1, BigDecimal.TEN);
 
     public static final String ACME_CUSTOMER_ID = "cust-1";
     public static final Customer ACME_CUSTOMER = new Customer(ACME_CUSTOMER_ID, "Acme Ltd", "acme@example.com", CustomerStatus.ACTIVE);

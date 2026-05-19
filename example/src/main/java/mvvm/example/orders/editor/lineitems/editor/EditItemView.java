@@ -6,8 +6,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.util.converter.BigDecimalStringConverter;
-import mvvm.example.core.view.controls.Controls;
+import mvvm.example.core.view.controls.Buttons;
 
 public class EditItemView extends BorderPane {
 
@@ -24,30 +23,36 @@ public class EditItemView extends BorderPane {
     }
 
     private EditItemView(EditItemViewModel viewModel) {
-        var descriptionField = new TextField();
+        var selectProductBtn = new Button("Select Product...");
+        Buttons.bind(selectProductBtn, viewModel.selectProduct);
+
+        var descriptionLabel = new Label();
+        descriptionLabel.textProperty().bind(viewModel.descriptionProperty());
 
         var quantitySpinner = new Spinner<Integer>();
         var quantityFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9999, viewModel.quantityProperty().get());
         quantitySpinner.setValueFactory(quantityFactory);
         quantitySpinner.setEditable(true);
 
-        var unitPriceField = new TextField();
-        var priceFormatter = new TextFormatter<>(new BigDecimalStringConverter(), viewModel.unitPriceProperty().get());
-        unitPriceField.setTextFormatter(priceFormatter);
+        var unitPriceLabel = new Label();
+        unitPriceLabel.textProperty().bind(viewModel.unitPriceProperty().asString());
 
         var form = new GridPane();
         form.setHgap(8);
         form.setVgap(8);
         form.setPadding(new Insets(16));
 
-        form.add(new Label("Description"), 0, 0);
-        form.add(descriptionField, 1, 0);
+        form.add(new Label("Product"), 0, 0);
+        form.add(selectProductBtn, 1, 0);
 
-        form.add(new Label("Quantity"), 0, 1);
-        form.add(quantitySpinner, 1, 1);
+        form.add(new Label("Description"), 0, 1);
+        form.add(descriptionLabel, 1, 1);
 
-        form.add(new Label("Unit Price"), 0, 2);
-        form.add(unitPriceField, 1, 2);
+        form.add(new Label("Quantity"), 0, 2);
+        form.add(quantitySpinner, 1, 2);
+
+        form.add(new Label("Unit Price"), 0, 3);
+        form.add(unitPriceLabel, 1, 3);
 
         var labelCol = new ColumnConstraints();
         var fieldCol = new ColumnConstraints();
@@ -56,10 +61,6 @@ public class EditItemView extends BorderPane {
 
         setCenter(form);
 
-        descriptionField.textProperty().bindBidirectional(viewModel.descriptionProperty());
         quantityFactory.valueProperty().bindBidirectional(viewModel.quantityProperty().asObject());
-        priceFormatter.valueProperty().bindBidirectional(viewModel.unitPriceProperty());
-
-        Controls.focusOnShow(descriptionField);
     }
 }

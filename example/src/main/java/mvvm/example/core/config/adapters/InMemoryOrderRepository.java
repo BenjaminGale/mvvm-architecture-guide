@@ -56,8 +56,8 @@ public class InMemoryOrderRepository implements OrderRepository {
             OrderStatus.PENDING,
             null,
             List.of(
-                new LineItem("Widget A", 10, new BigDecimal("9.99")),
-                new LineItem("Widget B", 5, new BigDecimal("24.99"))
+                new LineItem(null, "Widget A", 10, new BigDecimal("9.99")),
+                new LineItem(null, "Widget B", 5, new BigDecimal("24.99"))
             )
         );
 
@@ -69,7 +69,7 @@ public class InMemoryOrderRepository implements OrderRepository {
             OrderStatus.PENDING,
             null,
             List.of(
-                new LineItem("Gizmo X", 2, new BigDecimal("149.00"))
+                new LineItem(null, "Gizmo X", 2, new BigDecimal("149.00"))
             )
         );
 
@@ -81,8 +81,8 @@ public class InMemoryOrderRepository implements OrderRepository {
             OrderStatus.FULFILLED,
             null,
             List.of(
-                new LineItem("Sprocket", 20, new BigDecimal("4.50")),
-                new LineItem("Cog", 8, new BigDecimal("12.75"))
+                new LineItem(null, "Sprocket", 20, new BigDecimal("4.50")),
+                new LineItem(null, "Cog", 8, new BigDecimal("12.75"))
             )
         );
 
@@ -94,7 +94,7 @@ public class InMemoryOrderRepository implements OrderRepository {
             OrderStatus.SHIPPED,
             LocalDate.now().minusDays(55),
             List.of(
-                new LineItem("Reagent", 100, new BigDecimal("1.20"))
+                new LineItem(null, "Reagent", 100, new BigDecimal("1.20"))
             )
         );
 
@@ -106,7 +106,7 @@ public class InMemoryOrderRepository implements OrderRepository {
             OrderStatus.CANCELLED,
             LocalDate.now().minusDays(38),
             List.of(
-                new LineItem("Mystery Item", 1, new BigDecimal("999.00"))
+                new LineItem(null, "Mystery Item", 1, new BigDecimal("999.00"))
             )
         );
 
@@ -118,8 +118,8 @@ public class InMemoryOrderRepository implements OrderRepository {
             OrderStatus.PENDING,
             null,
             List.of(
-                new LineItem("Widget A", 10, new BigDecimal("9.99")),
-                new LineItem("Widget B", 5, new BigDecimal("24.99"))
+                new LineItem(null, "Widget A", 10, new BigDecimal("9.99")),
+                new LineItem(null, "Widget B", 5, new BigDecimal("24.99"))
             )
         );
     }

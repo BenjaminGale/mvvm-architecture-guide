@@ -102,7 +102,7 @@ class GetOrderSummariesQueryTest {
         @DisplayName("total is the sum of line item totals")
         void total() {
             var order = new PendingOrder("ord-1", ACME.id(), TODAY, TOMORROW, "REF-001",
-                List.of(new LineItem("Widget", 2, 0, new BigDecimal("5.00"))));
+                List.of(new LineItem(null, "Widget", 2, new BigDecimal("5.00"))));
             var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
 
             assertEquals(new BigDecimal("10.00"), summaries.getFirst().total());
