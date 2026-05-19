@@ -47,6 +47,7 @@ public class ShellModule {
         return new OrdersModule(
             orderRepository,
             customerRepository,
+            productRepository,
             stockRepository,
             view,
             shell,
