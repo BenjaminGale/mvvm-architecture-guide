@@ -4,7 +4,10 @@ import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.CopyOrderCommand;
+import mvvm.example.orders.domain.GetLineItemSummariesQuery;
 import mvvm.example.orders.domain.GetOrderSummariesQuery;
+import mvvm.example.orders.domain.LineItem;
+import mvvm.example.orders.domain.LineItemSummary;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
@@ -76,6 +79,7 @@ public class OrdersModule {
     }
 
     private OrderEditorViewModel orderEditorViewModel(EditOrderRequest request) {
+        var lineItemsQuery = new GetLineItemSummariesQuery(productRepository, stockRepository);
         return new OrderEditorViewModel(
             request,
             new OrderEditorService() {
@@ -84,6 +88,7 @@ public class OrdersModule {
                 @Override public void saveOrder(Order order) { orderRepository.save(order); }
                 @Override public String copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
+                @Override public java.util.concurrent.CompletableFuture<List<LineItemSummary>> fetchLineItemSummaries(List<LineItem> items, String orderId) { return lineItemsQuery.execute(items, orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }

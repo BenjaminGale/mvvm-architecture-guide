@@ -49,7 +49,7 @@ public class OrderEditorViewModel {
             : null;
 
         this.header = new OrderHeaderViewModel(order, currentCustomer, host::showCustomerSelector);
-        this.lineItems = new LineItemsViewModel(order.lineItems(), this::editRow, this::addRow);
+        this.lineItems = new LineItemsViewModel(order.lineItems(), items -> service.fetchLineItemSummaries(items, order.id()), this::addRow, this::editRow, item -> {});
 
         this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));
         this.delete = new Action(this::onDelete);
@@ -74,7 +74,7 @@ public class OrderEditorViewModel {
     }
 
     private void addRow() {
-        Set<String> excluded = lineItems.getRows().stream()
+        Set<String> excluded = lineItems.buildLineItems().stream()
             .map(LineItem::productId)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
@@ -83,7 +83,7 @@ public class OrderEditorViewModel {
     }
 
     private void editRow(int index, LineItem item) {
-        Set<String> excluded = lineItems.getRows().stream()
+        Set<String> excluded = lineItems.buildLineItems().stream()
             .map(LineItem::productId)
             .filter(Objects::nonNull)
             .filter(id -> !id.equals(item.productId()))

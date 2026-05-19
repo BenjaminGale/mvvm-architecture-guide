@@ -8,7 +8,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,6 +24,13 @@ class OrderEditorViewModelTest {
         if (order.customerId() != null) {
             when(service.findCustomer(order.customerId())).thenReturn(Optional.of(MockOrders.ACME_CUSTOMER));
         }
+        when(service.fetchLineItemSummaries(any(), any())).thenAnswer(inv -> {
+            List<mvvm.example.orders.domain.LineItem> items = inv.getArgument(0);
+            var summaries = items.stream()
+                .map(i -> new mvvm.example.orders.domain.LineItemSummary(i.productId(), i.description(), i.quantity(), i.unitPrice(), 0))
+                .toList();
+            return CompletableFuture.completedFuture(summaries);
+        });
         return service;
     }
 
@@ -76,9 +85,9 @@ class OrderEditorViewModelTest {
         @DisplayName("canSave becomes false when the last line item is removed")
         void canSaveBecomesFalseWhenLastItemRemoved() {
             var vm = vmFor(MockOrders.validOrderWithLineItems());
-            vm.getLineItems().selectRow(vm.getLineItems().getRows().getFirst());
+            vm.getLineItems().selectedItemProperty().set(vm.getLineItems().items().getFirst());
 
-            vm.getLineItems().removeSelected();
+            vm.getLineItems().deleteItemAction().execute();
 
             assertFalse(vm.save.canExecute());
         }
@@ -146,6 +155,7 @@ class OrderEditorViewModelTest {
         @DisplayName("canSave is false when no fields have been filled")
         void canSaveIsFalseInitially() {
             var service = mock(OrderEditorService.class);
+            when(service.fetchLineItemSummaries(any(), any())).thenReturn(CompletableFuture.completedFuture(List.of()));
             var vm = new OrderEditorViewModel(EditOrderRequest.forNewOrder(), service, mock(OrderEditorHost.class));
 
             assertFalse(vm.save.canExecute());
@@ -155,6 +165,7 @@ class OrderEditorViewModelTest {
         @DisplayName("does not fetch an order from the service")
         void doesNotFetchOrder() {
             var service = mock(OrderEditorService.class);
+            when(service.fetchLineItemSummaries(any(), any())).thenReturn(CompletableFuture.completedFuture(List.of()));
             new OrderEditorViewModel(EditOrderRequest.forNewOrder(), service, mock(OrderEditorHost.class));
 
             verify(service, never()).fetchOrder(any());
