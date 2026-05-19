@@ -51,7 +51,6 @@ public class EditItemViewModel {
             productId,
             description.get(),
             quantity.get(),
-            request.getItem().quantityAllocated(),
             unitPrice.get()
         ));
     }

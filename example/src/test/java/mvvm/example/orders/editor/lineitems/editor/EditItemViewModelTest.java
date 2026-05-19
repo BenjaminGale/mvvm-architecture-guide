@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 @DisplayName("Orders.EditItemViewModel")
 class EditItemViewModelTest {
 
-    private static final LineItem ORIGINAL = new LineItem("Widget", 2, BigDecimal.valueOf(9.99));
+    private static final LineItem ORIGINAL = new LineItem(null, "Widget", 2, BigDecimal.valueOf(9.99));
 
     private static EditItemViewModel viewModelFor(LineItem item) {
         return new EditItemViewModel(new EditItemRequest(item, Set.of(), confirmed -> {}), r -> {});

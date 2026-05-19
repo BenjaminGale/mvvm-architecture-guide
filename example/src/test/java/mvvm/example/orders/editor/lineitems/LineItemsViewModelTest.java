@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 class LineItemsViewModelTest {
 
     private static LineItem namedItem(String description) {
-        return new LineItem(description, 1, BigDecimal.TEN);
+        return new LineItem(null, description, 1, BigDecimal.TEN);
     }
 
     private static LineItemsViewModel withItems(LineItem... items) {

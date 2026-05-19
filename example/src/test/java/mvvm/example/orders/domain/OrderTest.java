@@ -82,8 +82,8 @@ class OrderTest {
         @DisplayName("returns the sum of all line item totals")
         void sumOfLineItemTotals() {
             var order = new PendingOrder("id", "cust-1",TODAY, TOMORROW, "REF-001", List.of(
-                new LineItem(null, "Widget A", 2, 0, new BigDecimal("10.00")),
-                new LineItem(null, "Widget B", 3, 0, new BigDecimal("5.00"))
+                new LineItem(null, "Widget A", 2, new BigDecimal("10.00")),
+                new LineItem(null, "Widget B", 3, new BigDecimal("5.00"))
             ));
 
             assertEquals(new BigDecimal("35.00"), order.total());
