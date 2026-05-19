@@ -2,6 +2,8 @@ package mvvm.example.orders.editor.lineitems.editor;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -54,7 +56,7 @@ public class EditItemViewModel {
         ));
     }
 
-    public StringProperty descriptionProperty() { return description; }
+    public ReadOnlyStringProperty descriptionProperty() { return description; }
     public IntegerProperty quantityProperty() { return quantity; }
-    public ObjectProperty<BigDecimal> unitPriceProperty() { return unitPrice; }
+    public ReadOnlyObjectProperty<BigDecimal> unitPriceProperty() { return unitPrice; }
 }

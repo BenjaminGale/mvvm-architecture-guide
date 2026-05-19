@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import mvvm.example.stock.domain.Product;
+
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -69,18 +71,22 @@ class EditItemViewModelTest {
         }
 
         @Test
-        @DisplayName("the confirmed item reflects the edited property values")
-        void confirmedItemReflectsEditedValues() {
+        @DisplayName("the confirmed item reflects the selected product and edited quantity")
+        void confirmedItemReflectsSelectedProductAndQuantity() {
             Consumer<LineItem> listener = mock();
-            var vm = new EditItemViewModel(new EditItemRequest(ORIGINAL, Set.of(), listener), r -> {});
-            vm.descriptionProperty().set("Gadget");
+            var product = new Product("prod-1", "Gadget", BigDecimal.valueOf(19.99), 10);
+            var vm = new EditItemViewModel(
+                new EditItemRequest(ORIGINAL, Set.of(), listener),
+                r -> r.confirmSelection(product)
+            );
+            vm.selectProduct.execute();
             vm.quantityProperty().set(5);
-            vm.unitPriceProperty().set(BigDecimal.valueOf(19.99));
 
             vm.confirm();
 
             var captor = ArgumentCaptor.forClass(LineItem.class);
             verify(listener).accept(captor.capture());
+            assertEquals("prod-1", captor.getValue().productId());
             assertEquals("Gadget", captor.getValue().description());
             assertEquals(5, captor.getValue().quantity());
             assertEquals(BigDecimal.valueOf(19.99), captor.getValue().unitPrice());
