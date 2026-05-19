@@ -6,6 +6,7 @@ import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.CopyOrderCommand;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
+import mvvm.example.stock.domain.StockRepository;
 import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.shell.main.sidebar.SidebarView;
@@ -24,13 +25,15 @@ public class ShellModule {
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final StockRepository stockRepository;
     private final ViewServices view;
     private final ShellContext shell;
 
-    public ShellModule(CustomerRepository customerRepository, OrderRepository orderRepository, ProductRepository productRepository, ViewServices view, ShellContext shell) {
+    public ShellModule(CustomerRepository customerRepository, OrderRepository orderRepository, ProductRepository productRepository, StockRepository stockRepository, ViewServices view, ShellContext shell) {
         this.customerRepository = customerRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.stockRepository = stockRepository;
         this.view = view;
         this.shell = shell;
 
@@ -44,6 +47,7 @@ public class ShellModule {
         return new OrdersModule(
             orderRepository,
             customerRepository,
+            stockRepository,
             view,
             shell,
             new CopyOrderCommand(orderRepository));

@@ -7,6 +7,7 @@ import mvvm.example.orders.domain.CopyOrderCommand;
 import mvvm.example.orders.domain.GetOrderSummariesQuery;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
+import mvvm.example.stock.domain.StockRepository;
 import mvvm.example.orders.editor.*;
 import mvvm.example.orders.editor.header.CustomerSelectorView;
 import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
@@ -31,13 +32,15 @@ public class OrdersModule {
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
+    private final StockRepository stockRepository;
     private final ViewServices view;
     private final ShellContext shell;
     private final CopyOrderCommand copyOrderCommand;
 
-    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
+    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, StockRepository stockRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
+        this.stockRepository = stockRepository;
         this.view = view;
         this.shell = shell;
         this.copyOrderCommand = copyOrderCommand;

@@ -1,14 +1,14 @@
 package mvvm.example.core.config.adapters;
 
 import mvvm.example.stock.domain.StockAllocation;
-import mvvm.example.stock.domain.StockAllocationRepository;
+import mvvm.example.stock.domain.StockRepository;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class InMemoryStockAllocationRepository implements StockAllocationRepository {
+public class InMemoryStockRepository implements StockRepository {
 
     private final Map<UUID, StockAllocation> store = new HashMap<>();
 
