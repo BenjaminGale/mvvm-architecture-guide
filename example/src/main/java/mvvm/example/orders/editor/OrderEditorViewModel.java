@@ -49,7 +49,7 @@ public class OrderEditorViewModel {
             : null;
 
         this.header = new OrderHeaderViewModel(order, currentCustomer, host::showCustomerSelector);
-        this.lineItems = new LineItemsViewModel(order.lineItems(), items -> service.fetchLineItemSummaries(items, order.id()), this::addRow, this::editRow, item -> {});
+        this.lineItems = new LineItemsViewModel(order.lineItems(), items -> service.fetchLineItemSummaries(items, order.id()), this::addRow, this::editRow, item -> service.deleteLineItem(item.productId(), order.id()));
 
         this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));
         this.delete = new Action(this::onDelete);

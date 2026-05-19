@@ -16,4 +16,5 @@ public interface OrderEditorService {
     String copyOrder(String orderId);
     void deleteOrder(String orderId);
     CompletableFuture<List<LineItemSummary>> fetchLineItemSummaries(List<LineItem> items, String orderId);
+    void deleteLineItem(String productId, String orderId);
 }

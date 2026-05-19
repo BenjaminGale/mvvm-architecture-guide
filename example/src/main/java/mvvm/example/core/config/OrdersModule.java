@@ -4,6 +4,7 @@ import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.CopyOrderCommand;
+import mvvm.example.orders.domain.DeleteLineItemCommand;
 import mvvm.example.orders.domain.GetLineItemSummariesQuery;
 import mvvm.example.orders.domain.GetOrderSummariesQuery;
 import mvvm.example.orders.domain.LineItem;
@@ -43,8 +44,9 @@ public class OrdersModule {
     private final ViewServices view;
     private final ShellContext shell;
     private final CopyOrderCommand copyOrderCommand;
+    private final DeleteLineItemCommand deleteLineItemCommand;
 
-    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, StockRepository stockRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
+    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, StockRepository stockRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand, DeleteLineItemCommand deleteLineItemCommand) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
@@ -52,6 +54,7 @@ public class OrdersModule {
         this.view = view;
         this.shell = shell;
         this.copyOrderCommand = copyOrderCommand;
+        this.deleteLineItemCommand = deleteLineItemCommand;
 
         view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
         view.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
@@ -89,6 +92,7 @@ public class OrdersModule {
                 @Override public String copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
                 @Override public java.util.concurrent.CompletableFuture<List<LineItemSummary>> fetchLineItemSummaries(List<LineItem> items, String orderId) { return lineItemsQuery.execute(items, orderId); }
+                @Override public void deleteLineItem(String productId, String orderId) { deleteLineItemCommand.execute(productId, orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
