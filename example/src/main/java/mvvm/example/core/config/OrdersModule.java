@@ -6,6 +6,7 @@ import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.commands.CopyOrderCommand;
 import mvvm.example.stock.domain.commands.DeleteStockAllocationsCommand;
 import mvvm.example.orders.domain.queries.GetLineItemSummariesQuery;
+import mvvm.example.orders.domain.queries.GetOrderHeaderSummaryQuery;
 import mvvm.example.orders.domain.queries.GetOrderSummariesQuery;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.queries.LineItemSummary;
@@ -93,6 +94,7 @@ public class OrdersModule {
         var lineItemsQuery = new GetLineItemSummariesQuery(productRepository, stockRepository);
         return new OrderEditorViewModel(
             request,
+            new GetOrderHeaderSummaryQuery(orderRepository, customerRepository),
             new OrderEditorService() {
                 @Override public Order fetchOrder(String orderId) { return orderRepository.findById(orderId).orElseThrow(); }
                 @Override public Optional<Customer> findCustomer(String customerId) { return customerRepository.findById(customerId); }

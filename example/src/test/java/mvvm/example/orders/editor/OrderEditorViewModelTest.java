@@ -2,12 +2,15 @@ package mvvm.example.orders.editor;
 
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderStatus;
 import mvvm.example.orders.domain.queries.LineItemSummary;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.header.OrderHeaderService;
+import mvvm.example.orders.editor.header.OrderHeaderSummary;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -18,12 +21,20 @@ import static org.mockito.Mockito.*;
 @DisplayName("Orders.OrderEditorViewModel")
 class OrderEditorViewModelTest {
 
+    private static OrderHeaderService headerServiceFor(Order order) {
+        var customer = order.customerId() != null ? MockOrders.ACME_CUSTOMER : null;
+        var summary = new OrderHeaderSummary(order.createdDate(), order.status(), customer, order.plannedShipDate(), order.reference());
+        return req -> summary;
+    }
+
+    private static OrderHeaderService emptyHeaderService() {
+        var summary = new OrderHeaderSummary(LocalDate.now(), OrderStatus.PENDING, null, LocalDate.now(), "");
+        return req -> summary;
+    }
+
     private static OrderEditorService serviceFor(Order order) {
         var service = mock(OrderEditorService.class);
         when(service.fetchOrder(order.id())).thenReturn(order);
-        if (order.customerId() != null) {
-            when(service.findCustomer(order.customerId())).thenReturn(Optional.of(MockOrders.ACME_CUSTOMER));
-        }
         when(service.fetchLineItemSummaries(any(), any())).thenAnswer(inv -> {
             List<mvvm.example.orders.domain.LineItem> items = inv.getArgument(0);
             var summaries = items.stream()
@@ -35,7 +46,7 @@ class OrderEditorViewModelTest {
     }
 
     private static OrderEditorViewModel vmFor(Order order) {
-        return new OrderEditorViewModel(EditOrderRequest.of(order.id()), serviceFor(order), mock(OrderEditorHost.class));
+        return new OrderEditorViewModel(EditOrderRequest.of(order.id()), headerServiceFor(order), serviceFor(order), mock(OrderEditorHost.class));
     }
 
     @Nested
@@ -102,7 +113,7 @@ class OrderEditorViewModelTest {
         void orderIsPersisted() {
             var order = MockOrders.validOrderWithLineItems();
             var service = serviceFor(order);
-            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), service, mock(OrderEditorHost.class));
+            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), headerServiceFor(order), service, mock(OrderEditorHost.class));
 
             vm.save.executeAsync(Runnable::run).join();
 
@@ -119,7 +130,7 @@ class OrderEditorViewModelTest {
         void orderIsRemoved() {
             var order = MockOrders.validOrderWithLineItems();
             var service = serviceFor(order);
-            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), service, mock(OrderEditorHost.class));
+            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), headerServiceFor(order), service, mock(OrderEditorHost.class));
 
             vm.delete.execute();
 
@@ -138,7 +149,7 @@ class OrderEditorViewModelTest {
             var service = serviceFor(order);
             when(service.copyOrder(order.id())).thenReturn("copied-" + order.id());
             var host = mock(OrderEditorHost.class);
-            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), service, host);
+            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), headerServiceFor(order), service, host);
 
             vm.copy.execute();
 
@@ -156,7 +167,7 @@ class OrderEditorViewModelTest {
         void canSaveIsFalseInitially() {
             var service = mock(OrderEditorService.class);
             when(service.fetchLineItemSummaries(any(), any())).thenReturn(CompletableFuture.completedFuture(List.of()));
-            var vm = new OrderEditorViewModel(EditOrderRequest.forNewOrder(), service, mock(OrderEditorHost.class));
+            var vm = new OrderEditorViewModel(EditOrderRequest.forNewOrder(), emptyHeaderService(), service, mock(OrderEditorHost.class));
 
             assertFalse(vm.save.canExecute());
         }
@@ -166,25 +177,9 @@ class OrderEditorViewModelTest {
         void doesNotFetchOrder() {
             var service = mock(OrderEditorService.class);
             when(service.fetchLineItemSummaries(any(), any())).thenReturn(CompletableFuture.completedFuture(List.of()));
-            new OrderEditorViewModel(EditOrderRequest.forNewOrder(), service, mock(OrderEditorHost.class));
+            new OrderEditorViewModel(EditOrderRequest.forNewOrder(), emptyHeaderService(), service, mock(OrderEditorHost.class));
 
             verify(service, never()).fetchOrder(any());
-        }
-    }
-
-    @Nested
-    @DisplayName("when created")
-    class WhenCreatedWithCustomer {
-
-        @Test
-        @DisplayName("the customer is fetched from the service")
-        void customerFetchedFromService() {
-            var order = MockOrders.validOrderWithLineItems();
-            var service = serviceFor(order);
-
-            new OrderEditorViewModel(EditOrderRequest.of(order.id()), service, mock(OrderEditorHost.class));
-
-            verify(service).findCustomer(MockOrders.ACME_CUSTOMER_ID);
         }
     }
 
@@ -197,7 +192,7 @@ class OrderEditorViewModelTest {
         void hostShowsCustomerSelector() {
             var order = MockOrders.validOrderWithLineItems();
             var host = mock(OrderEditorHost.class);
-            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), serviceFor(order), host);
+            var vm = new OrderEditorViewModel(EditOrderRequest.of(order.id()), headerServiceFor(order), serviceFor(order), host);
 
             vm.getHeader().selectCustomer.execute();
 

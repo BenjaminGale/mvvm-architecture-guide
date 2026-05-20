@@ -5,8 +5,9 @@ import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.editor.lineitems.EditItemRequest;
+import mvvm.example.orders.editor.header.OrderHeaderService;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
+import mvvm.example.orders.editor.lineitems.EditItemRequest;
 import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
 
 import java.util.Objects;
@@ -30,6 +31,7 @@ public class OrderEditorViewModel {
 
     public OrderEditorViewModel(
         EditOrderRequest request,
+        OrderHeaderService headerService,
         OrderEditorService service,
         OrderEditorHost host
     ) {
@@ -41,11 +43,7 @@ public class OrderEditorViewModel {
             ? Order.empty()
             : service.fetchOrder(request.orderId());
 
-        var currentCustomer = order.customerId() != null
-            ? service.findCustomer(order.customerId()).orElse(null)
-            : null;
-
-        this.header = new OrderHeaderViewModel(order, currentCustomer, host::showCustomerSelector);
+        this.header = new OrderHeaderViewModel(request, headerService, host::showCustomerSelector);
         this.lineItems = new LineItemsExplorerViewModel(order.lineItems(), items -> service.fetchLineItemSummaries(items, order.id()), this::addRow, this::editRow, item -> service.deleteLineItem(item.productId(), order.id()));
 
         this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));
