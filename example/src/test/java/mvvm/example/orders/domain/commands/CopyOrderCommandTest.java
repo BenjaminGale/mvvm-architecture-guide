@@ -3,7 +3,7 @@ package mvvm.example.orders.domain.commands;
 import mvvm.example.core.config.adapters.InMemoryOrderRepository;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.domain.PendingOrder;
+import mvvm.example.orders.domain.OrderStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ class CopyOrderCommandTest {
     private final CopyOrderCommand command = new CopyOrderCommand(repository);
 
     private Order savedOrder(String id, String reference, List<LineItem> lineItems) {
-        var order = new PendingOrder(id, "cust-1", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1), reference, lineItems);
+        var order = new Order(id, "cust-1", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1), reference, OrderStatus.PENDING, null, lineItems);
         repository.save(order);
         return order;
     }

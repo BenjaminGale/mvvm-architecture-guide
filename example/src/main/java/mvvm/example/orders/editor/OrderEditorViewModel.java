@@ -3,10 +3,8 @@ package mvvm.example.orders.editor;
 import javafx.beans.binding.Bindings;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
-import mvvm.example.orders.domain.FulfilledOrder;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.domain.PendingOrder;
 import mvvm.example.orders.editor.lineitems.EditItemRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
@@ -99,10 +97,6 @@ public class OrderEditorViewModel {
         var plannedShipDate = header.plannedShipDateProperty().get();
         var reference = header.referenceProperty().get();
         var items = lineItems.buildLineItems();
-        return switch (order) {
-            case PendingOrder p -> new PendingOrder(p.id(), customer.id(), p.createdDate(), plannedShipDate, reference, items);
-            case FulfilledOrder f -> new FulfilledOrder(f.id(), customer.id(), f.createdDate(), plannedShipDate, reference, items);
-            default -> throw new IllegalStateException("Cannot update a " + order.status() + " order");
-        };
+        return new Order(order.id(), customer.id(), order.createdDate(), plannedShipDate, reference, order.status(), order.completionDate(), items);
     }
 }

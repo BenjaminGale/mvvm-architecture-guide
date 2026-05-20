@@ -1,11 +1,9 @@
 package mvvm.example.orders.editor.header;
 
 import mvvm.example.customers.domain.Customer;
-import mvvm.example.customers.domain.CustomerStatus;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderStatus;
-import mvvm.example.orders.domain.PendingOrder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -99,7 +97,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the reference is blank")
         void invalidWhenReferenceBlank() {
-            var order = new PendingOrder("id-1", MockOrders.ACME_CUSTOMER_ID, A_DATE, A_DATE, "", List.of());
+            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, A_DATE, A_DATE, "", OrderStatus.PENDING, null, List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());
@@ -108,7 +106,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the planned ship date is null")
         void invalidWhenPlannedShipDateNull() {
-            var order = new PendingOrder("id-1", MockOrders.ACME_CUSTOMER_ID, A_DATE, null, "REF-001", List.of());
+            var order = new Order("id-1", MockOrders.ACME_CUSTOMER_ID, A_DATE, null, "REF-001", OrderStatus.PENDING, null, List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());

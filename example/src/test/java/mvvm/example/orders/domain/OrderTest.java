@@ -17,12 +17,8 @@ class OrderTest {
     private static final LocalDate YESTERDAY = TODAY.minusDays(1);
     private static final LocalDate TOMORROW = TODAY.plusDays(1);
 
-    private static PendingOrder pendingOrder(LocalDate plannedShipDate) {
-        return new PendingOrder("id", "cust-1",TODAY, plannedShipDate, "REF-001", List.of());
-    }
-
-    private static FulfilledOrder fulfilledOrder(LocalDate plannedShipDate) {
-        return new FulfilledOrder("id", "cust-1",TODAY, plannedShipDate, "REF-001", List.of());
+    private static Order order(OrderStatus status, LocalDate plannedShipDate) {
+        return new Order("id", "cust-1", TODAY, plannedShipDate, "REF-001", status, null, List.of());
     }
 
     @Nested
@@ -32,39 +28,37 @@ class OrderTest {
         @Test
         @DisplayName("pending order with past ship date is overdue")
         void pendingOrderWithPastShipDateIsOverdue() {
-            assertTrue(pendingOrder(YESTERDAY).isOverdue());
+            assertTrue(order(OrderStatus.PENDING, YESTERDAY).isOverdue());
         }
 
         @Test
         @DisplayName("pending order with future ship date is not overdue")
         void pendingOrderWithFutureShipDateIsNotOverdue() {
-            assertFalse(pendingOrder(TOMORROW).isOverdue());
+            assertFalse(order(OrderStatus.PENDING, TOMORROW).isOverdue());
         }
 
         @Test
         @DisplayName("fulfilled order with past ship date is overdue")
         void fulfilledOrderWithPastShipDateIsOverdue() {
-            assertTrue(fulfilledOrder(YESTERDAY).isOverdue());
+            assertTrue(order(OrderStatus.FULFILLED, YESTERDAY).isOverdue());
         }
 
         @Test
         @DisplayName("fulfilled order with future ship date is not overdue")
         void fulfilledOrderWithFutureShipDateIsNotOverdue() {
-            assertFalse(fulfilledOrder(TOMORROW).isOverdue());
+            assertFalse(order(OrderStatus.FULFILLED, TOMORROW).isOverdue());
         }
 
         @Test
         @DisplayName("shipped order is never overdue")
         void shippedOrderIsNeverOverdue() {
-            var order = new ShippedOrder("id", "cust-1",TODAY, YESTERDAY, "REF-001", TODAY, List.of());
-            assertFalse(order.isOverdue());
+            assertFalse(order(OrderStatus.SHIPPED, YESTERDAY).isOverdue());
         }
 
         @Test
         @DisplayName("cancelled order is never overdue")
         void cancelledOrderIsNeverOverdue() {
-            var order = new CancelledOrder("id", "cust-1",TODAY, YESTERDAY, "REF-001", TODAY, List.of());
-            assertFalse(order.isOverdue());
+            assertFalse(order(OrderStatus.CANCELLED, YESTERDAY).isOverdue());
         }
     }
 
@@ -75,13 +69,13 @@ class OrderTest {
         @Test
         @DisplayName("returns zero for an order with no line items")
         void zeroForNoLineItems() {
-            assertEquals(BigDecimal.ZERO, pendingOrder(TOMORROW).total());
+            assertEquals(BigDecimal.ZERO, order(OrderStatus.PENDING, TOMORROW).total());
         }
 
         @Test
         @DisplayName("returns the sum of all line item totals")
         void sumOfLineItemTotals() {
-            var order = new PendingOrder("id", "cust-1",TODAY, TOMORROW, "REF-001", List.of(
+            var order = new Order("id", "cust-1", TODAY, TOMORROW, "REF-001", OrderStatus.PENDING, null, List.of(
                 new LineItem(null, "Widget A", 2, new BigDecimal("10.00")),
                 new LineItem(null, "Widget B", 3, new BigDecimal("5.00"))
             ));

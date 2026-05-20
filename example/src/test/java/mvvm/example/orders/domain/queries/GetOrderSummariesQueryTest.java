@@ -25,6 +25,18 @@ class GetOrderSummariesQueryTest {
 
     private static final Customer ACME = new Customer("cust-1", "Acme Ltd", "acme@example.com", CustomerStatus.ACTIVE);
 
+    private static Order pending(String id, String customerId, LocalDate plannedShipDate) {
+        return new Order(id, customerId, TODAY, plannedShipDate, "REF-" + id, OrderStatus.PENDING, null, List.of());
+    }
+
+    private static Order pending(String id, String customerId, LocalDate plannedShipDate, List<LineItem> items) {
+        return new Order(id, customerId, TODAY, plannedShipDate, "REF-" + id, OrderStatus.PENDING, null, items);
+    }
+
+    private static Order shipped(String id, String customerId) {
+        return new Order(id, customerId, TODAY, TOMORROW, "REF-" + id, OrderStatus.SHIPPED, TODAY, List.of());
+    }
+
     private static OrderRepository ordersRepoWith(Order... orders) {
         return new OrderRepository() {
             @Override public List<Order> findAll() { return List.of(orders); }
@@ -53,8 +65,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("id is taken from the order")
         void id() {
-            var order = new PendingOrder("ord-1", ACME.id(), TODAY, TOMORROW, "REF-001", List.of());
-            var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(pending("ord-1", ACME.id(), TOMORROW)), customersRepoWith(ACME));
 
             assertEquals("ord-1", summaries.getFirst().id());
         }
@@ -62,17 +73,15 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("reference is taken from the order")
         void reference() {
-            var order = new PendingOrder("ord-1", ACME.id(), TODAY, TOMORROW, "REF-001", List.of());
-            var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(pending("ord-1", ACME.id(), TOMORROW)), customersRepoWith(ACME));
 
-            assertEquals("REF-001", summaries.getFirst().reference());
+            assertEquals("REF-ord-1", summaries.getFirst().reference());
         }
 
         @Test
         @DisplayName("customer name is resolved from the customer repository")
         void customerName() {
-            var order = new PendingOrder("ord-1", ACME.id(), TODAY, TOMORROW, "REF-001", List.of());
-            var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(pending("ord-1", ACME.id(), TOMORROW)), customersRepoWith(ACME));
 
             assertEquals("Acme Ltd", summaries.getFirst().customerName());
         }
@@ -80,19 +89,15 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("customer name is empty when the customer is not found")
         void customerNameUnknown() {
-            var order = new PendingOrder("ord-1", "unknown-id", TODAY, TOMORROW, "REF-001", List.of());
-            var summaries = execute(ordersRepoWith(order), customersRepoWith());
+            var summaries = execute(ordersRepoWith(pending("ord-1", "unknown-id", TOMORROW)), customersRepoWith());
 
             assertEquals("", summaries.getFirst().customerName());
         }
 
         @Test
-        @DisplayName("status is the display name of the order type")
+        @DisplayName("status is the display name of the order status")
         void status() {
-            var pending = new PendingOrder("ord-1", ACME.id(), TODAY, TOMORROW, "REF-001", List.of());
-            var shipped = new ShippedOrder("ord-2", ACME.id(), TODAY, TOMORROW, "REF-002", TODAY, List.of());
-
-            var summaries = execute(ordersRepoWith(pending, shipped), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(pending("ord-1", ACME.id(), TOMORROW), shipped("ord-2", ACME.id())), customersRepoWith(ACME));
             var statusById = summaries.stream().collect(Collectors.toMap(OrderSummary::id, OrderSummary::status));
 
             assertEquals("Pending", statusById.get("ord-1"));
@@ -102,8 +107,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("total is the sum of line item totals")
         void total() {
-            var order = new PendingOrder("ord-1", ACME.id(), TODAY, TOMORROW, "REF-001",
-                List.of(new LineItem(null, "Widget", 2, new BigDecimal("5.00"))));
+            var order = pending("ord-1", ACME.id(), TOMORROW, List.of(new LineItem(null, "Widget", 2, new BigDecimal("5.00"))));
             var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
 
             assertEquals(new BigDecimal("10.00"), summaries.getFirst().total());
@@ -112,8 +116,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("isOverdue is true for a pending order past its ship date")
         void overdue() {
-            var order = new PendingOrder("ord-1", ACME.id(), TODAY, YESTERDAY, "REF-001", List.of());
-            var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(pending("ord-1", ACME.id(), YESTERDAY)), customersRepoWith(ACME));
 
             assertTrue(summaries.getFirst().isOverdue());
         }
@@ -121,8 +124,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("isOverdue is false for an order with a future ship date")
         void notOverdue() {
-            var order = new PendingOrder("ord-1", ACME.id(), TODAY, TOMORROW, "REF-001", List.of());
-            var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(pending("ord-1", ACME.id(), TOMORROW)), customersRepoWith(ACME));
 
             assertFalse(summaries.getFirst().isOverdue());
         }
@@ -135,9 +137,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("returns a summary for every order")
         void allOrdersIncluded() {
-            var order1 = new PendingOrder("ord-1", ACME.id(), TODAY, TOMORROW, "REF-001", List.of());
-            var order2 = new PendingOrder("ord-2", ACME.id(), TODAY, TOMORROW, "REF-002", List.of());
-            var summaries = execute(ordersRepoWith(order1, order2), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(pending("ord-1", ACME.id(), TOMORROW), pending("ord-2", ACME.id(), TOMORROW)), customersRepoWith(ACME));
 
             assertEquals(2, summaries.size());
         }
