@@ -1,11 +1,9 @@
 package mvvm.example.orders.domain.commands;
 
 import mvvm.example.core.config.adapters.InMemoryOrderRepository;
-import mvvm.example.core.config.adapters.InMemoryStockRepository;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderStatus;
-import mvvm.example.stock.domain.StockAllocation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,8 +22,7 @@ class UpsertOrderCommandTest {
     private static final List<LineItem> ITEMS = List.of(new LineItem("prod-1", "Widget", 2, BigDecimal.TEN));
 
     private final InMemoryOrderRepository orderRepository = new InMemoryOrderRepository();
-    private final InMemoryStockRepository stockRepository = new InMemoryStockRepository();
-    private final UpsertOrderCommand command = new UpsertOrderCommand(orderRepository, stockRepository);
+    private final UpsertOrderCommand command = new UpsertOrderCommand(orderRepository);
 
     @Nested
     @DisplayName("insert (orderId is null)")
@@ -120,18 +117,6 @@ class UpsertOrderCommandTest {
             var order = orderRepository.findById("ord-1").orElseThrow();
             assertEquals(OrderStatus.FULFILLED, order.status());
             assertEquals(TODAY.minusDays(5), order.createdDate());
-        }
-
-        @Test
-        @DisplayName("clears all stock allocations before saving")
-        void clearsStockAllocations() {
-            savedOrder();
-            stockRepository.save(StockAllocation.create("prod-1", "ord-1", 5));
-            stockRepository.save(StockAllocation.create("prod-2", "ord-1", 3));
-
-            command.execute("ord-1", "cust-1", "REF-001", SHIP_DATE, ITEMS);
-
-            assertTrue(stockRepository.findByOrderId("ord-1").isEmpty());
         }
 
         @Test
