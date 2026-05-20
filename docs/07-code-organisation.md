@@ -7,7 +7,6 @@ This section describes how to arrange the classes introduced throughout this gui
 - [7.1 Top-level packages](#71-top-level-packages)
 - [7.2 Feature sub-packages](#72-feature-sub-packages)
 - [7.3 Cross-cutting infrastructure](#73-cross-cutting-infrastructure)
-- [7.4 Complete package layout](#74-complete-package-layout)
 
 ### 7.1 Top-level packages
 
@@ -18,12 +17,13 @@ com.example/
 ├── App.java
 ├── orders/
 ├── customers/
+├── stock/
 ├── shell/
 └── core/
 ```
 
-- **Feature packages** (`orders`, `customers`) contain everything needed to implement that feature, organised into sub-packages.
-- **`shell`** — The application shell: the main window and sidebar. Treated as a feature like any other.
+- **Feature packages** (`orders`, `customers`, `stock`) contain everything needed to implement that feature, organised into sub-packages.
+- **`shell`** — The application shell: the main window, sidebar, and status bar. Treated as a feature like any other.
 - **`core`** — Reusable infrastructure types shared across all features, organised by layer.
 
 `App.java` sits at the root as the single composition root.
@@ -35,33 +35,30 @@ Each feature package is divided into sub-packages by concern. Using the `orders`
 ```
 orders/
 ├── domain/
-├── context/
+│   ├── commands/
+│   └── queries/
 ├── explorer/
-├── editor/
-│   ├── header/
-│   ├── lineitems/
-│   └── edititem/
-└── adapters/
+└── editor/
+    ├── header/
+    └── lineitems/
 ```
 
-**`domain`** contains the domain types, repository interface, and services. It has no dependency on JavaFX or any other UI framework:
+**`domain`** contains the domain types and repository interface. It has no dependency on JavaFX or any other UI framework:
 
 ```
 orders/domain/
 ├── Order.java
 ├── LineItem.java
 ├── OrderRepository.java
-└── CopyOrderService.java
+├── commands/
+│   └── CopyOrderCommand.java
+└── queries/
+    ├── GetOrderSummariesQuery.java
+    ├── GetLineItemSummariesQuery.java
+    └── OrderSummary.java
 ```
 
-**`context`** contains shared observable state that is written by one screen and read by another. These types depend on JavaFX properties and belong in a separate package from the pure domain:
-
-```
-orders/context/
-├── OrderContext.java
-├── PendingOrderCount.java
-└── PendingOrderCounter.java
-```
+Commands and queries each get their own sub-package when the domain warrants them. Pure domain types stay at the `domain/` level.
 
 **Screen sub-packages** each contain a ViewModel, View, and any supporting types for that screen. Each independently navigable screen gets its own sub-package:
 
@@ -73,158 +70,96 @@ orders/explorer/
 └── OrdersExplorerView.java
 ```
 
-Sub-ViewModels and sub-views that are part of a larger screen are nested under that screen's sub-package:
+Sub-ViewModels and sub-views that are part of a larger screen are nested under that screen's sub-package. Request types used to open dialogs or pass context between screens also live here:
 
 ```
 orders/editor/
+├── EditOrderRequest.java
 ├── OrderEditorHost.java
 ├── OrderEditorService.java
 ├── OrderEditorViewModel.java
 ├── OrderEditorView.java
 ├── header/
+│   ├── SelectCustomerRequest.java
+│   ├── CustomerSelectorViewModel.java
+│   ├── CustomerSelectorView.java
 │   ├── OrderHeaderViewModel.java
 │   └── OrderHeaderView.java
-├── lineitems/
-│   ├── LineItemRowViewModel.java
-│   ├── LineItemsViewModel.java
-│   └── LineItemsView.java
-└── edititem/
+└── lineitems/
     ├── EditItemRequest.java
-    ├── EditItemViewModel.java
-    └── EditItemView.java
+    ├── SelectProductRequest.java
+    ├── LineItemsExplorerViewModel.java
+    ├── LineItemsExplorerView.java
+    ├── LineItemEditorViewModel.java
+    ├── LineItemEditorView.java
+    ├── ProductSelectorViewModel.java
+    └── ProductSelectorView.java
 ```
 
-**`adapters`** contains concrete implementations of repository interfaces and the module that wires the feature together. This is the only place that knows about specific infrastructure choices (e.g. in-memory vs database):
-
-```
-orders/adapters/
-├── InMemoryOrderRepository.java
-└── OrdersModule.java
-```
-
-The `customers` feature follows the same structure, omitting `context` since it has no shared observable state:
+The `customers` feature follows the same structure. A `requests/` package holds request types that don't belong to a specific screen sub-package:
 
 ```
 customers/
 ├── domain/
 │   ├── Customer.java
-│   ├── CustomerRepository.java
-│   └── CustomerService.java
+│   └── CustomerRepository.java
+├── requests/
+│   └── EditCustomerRequest.java
 ├── explorer/
+│   ├── CustomerExplorerHost.java
+│   ├── CustomersExplorerService.java
 │   ├── CustomersExplorerViewModel.java
 │   └── CustomersExplorerView.java
-├── detail/
-│   ├── CustomerDetailViewModel.java
-│   └── CustomerDetailView.java
-└── adapters/
-    ├── InMemoryCustomerRepository.java
-    └── CustomersModule.java
+└── editor/
+    ├── CustomerEditorService.java
+    ├── CustomerEditorViewModel.java
+    └── CustomerEditorView.java
 ```
 
-The shell package separates its screens into sub-packages and includes its own adapters:
+The shell package separates its screens into sub-packages:
 
 ```
 shell/
-├── WorkspaceContext.java
-├── main/
-│   ├── MainViewModel.java
-│   └── MainView.java
-├── sidebar/
-│   ├── SidebarViewModel.java
-│   └── SidebarView.java
-└── adapters/
-    └── ShellModule.java
+├── ShellContext.java
+└── main/
+    ├── MainViewModel.java
+    ├── MainView.java
+    ├── sidebar/
+    │   ├── SidebarViewModel.java
+    │   └── SidebarView.java
+    └── statusbar/
+        ├── StatusBarViewModel.java
+        └── StatusBarView.java
 ```
 
 ### 7.3 Cross-cutting infrastructure
 
+The `core` package contains types shared across all features, organised by layer. Wiring and composition live in `core/config/`:
+
 ```
 core/
-├── viewmodel/
-│   ├── Action.java
-│   └── AsyncAction.java
-└── view/
-    ├── CurrencyTableCell.java
-    ├── DialogManager.java
-    ├── ViewLocator.java
-    └── ViewServices.java
-```
-
-### 7.4 Complete package layout
-
-```
-com.example/
-│
-├── App.java
-│
-├── orders/
-│   ├── domain/
-│   │   ├── Order.java
-│   │   ├── LineItem.java
-│   │   ├── OrderRepository.java
-│   │   └── CopyOrderService.java
-│   ├── context/
-│   │   ├── OrderContext.java
-│   │   ├── PendingOrderCount.java
-│   │   └── PendingOrderCounter.java
-│   ├── explorer/
-│   │   ├── OrdersExplorerHost.java
-│   │   ├── OrdersExplorerService.java
-│   │   ├── OrdersExplorerViewModel.java
-│   │   └── OrdersExplorerView.java
-│   ├── editor/
-│   │   ├── OrderEditorHost.java
-│   │   ├── OrderEditorService.java
-│   │   ├── OrderEditorViewModel.java
-│   │   ├── OrderEditorView.java
-│   │   ├── header/
-│   │   │   ├── OrderHeaderViewModel.java
-│   │   │   └── OrderHeaderView.java
-│   │   ├── lineitems/
-│   │   │   ├── LineItemRowViewModel.java
-│   │   │   ├── LineItemsViewModel.java
-│   │   │   └── LineItemsView.java
-│   │   └── edititem/
-│   │       ├── EditItemRequest.java
-│   │       ├── EditItemViewModel.java
-│   │       └── EditItemView.java
+├── config/
+│   ├── AppModule.java
+│   ├── OrdersModule.java
+│   ├── CustomersModule.java
+│   ├── StockModule.java
+│   ├── ShellModule.java
 │   └── adapters/
 │       ├── InMemoryOrderRepository.java
-│       └── OrdersModule.java
-│
-├── customers/
-│   ├── domain/
-│   │   ├── Customer.java
-│   │   ├── CustomerRepository.java
-│   │   └── CustomerService.java
-│   ├── explorer/
-│   │   ├── CustomersExplorerViewModel.java
-│   │   └── CustomersExplorerView.java
-│   ├── detail/
-│   │   ├── CustomerDetailViewModel.java
-│   │   └── CustomerDetailView.java
-│   └── adapters/
 │       ├── InMemoryCustomerRepository.java
-│       └── CustomersModule.java
-│
-├── shell/
-│   ├── WorkspaceContext.java
-│   ├── main/
-│   │   ├── MainViewModel.java
-│   │   └── MainView.java
-│   ├── sidebar/
-│   │   ├── SidebarViewModel.java
-│   │   └── SidebarView.java
-│   └── adapters/
-│       └── ShellModule.java
-│
-└── core/
-    ├── view/
-    │   ├── CurrencyTableCell.java
-    │   ├── DialogManager.java
-    │   ├── ViewLocator.java
-    │   └── ViewServices.java
-    └── viewmodel/
-        ├── Action.java
-        └── AsyncAction.java
+│       └── InMemoryStockRepository.java
+├── view/
+│   ├── ExplorerView.java
+│   ├── DialogManager.java
+│   ├── ViewLocator.java
+│   ├── ViewServices.java
+│   └── controls/
+│       ├── TableViews.java
+│       └── CurrencyTableCell.java
+└── viewmodel/
+    ├── Action.java
+    ├── AsyncAction.java
+    └── ExplorerViewModel.java
 ```
+
+Module classes (`OrdersModule`, `CustomersModule`, etc.) live in `core/config/` rather than in each feature package. This keeps all composition in one place and prevents feature packages from depending on concrete infrastructure. In-memory repository implementations follow into `core/config/adapters/` for the same reason — they are infrastructure concerns, not feature concerns.
