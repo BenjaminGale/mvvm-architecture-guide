@@ -7,10 +7,9 @@ import mvvm.example.orders.domain.FulfilledOrder;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.PendingOrder;
-import mvvm.example.orders.requests.EditItemRequest;
+import mvvm.example.orders.editor.lineitems.EditItemRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
-import mvvm.example.orders.requests.EditOrderRequest;
 
 import java.util.Objects;
 import java.util.Set;

@@ -1,6 +1,6 @@
 package mvvm.example.orders.editor.lineitems;
 
-import mvvm.example.orders.requests.SelectProductRequest;
+import mvvm.example.orders.editor.lineitems.SelectProductRequest;
 import mvvm.example.stock.domain.Product;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

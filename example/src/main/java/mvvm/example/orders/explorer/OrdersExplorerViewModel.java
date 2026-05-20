@@ -5,7 +5,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.ListChangeListener;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
 import mvvm.example.orders.domain.queries.OrderSummary;
-import mvvm.example.orders.requests.EditOrderRequest;
+import mvvm.example.orders.editor.EditOrderRequest;
 
 import java.util.Comparator;
 import java.util.List;

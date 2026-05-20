@@ -11,7 +11,6 @@ import mvvm.example.core.viewmodel.Action;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderStatus;
-import mvvm.example.orders.requests.SelectCustomerRequest;
 
 import java.time.LocalDate;
 import java.util.function.Consumer;

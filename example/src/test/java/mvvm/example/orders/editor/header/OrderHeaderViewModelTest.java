@@ -178,7 +178,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the request carries the currently selected customer")
         void requestCarriesCurrentCustomer() {
-            var capturedRequest = new mvvm.example.orders.requests.SelectCustomerRequest[]{null};
+            var capturedRequest = new mvvm.example.orders.editor.header.SelectCustomerRequest[]{null};
             var vm = new OrderHeaderViewModel(MockOrders.validOrderWithLineItems(), MockOrders.ACME_CUSTOMER, request -> capturedRequest[0] = request);
 
             vm.selectCustomer.execute();

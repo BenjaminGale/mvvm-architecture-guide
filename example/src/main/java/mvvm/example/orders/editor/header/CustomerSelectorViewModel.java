@@ -8,7 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
-import mvvm.example.orders.requests.SelectCustomerRequest;
 
 import java.util.List;
 

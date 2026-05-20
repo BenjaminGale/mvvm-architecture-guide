@@ -10,8 +10,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.orders.domain.LineItem;
-import mvvm.example.orders.requests.EditItemRequest;
-import mvvm.example.orders.requests.SelectProductRequest;
 import mvvm.example.stock.domain.Product;
 
 import java.math.BigDecimal;

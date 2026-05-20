@@ -1,4 +1,4 @@
-package mvvm.example.orders.requests;
+package mvvm.example.orders.editor.lineitems;
 
 import mvvm.example.stock.domain.Product;
 

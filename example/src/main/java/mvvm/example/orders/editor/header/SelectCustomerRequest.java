@@ -1,4 +1,4 @@
-package mvvm.example.orders.requests;
+package mvvm.example.orders.editor.header;
 
 import mvvm.example.customers.domain.Customer;
 

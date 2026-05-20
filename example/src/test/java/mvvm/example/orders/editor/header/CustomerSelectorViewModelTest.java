@@ -2,7 +2,7 @@ package mvvm.example.orders.editor.header;
 
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
-import mvvm.example.orders.requests.SelectCustomerRequest;
+import mvvm.example.orders.editor.header.SelectCustomerRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
-import mvvm.example.orders.requests.SelectProductRequest;
 import mvvm.example.stock.domain.Product;
 
 import java.util.List;
