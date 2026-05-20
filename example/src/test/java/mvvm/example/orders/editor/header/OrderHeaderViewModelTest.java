@@ -183,7 +183,7 @@ class OrderHeaderViewModelTest {
 
             vm.selectCustomer.execute();
 
-            assertEquals(MockOrders.ACME_CUSTOMER, capturedRequest[0].getCurrent());
+            assertEquals(MockOrders.ACME_CUSTOMER, capturedRequest[0].current());
         }
     }
 

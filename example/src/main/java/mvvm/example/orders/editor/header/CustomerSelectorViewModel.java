@@ -23,7 +23,7 @@ public class CustomerSelectorViewModel {
         var active = allCustomers.stream().filter(c -> c.status() == CustomerStatus.ACTIVE).toList();
         this.customers = new FilteredList<>(FXCollections.observableArrayList(active));
 
-        selectedCustomer.set(request.getCurrent());
+        selectedCustomer.set(request.current());
 
         searchText.addListener((_, _, searchText) ->
             customers.setPredicate(customer ->

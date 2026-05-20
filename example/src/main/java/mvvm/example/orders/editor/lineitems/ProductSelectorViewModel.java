@@ -20,7 +20,7 @@ public class ProductSelectorViewModel {
     public ProductSelectorViewModel(SelectProductRequest request, List<Product> allProducts) {
         this.request = request;
         var available = allProducts.stream()
-            .filter(p -> !request.getExcludedProductIds().contains(p.id()))
+            .filter(p -> !request.excludedProductIds().contains(p.id()))
             .toList();
         this.products = new FilteredList<>(FXCollections.observableArrayList(available));
 

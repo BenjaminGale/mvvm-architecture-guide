@@ -27,14 +27,14 @@ public class LineItemEditorViewModel {
 
     public LineItemEditorViewModel(EditItemRequest request, Consumer<SelectProductRequest> selectProductHost) {
         this.request = request;
-        this.productId = request.getItem().productId();
+        this.productId = request.item().productId();
 
-        description.set(request.getItem().description());
-        quantity.set(request.getItem().quantity());
-        unitPrice.set(request.getItem().unitPrice());
+        description.set(request.item().description());
+        quantity.set(request.item().quantity());
+        unitPrice.set(request.item().unitPrice());
 
         selectProduct = new Action(() -> selectProductHost.accept(
-            new SelectProductRequest(request.getExcludedProductIds(), this::onProductSelected)
+            new SelectProductRequest(request.excludedProductIds(), this::onProductSelected)
         ));
     }
 
