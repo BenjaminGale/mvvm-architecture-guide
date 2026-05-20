@@ -1,6 +1,5 @@
 package mvvm.example.orders.domain.commands;
 
-import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.domain.PendingOrder;
 
@@ -26,7 +25,7 @@ public class CopyOrderCommand {
             LocalDate.now(),
             null,
             "COPY-" + original.reference(),
-            original.lineItems().stream().map(item -> new LineItem(item.productId(), item.description(), item.quantity(), item.unitPrice())).toList()
+            original.lineItems()
         );
 
         repository.save(copy);
