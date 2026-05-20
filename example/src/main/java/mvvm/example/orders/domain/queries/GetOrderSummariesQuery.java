@@ -1,7 +1,9 @@
-package mvvm.example.orders.domain;
+package mvvm.example.orders.domain.queries;
 
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
+import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderRepository;
 
 import java.util.List;
 import java.util.Map;

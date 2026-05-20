@@ -1,8 +1,9 @@
-package mvvm.example.orders.domain;
+package mvvm.example.orders.domain.queries;
 
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.customers.domain.CustomerStatus;
+import mvvm.example.orders.domain.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

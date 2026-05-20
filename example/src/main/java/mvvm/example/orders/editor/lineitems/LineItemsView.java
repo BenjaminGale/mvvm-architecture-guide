@@ -12,7 +12,7 @@ import mvvm.example.core.view.controls.Buttons;
 import mvvm.example.core.view.controls.CurrencyTableCell;
 import mvvm.example.core.view.controls.Spacer;
 import mvvm.example.core.view.controls.TableViews;
-import mvvm.example.orders.domain.LineItemSummary;
+import mvvm.example.orders.domain.queries.LineItemSummary;
 
 import java.math.BigDecimal;
 

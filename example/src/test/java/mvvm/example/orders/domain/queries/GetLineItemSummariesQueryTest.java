@@ -1,6 +1,7 @@
-package mvvm.example.orders.domain;
+package mvvm.example.orders.domain.queries;
 
 import mvvm.example.core.config.adapters.InMemoryStockRepository;
+import mvvm.example.orders.domain.LineItem;
 import mvvm.example.stock.domain.Product;
 import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.stock.domain.StockAllocation;

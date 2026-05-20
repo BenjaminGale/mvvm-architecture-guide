@@ -1,4 +1,4 @@
-package mvvm.example.orders.domain;
+package mvvm.example.orders.domain.queries;
 
 import mvvm.example.stock.domain.StockAllocation;
 import mvvm.example.stock.domain.StockRepository;

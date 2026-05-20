@@ -1,4 +1,8 @@
-package mvvm.example.orders.domain;
+package mvvm.example.orders.domain.commands;
+
+import mvvm.example.orders.domain.LineItem;
+import mvvm.example.orders.domain.OrderRepository;
+import mvvm.example.orders.domain.PendingOrder;
 
 import java.time.LocalDate;
 import java.util.UUID;

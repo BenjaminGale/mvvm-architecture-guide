@@ -8,7 +8,7 @@ import mvvm.example.core.view.ExplorerView;
 import mvvm.example.core.view.controls.CurrencyTableCell;
 import mvvm.example.core.view.controls.LocalDateTableCell;
 import mvvm.example.core.view.controls.TableViews;
-import mvvm.example.orders.domain.OrderSummary;
+import mvvm.example.orders.domain.queries.OrderSummary;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

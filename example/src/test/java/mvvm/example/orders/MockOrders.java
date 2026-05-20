@@ -4,7 +4,7 @@ import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.domain.OrderSummary;
+import mvvm.example.orders.domain.queries.OrderSummary;
 import mvvm.example.orders.domain.PendingOrder;
 
 import java.math.BigDecimal;

@@ -1,7 +1,7 @@
 package mvvm.example.orders.editor.lineitems;
 
 import mvvm.example.orders.domain.LineItem;
-import mvvm.example.orders.domain.LineItemSummary;
+import mvvm.example.orders.domain.queries.LineItemSummary;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

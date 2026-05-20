@@ -2,7 +2,7 @@ package mvvm.example.orders.editor;
 
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.orders.domain.LineItem;
-import mvvm.example.orders.domain.LineItemSummary;
+import mvvm.example.orders.domain.queries.LineItemSummary;
 import mvvm.example.orders.domain.Order;
 
 import java.util.List;

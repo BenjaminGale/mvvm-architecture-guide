@@ -2,8 +2,8 @@ package mvvm.example.orders.editor;
 
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.queries.LineItemSummary;
 import mvvm.example.orders.requests.EditOrderRequest;
-import mvvm.example.orders.requests.SelectCustomerRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ class OrderEditorViewModelTest {
         when(service.fetchLineItemSummaries(any(), any())).thenAnswer(inv -> {
             List<mvvm.example.orders.domain.LineItem> items = inv.getArgument(0);
             var summaries = items.stream()
-                .map(i -> new mvvm.example.orders.domain.LineItemSummary(i.productId(), i.description(), i.quantity(), i.unitPrice(), 0))
+                .map(i -> new LineItemSummary(i.productId(), i.description(), i.quantity(), i.unitPrice(), 0))
                 .toList();
             return CompletableFuture.completedFuture(summaries);
         });

@@ -1,4 +1,4 @@
-package mvvm.example.orders.domain;
+package mvvm.example.orders.domain.commands;
 
 import mvvm.example.stock.domain.StockRepository;
 

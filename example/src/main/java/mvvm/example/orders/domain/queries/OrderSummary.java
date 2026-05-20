@@ -1,4 +1,4 @@
-package mvvm.example.orders.domain;
+package mvvm.example.orders.domain.queries;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

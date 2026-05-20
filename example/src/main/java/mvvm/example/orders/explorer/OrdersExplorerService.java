@@ -1,6 +1,6 @@
 package mvvm.example.orders.explorer;
 
-import mvvm.example.orders.domain.OrderSummary;
+import mvvm.example.orders.domain.queries.OrderSummary;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

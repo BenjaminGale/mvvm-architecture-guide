@@ -1,7 +1,6 @@
 package mvvm.example.orders.explorer;
 
 import mvvm.example.orders.MockOrders;
-import mvvm.example.orders.domain.OrderSummary;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.time.LocalDate;

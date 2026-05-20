@@ -2,7 +2,7 @@ package mvvm.example.orders.explorer;
 
 import mvvm.example.core.viewmodel.ExplorerViewModelTest;
 import mvvm.example.orders.MockOrders;
-import mvvm.example.orders.domain.OrderSummary;
+import mvvm.example.orders.domain.queries.OrderSummary;
 import mvvm.example.orders.requests.EditOrderRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

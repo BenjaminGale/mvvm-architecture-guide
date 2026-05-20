@@ -8,7 +8,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
 import mvvm.example.orders.domain.LineItem;
-import mvvm.example.orders.domain.LineItemSummary;
+import mvvm.example.orders.domain.queries.LineItemSummary;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
