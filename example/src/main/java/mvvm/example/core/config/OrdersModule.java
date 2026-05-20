@@ -4,7 +4,7 @@ import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.commands.CopyOrderCommand;
-import mvvm.example.orders.domain.commands.DeleteLineItemCommand;
+import mvvm.example.stock.domain.commands.DeleteStockAllocationsCommand;
 import mvvm.example.orders.domain.queries.GetLineItemSummariesQuery;
 import mvvm.example.orders.domain.queries.GetOrderSummariesQuery;
 import mvvm.example.orders.domain.LineItem;
@@ -46,9 +46,9 @@ public class OrdersModule {
     private final ViewServices view;
     private final ShellContext shell;
     private final CopyOrderCommand copyOrderCommand;
-    private final DeleteLineItemCommand deleteLineItemCommand;
+    private final DeleteStockAllocationsCommand deleteStockAllocationsCommand;
 
-    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, StockRepository stockRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand, DeleteLineItemCommand deleteLineItemCommand) {
+    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, StockRepository stockRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand, DeleteStockAllocationsCommand deleteStockAllocationsCommand) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
@@ -56,7 +56,7 @@ public class OrdersModule {
         this.view = view;
         this.shell = shell;
         this.copyOrderCommand = copyOrderCommand;
-        this.deleteLineItemCommand = deleteLineItemCommand;
+        this.deleteStockAllocationsCommand = deleteStockAllocationsCommand;
 
         view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
         view.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
@@ -100,7 +100,7 @@ public class OrdersModule {
                 @Override public String copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
                 @Override public java.util.concurrent.CompletableFuture<List<LineItemSummary>> fetchLineItemSummaries(List<LineItem> items, String orderId) { return lineItemsQuery.execute(items, orderId); }
-                @Override public void deleteLineItem(String productId, String orderId) { deleteLineItemCommand.execute(productId, orderId); }
+                @Override public void deleteLineItem(String productId, String orderId) { deleteStockAllocationsCommand.execute(productId, orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }

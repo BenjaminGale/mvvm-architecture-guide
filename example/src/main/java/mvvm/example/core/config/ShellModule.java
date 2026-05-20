@@ -4,7 +4,7 @@ import javafx.scene.Parent;
 import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.commands.CopyOrderCommand;
-import mvvm.example.orders.domain.commands.DeleteLineItemCommand;
+import mvvm.example.stock.domain.commands.DeleteStockAllocationsCommand;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.stock.domain.StockRepository;
@@ -53,7 +53,7 @@ public class ShellModule {
             view,
             shell,
             new CopyOrderCommand(orderRepository),
-            new DeleteLineItemCommand(stockRepository));
+            new DeleteStockAllocationsCommand(stockRepository));
     }
 
     public CustomersModule createCustomersModule() {

@@ -1,4 +1,4 @@
-package mvvm.example.orders.domain.commands;
+package mvvm.example.stock.domain.commands;
 
 import mvvm.example.core.config.adapters.InMemoryStockRepository;
 import mvvm.example.stock.domain.StockAllocation;
@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Orders.DeleteLineItemCommand")
-class DeleteLineItemCommandTest {
+@DisplayName("Stock.DeleteStockAllocationsCommand")
+class DeleteStockAllocationsCommandTest {
 
     @Test
     @DisplayName("deletes allocations for the given product and order")
@@ -16,7 +16,7 @@ class DeleteLineItemCommandTest {
         var stock = new InMemoryStockRepository();
         stock.save(StockAllocation.create("prod-1", "order-1", 5));
 
-        new DeleteLineItemCommand(stock).execute("prod-1", "order-1");
+        new DeleteStockAllocationsCommand(stock).execute("prod-1", "order-1");
 
         assertTrue(stock.findByOrderId("order-1").isEmpty());
     }
@@ -28,7 +28,7 @@ class DeleteLineItemCommandTest {
         stock.save(StockAllocation.create("prod-1", "order-1", 5));
         stock.save(StockAllocation.create("prod-2", "order-1", 3));
 
-        new DeleteLineItemCommand(stock).execute("prod-1", "order-1");
+        new DeleteStockAllocationsCommand(stock).execute("prod-1", "order-1");
 
         assertEquals(1, stock.findByOrderId("order-1").size());
         assertEquals("prod-2", stock.findByOrderId("order-1").getFirst().productId());
@@ -41,7 +41,7 @@ class DeleteLineItemCommandTest {
         stock.save(StockAllocation.create("prod-1", "order-1", 5));
         stock.save(StockAllocation.create("prod-1", "order-2", 3));
 
-        new DeleteLineItemCommand(stock).execute("prod-1", "order-1");
+        new DeleteStockAllocationsCommand(stock).execute("prod-1", "order-1");
 
         assertEquals(1, stock.findByOrderId("order-2").size());
     }
@@ -51,6 +51,6 @@ class DeleteLineItemCommandTest {
     void doesNothingWhenNoMatch() {
         var stock = new InMemoryStockRepository();
 
-        assertDoesNotThrow(() -> new DeleteLineItemCommand(stock).execute("prod-1", "order-1"));
+        assertDoesNotThrow(() -> new DeleteStockAllocationsCommand(stock).execute("prod-1", "order-1"));
     }
 }

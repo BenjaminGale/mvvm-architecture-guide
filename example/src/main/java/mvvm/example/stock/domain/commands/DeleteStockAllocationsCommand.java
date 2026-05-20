@@ -1,12 +1,12 @@
-package mvvm.example.orders.domain.commands;
+package mvvm.example.stock.domain.commands;
 
 import mvvm.example.stock.domain.StockRepository;
 
-public class DeleteLineItemCommand {
+public class DeleteStockAllocationsCommand {
 
     private final StockRepository stockRepository;
 
-    public DeleteLineItemCommand(StockRepository stockRepository) {
+    public DeleteStockAllocationsCommand(StockRepository stockRepository) {
         this.stockRepository = stockRepository;
     }
 
