@@ -9,7 +9,7 @@ import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.PendingOrder;
 import mvvm.example.orders.requests.EditItemRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
-import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
+import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
 import mvvm.example.orders.requests.EditOrderRequest;
 
 import java.util.Objects;
@@ -26,7 +26,7 @@ public class OrderEditorViewModel {
     private final Order order;
 
     private final OrderHeaderViewModel header;
-    private final LineItemsViewModel lineItems;
+    private final LineItemsExplorerViewModel lineItems;
 
     private final OrderEditorService service;
     private final OrderEditorHost host;
@@ -49,7 +49,7 @@ public class OrderEditorViewModel {
             : null;
 
         this.header = new OrderHeaderViewModel(order, currentCustomer, host::showCustomerSelector);
-        this.lineItems = new LineItemsViewModel(order.lineItems(), items -> service.fetchLineItemSummaries(items, order.id()), this::addRow, this::editRow, item -> service.deleteLineItem(item.productId(), order.id()));
+        this.lineItems = new LineItemsExplorerViewModel(order.lineItems(), items -> service.fetchLineItemSummaries(items, order.id()), this::addRow, this::editRow, item -> service.deleteLineItem(item.productId(), order.id()));
 
         this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));
         this.delete = new Action(this::onDelete);
@@ -93,7 +93,7 @@ public class OrderEditorViewModel {
     }
 
     public OrderHeaderViewModel getHeader()  { return header; }
-    public LineItemsViewModel getLineItems() { return lineItems; }
+    public LineItemsExplorerViewModel getLineItems() { return lineItems; }
 
     public Order buildUpdatedOrder() {
         var customer = header.selectedCustomerProperty().get();

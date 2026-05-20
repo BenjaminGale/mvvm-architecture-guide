@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor.lineitems.editor;
+package mvvm.example.orders.editor.lineitems;
 
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.requests.EditItemRequest;
@@ -18,12 +18,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Orders.EditItemViewModel")
-class EditItemViewModelTest {
+class LineItemEditorViewModelTest {
 
     private static final LineItem ORIGINAL = new LineItem(null, "Widget", 2, BigDecimal.valueOf(9.99));
 
-    private static EditItemViewModel viewModelFor(LineItem item) {
-        return new EditItemViewModel(new EditItemRequest(item, Set.of(), confirmed -> {}), r -> {});
+    private static LineItemEditorViewModel viewModelFor(LineItem item) {
+        return new LineItemEditorViewModel(new EditItemRequest(item, Set.of(), confirmed -> {}), r -> {});
     }
 
     @Nested
@@ -63,7 +63,7 @@ class EditItemViewModelTest {
         @DisplayName("the request callback is invoked with the updated item")
         void requestCallbackInvokedWithUpdatedItem() {
             Consumer<LineItem> listener = mock();
-            var vm = new EditItemViewModel(new EditItemRequest(ORIGINAL, Set.of(), listener), r -> {});
+            var vm = new LineItemEditorViewModel(new EditItemRequest(ORIGINAL, Set.of(), listener), r -> {});
 
             vm.confirm();
 
@@ -75,7 +75,7 @@ class EditItemViewModelTest {
         void confirmedItemReflectsSelectedProductAndQuantity() {
             Consumer<LineItem> listener = mock();
             var product = new Product("prod-1", "Gadget", BigDecimal.valueOf(19.99), 10);
-            var vm = new EditItemViewModel(
+            var vm = new LineItemEditorViewModel(
                 new EditItemRequest(ORIGINAL, Set.of(), listener),
                 r -> r.confirmSelection(product)
             );

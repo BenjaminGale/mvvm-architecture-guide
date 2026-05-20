@@ -16,7 +16,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class LineItemsViewModel extends ExplorerViewModel<LineItemSummary> {
+public class LineItemsExplorerViewModel extends ExplorerViewModel<LineItemSummary> {
 
     private final ObservableList<LineItem> lineItems = FXCollections.observableArrayList();
     private final BooleanProperty valid = new SimpleBooleanProperty(false);
@@ -26,7 +26,7 @@ public class LineItemsViewModel extends ExplorerViewModel<LineItemSummary> {
     private final BiConsumer<Integer, LineItem> onEdit;
     private final Consumer<LineItem> onDelete;
 
-    public LineItemsViewModel(
+    public LineItemsExplorerViewModel(
         List<LineItem> items,
         Function<List<LineItem>, CompletableFuture<List<LineItemSummary>>> fetchSummaries,
         Runnable onAdd,

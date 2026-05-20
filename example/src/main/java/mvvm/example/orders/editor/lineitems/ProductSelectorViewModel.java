@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor.lineitems.selector;
+package mvvm.example.orders.editor.lineitems;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

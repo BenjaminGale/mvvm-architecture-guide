@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Orders.LineItemsViewModel")
-class LineItemsViewModelTest {
+class LineItemsExplorerViewModelTest {
 
     private static Function<List<LineItem>, CompletableFuture<List<LineItemSummary>>> stubFetch() {
         return items -> CompletableFuture.completedFuture(
@@ -31,8 +31,8 @@ class LineItemsViewModelTest {
         return new LineItem(productId, productId, 1, BigDecimal.TEN);
     }
 
-    private static LineItemsViewModel withItems(LineItem... items) {
-        return new LineItemsViewModel(List.of(items), stubFetch(), () -> {}, (i, it) -> {}, it -> {});
+    private static LineItemsExplorerViewModel withItems(LineItem... items) {
+        return new LineItemsExplorerViewModel(List.of(items), stubFetch(), () -> {}, (i, it) -> {}, it -> {});
     }
 
     @Nested
@@ -130,7 +130,7 @@ class LineItemsViewModelTest {
         @DisplayName("addItemAction invokes the add callback")
         void addRowInvokesCallback() {
             Runnable onAddRow = mock();
-            var vm = new LineItemsViewModel(List.of(item("a")), stubFetch(), onAddRow, (i, it) -> {}, it -> {});
+            var vm = new LineItemsExplorerViewModel(List.of(item("a")), stubFetch(), onAddRow, (i, it) -> {}, it -> {});
 
             vm.addItemAction().execute();
 
@@ -185,7 +185,7 @@ class LineItemsViewModelTest {
         @DisplayName("the delete callback is invoked with the removed item")
         void deleteCallbackInvokedWithItem() {
             Consumer<LineItem> onDelete = mock();
-            var vm = new LineItemsViewModel(List.of(item("a")), stubFetch(), () -> {}, (i, it) -> {}, onDelete);
+            var vm = new LineItemsExplorerViewModel(List.of(item("a")), stubFetch(), () -> {}, (i, it) -> {}, onDelete);
             vm.selectedItemProperty().set(vm.items().getFirst());
 
             vm.deleteItemAction().execute();
@@ -202,7 +202,7 @@ class LineItemsViewModelTest {
         @DisplayName("the edit callback is invoked with the index and item")
         void editCallbackInvokedWithIndexAndItem() {
             BiConsumer<Integer, LineItem> onEditRow = mock();
-            var vm = new LineItemsViewModel(List.of(item("a")), stubFetch(), () -> {}, onEditRow, it -> {});
+            var vm = new LineItemsExplorerViewModel(List.of(item("a")), stubFetch(), () -> {}, onEditRow, it -> {});
             vm.selectedItemProperty().set(vm.items().getFirst());
 
             vm.editItemAction().execute();

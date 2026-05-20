@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor.lineitems.editor;
+package mvvm.example.orders.editor.lineitems;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -8,21 +8,21 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import mvvm.example.core.view.controls.Buttons;
 
-public class EditItemView extends BorderPane {
+public class LineItemEditorView extends BorderPane {
 
-    public static Dialog<Runnable> dialog(EditItemViewModel viewModel) {
+    public static Dialog<Runnable> dialog(LineItemEditorViewModel viewModel) {
         var confirmBtn = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
 
         var dialog = new Dialog<Runnable>();
         dialog.setTitle("Edit Item");
-        dialog.getDialogPane().setContent(new EditItemView(viewModel));
+        dialog.getDialogPane().setContent(new LineItemEditorView(viewModel));
         dialog.getDialogPane().getButtonTypes().addAll(confirmBtn, ButtonType.CANCEL);
         dialog.setResultConverter(bt -> bt == confirmBtn ? viewModel::confirm : null);
 
         return dialog;
     }
 
-    private EditItemView(EditItemViewModel viewModel) {
+    private LineItemEditorView(LineItemEditorViewModel viewModel) {
         var selectProductBtn = new Button("Select Product...");
         Buttons.bind(selectProductBtn, viewModel.selectProduct);
 

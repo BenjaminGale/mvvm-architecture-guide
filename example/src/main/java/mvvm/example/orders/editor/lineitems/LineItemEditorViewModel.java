@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor.lineitems.editor;
+package mvvm.example.orders.editor.lineitems;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -17,7 +17,7 @@ import mvvm.example.stock.domain.Product;
 import java.math.BigDecimal;
 import java.util.function.Consumer;
 
-public class EditItemViewModel {
+public class LineItemEditorViewModel {
 
     public final Action selectProduct;
 
@@ -27,7 +27,7 @@ public class EditItemViewModel {
     private final IntegerProperty quantity = new SimpleIntegerProperty();
     private final ObjectProperty<BigDecimal> unitPrice = new SimpleObjectProperty<>();
 
-    public EditItemViewModel(EditItemRequest request, Consumer<SelectProductRequest> selectProductHost) {
+    public LineItemEditorViewModel(EditItemRequest request, Consumer<SelectProductRequest> selectProductHost) {
         this.request = request;
         this.productId = request.getItem().productId();
 

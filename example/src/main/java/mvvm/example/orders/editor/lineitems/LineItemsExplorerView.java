@@ -16,9 +16,9 @@ import mvvm.example.orders.domain.queries.LineItemSummary;
 
 import java.math.BigDecimal;
 
-public class LineItemsView extends BorderPane {
+public class LineItemsExplorerView extends BorderPane {
 
-    public LineItemsView(LineItemsViewModel viewModel) {
+    public LineItemsExplorerView(LineItemsExplorerViewModel viewModel) {
         var table = new TableView<LineItemSummary>();
         table.setItems(viewModel.items());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);

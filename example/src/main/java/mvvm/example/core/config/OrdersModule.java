@@ -17,14 +17,14 @@ import mvvm.example.orders.editor.*;
 import mvvm.example.orders.editor.header.CustomerSelectorView;
 import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
 import mvvm.example.orders.requests.EditItemRequest;
-import mvvm.example.orders.editor.lineitems.editor.EditItemView;
-import mvvm.example.orders.editor.lineitems.editor.EditItemViewModel;
-import mvvm.example.orders.editor.lineitems.selector.ProductSelectorView;
-import mvvm.example.orders.editor.lineitems.selector.ProductSelectorViewModel;
+import mvvm.example.orders.editor.lineitems.LineItemEditorView;
+import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;
+import mvvm.example.orders.editor.lineitems.ProductSelectorView;
+import mvvm.example.orders.editor.lineitems.ProductSelectorViewModel;
 import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
-import mvvm.example.orders.editor.lineitems.LineItemsView;
-import mvvm.example.orders.editor.lineitems.LineItemsViewModel;
+import mvvm.example.orders.editor.lineitems.LineItemsExplorerView;
+import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 import mvvm.example.orders.requests.EditOrderRequest;
@@ -60,9 +60,9 @@ public class OrdersModule {
 
         view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
         view.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
-        view.viewLocator().register(LineItemsViewModel.class, LineItemsView::new);
+        view.viewLocator().register(LineItemsExplorerViewModel.class, LineItemsExplorerView::new);
         view.viewLocator().register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, view.viewLocator()));
-        view.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
+        view.dialogManager().register(LineItemEditorViewModel.class, LineItemEditorView::dialog);
         view.dialogManager().register(CustomerSelectorViewModel.class, CustomerSelectorView::dialog);
         view.dialogManager().register(ProductSelectorViewModel.class, ProductSelectorView::dialog);
     }
@@ -110,8 +110,8 @@ public class OrdersModule {
             });
     }
 
-    private EditItemViewModel editItemViewModel(EditItemRequest request) {
-        return new EditItemViewModel(request, r -> view.dialogManager().show(new ProductSelectorViewModel(r, productRepository.findAll())));
+    private LineItemEditorViewModel editItemViewModel(EditItemRequest request) {
+        return new LineItemEditorViewModel(request, r -> view.dialogManager().show(new ProductSelectorViewModel(r, productRepository.findAll())));
     }
 
 }
