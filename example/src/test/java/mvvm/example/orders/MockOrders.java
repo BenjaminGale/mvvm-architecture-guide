@@ -4,8 +4,8 @@ import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.OrderStatus;
 import mvvm.example.orders.domain.queries.OrderSummary;
-import mvvm.example.orders.domain.PendingOrder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,19 +21,19 @@ public class MockOrders {
     public static final Customer ACME_CUSTOMER = new Customer(ACME_CUSTOMER_ID, "Acme Ltd", "acme@example.com", CustomerStatus.ACTIVE);
 
     public static Order of(String id, LocalDate date) {
-        return new PendingOrder(id, ACME_CUSTOMER_ID, date, date, "REF-" + id, List.of());
+        return new Order(id, ACME_CUSTOMER_ID, date, date, "REF-" + id, OrderStatus.PENDING, null, List.of());
     }
 
     public static Order validOrderWithLineItems() {
-        return new PendingOrder("id-1", ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", List.of(A_LINE_ITEM));
+        return new Order("id-1", ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", OrderStatus.PENDING, null, List.of(A_LINE_ITEM));
     }
 
     public static Order orderWithNoCustomer() {
-        return new PendingOrder("id-1", null, A_DATE, A_DATE, "REF-001", List.of(A_LINE_ITEM));
+        return new Order("id-1", null, A_DATE, A_DATE, "REF-001", OrderStatus.PENDING, null, List.of(A_LINE_ITEM));
     }
 
     public static Order orderWithNoLineItems() {
-        return new PendingOrder("id-1", ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", List.of());
+        return new Order("id-1", ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", OrderStatus.PENDING, null, List.of());
     }
 
     public static OrderSummary summaryOf(String id, LocalDate date) {

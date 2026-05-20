@@ -9,11 +9,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.customers.domain.Customer;
-import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderStatus;
+import mvvm.example.orders.editor.EditOrderRequest;
 
 import java.time.LocalDate;
-import java.util.function.Consumer;
 
 public class OrderHeaderViewModel {
 
@@ -26,18 +25,19 @@ public class OrderHeaderViewModel {
     private final StringProperty reference = new SimpleStringProperty();
     private final BooleanProperty valid = new SimpleBooleanProperty(false);
 
-    public OrderHeaderViewModel(Order order, Customer currentCustomer, Consumer<SelectCustomerRequest> selectCustomerHost) {
-        createdDate = order.createdDate();
-        status = order.status();
-        selectedCustomer.set(currentCustomer);
-        plannedShipDate.set(order.plannedShipDate());
-        reference.set(order.reference());
+    public OrderHeaderViewModel(EditOrderRequest request, OrderHeaderService service, OrderHeaderHost host) {
+        var summary = service.fetch(request);
+        createdDate = summary.createdDate();
+        status = summary.status();
+        selectedCustomer.set(summary.customer());
+        plannedShipDate.set(summary.plannedShipDate());
+        reference.set(summary.reference());
 
         selectedCustomer.addListener(obs -> validate());
         plannedShipDate.addListener(obs -> validate());
         reference.addListener(obs -> validate());
 
-        selectCustomer = new Action(() -> selectCustomerHost.accept(
+        selectCustomer = new Action(() -> host.showCustomerSelector(
             new SelectCustomerRequest(selectedCustomer.get(), selectedCustomer::set)
         ));
 

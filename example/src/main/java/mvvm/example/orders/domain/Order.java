@@ -2,38 +2,43 @@ package mvvm.example.orders.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public sealed interface Order permits PendingOrder, FulfilledOrder, ShippedOrder, CancelledOrder {
-
-    String id();
-    String customerId();
-    LocalDate createdDate();
-    LocalDate plannedShipDate();
-    String reference();
-    List<LineItem> lineItems();
-    OrderStatus status();
-
-    default BigDecimal total() {
-        return lineItems().stream().map(LineItem::total).reduce(BigDecimal.ZERO, BigDecimal::add);
+public record Order(
+    String id,
+    String customerId,
+    LocalDate createdDate,
+    LocalDate plannedShipDate,
+    String reference,
+    OrderStatus status,
+    LocalDate completionDate,
+    List<LineItem> lineItems
+) {
+    public Order {
+        lineItems = List.copyOf(lineItems);
     }
 
-    default boolean isOverdue() {
-        return false;
+    public BigDecimal total() {
+        return lineItems.stream().map(LineItem::total).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    Order withLineItems(List<LineItem> newItems);
+    public boolean isOverdue() {
+        return (status == OrderStatus.PENDING || status == OrderStatus.FULFILLED)
+            && plannedShipDate != null
+            && plannedShipDate.isBefore(LocalDate.now());
+    }
 
-    static Order empty() {
-        return new PendingOrder(
+    public static Order empty() {
+        return new Order(
             UUID.randomUUID().toString(),
             null,
             LocalDate.now(),
             LocalDate.now(),
             "",
-            new ArrayList<>()
+            OrderStatus.PENDING,
+            null,
+            List.of()
         );
     }
 }

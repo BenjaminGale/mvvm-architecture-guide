@@ -12,6 +12,14 @@ import java.util.UUID;
 
 public class InMemoryProductRepository implements ProductRepository {
 
+    public static final String WIDGET_A     = "prod-widget-a";
+    public static final String WIDGET_B     = "prod-widget-b";
+    public static final String GIZMO_X      = "prod-gizmo-x";
+    public static final String SPROCKET     = "prod-sprocket";
+    public static final String COG          = "prod-cog";
+    public static final String REAGENT      = "prod-reagent";
+    public static final String MYSTERY_ITEM = "prod-mystery-item";
+
     private final Map<String, Product> store = new HashMap<>();
 
     public InMemoryProductRepository() {
@@ -34,17 +42,16 @@ public class InMemoryProductRepository implements ProductRepository {
     }
 
     private void seed() {
-        add("Widget A", new BigDecimal("9.99"), 150);
-        add("Widget B", new BigDecimal("24.99"), 80);
-        add("Gizmo X", new BigDecimal("149.00"), 20);
-        add("Sprocket", new BigDecimal("4.50"), 200);
-        add("Cog", new BigDecimal("12.75"), 120);
-        add("Reagent", new BigDecimal("1.20"), 500);
-        add("Mystery Item", new BigDecimal("999.00"), 5);
+        add(WIDGET_A,     "Widget A",     new BigDecimal("9.99"),   150);
+        add(WIDGET_B,     "Widget B",     new BigDecimal("24.99"),   80);
+        add(GIZMO_X,      "Gizmo X",      new BigDecimal("149.00"),  20);
+        add(SPROCKET,     "Sprocket",     new BigDecimal("4.50"),   200);
+        add(COG,          "Cog",          new BigDecimal("12.75"),  120);
+        add(REAGENT,      "Reagent",      new BigDecimal("1.20"),   500);
+        add(MYSTERY_ITEM, "Mystery Item", new BigDecimal("999.00"),   5);
     }
 
-    private void add(String name, BigDecimal unitPrice, int quantityInStock) {
-        var product = new Product(UUID.randomUUID().toString(), name, unitPrice, quantityInStock);
-        store.put(product.id(), product);
+    private void add(String id, String name, BigDecimal unitPrice, int quantityInStock) {
+        store.put(id, new Product(id, name, unitPrice, quantityInStock));
     }
 }

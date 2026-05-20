@@ -1,7 +1,8 @@
 package mvvm.example.orders.domain.commands;
 
+import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
-import mvvm.example.orders.domain.PendingOrder;
+import mvvm.example.orders.domain.OrderStatus;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -14,17 +15,19 @@ public class CopyOrderCommand {
         this.repository = repository;
     }
 
-    public String copy(String id) {
+    public String copy(String orderId) {
         var original = repository
-            .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Order not found: " + id));
+            .findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
-        var copy = new PendingOrder(
+        var copy = new Order(
             UUID.randomUUID().toString(),
             original.customerId(),
             LocalDate.now(),
             null,
             "COPY-" + original.reference(),
+            OrderStatus.PENDING,
+            null,
             original.lineItems()
         );
 

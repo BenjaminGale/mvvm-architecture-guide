@@ -2,6 +2,7 @@ package mvvm.example.orders.editor.lineitems;
 
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.queries.LineItemSummary;
+import mvvm.example.orders.editor.EditOrderRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,9 +10,6 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -19,12 +17,20 @@ import static org.mockito.Mockito.*;
 @DisplayName("Orders.LineItemsViewModel")
 class LineItemsExplorerViewModelTest {
 
-    private static Function<List<LineItem>, CompletableFuture<List<LineItemSummary>>> stubFetch() {
-        return items -> CompletableFuture.completedFuture(
-            items.stream()
-                .map(i -> new LineItemSummary(i.productId(), i.description(), i.quantity(), i.unitPrice(), 0))
-                .toList()
-        );
+    private static final EditOrderRequest AN_ORDER = EditOrderRequest.of("ord-1");
+
+    private static LineItemsService serviceWith(LineItem... items) {
+        var service = mock(LineItemsService.class);
+        when(service.fetchLineItems(any())).thenReturn(List.of(items));
+        when(service.fetchSummaries(any(), any())).thenAnswer(inv -> {
+            List<LineItem> lineItems = inv.getArgument(0);
+            return CompletableFuture.completedFuture(
+                lineItems.stream()
+                    .map(i -> new LineItemSummary(i.productId(), i.description(), i.quantity(), i.unitPrice(), 0))
+                    .toList()
+            );
+        });
+        return service;
     }
 
     private static LineItem item(String productId) {
@@ -32,7 +38,7 @@ class LineItemsExplorerViewModelTest {
     }
 
     private static LineItemsExplorerViewModel withItems(LineItem... items) {
-        return new LineItemsExplorerViewModel(List.of(items), stubFetch(), () -> {}, (i, it) -> {}, it -> {});
+        return new LineItemsExplorerViewModel(AN_ORDER, serviceWith(items), req -> {});
     }
 
     @Nested
@@ -127,14 +133,14 @@ class LineItemsExplorerViewModelTest {
     class WhenARowIsAdded {
 
         @Test
-        @DisplayName("addItemAction invokes the add callback")
-        void addRowInvokesCallback() {
-            Runnable onAddRow = mock();
-            var vm = new LineItemsExplorerViewModel(List.of(item("a")), stubFetch(), onAddRow, (i, it) -> {}, it -> {});
+        @DisplayName("addItemAction asks the host to show the item editor")
+        void addRowInvokesHost() {
+            LineItemsHost host = mock(LineItemsHost.class);
+            var vm = new LineItemsExplorerViewModel(AN_ORDER, serviceWith(item("a")), host);
 
             vm.addItemAction().execute();
 
-            verify(onAddRow).run();
+            verify(host).showItemEditor(any());
         }
 
         @Test
@@ -182,15 +188,15 @@ class LineItemsExplorerViewModelTest {
         }
 
         @Test
-        @DisplayName("the delete callback is invoked with the removed item")
-        void deleteCallbackInvokedWithItem() {
-            Consumer<LineItem> onDelete = mock();
-            var vm = new LineItemsExplorerViewModel(List.of(item("a")), stubFetch(), () -> {}, (i, it) -> {}, onDelete);
+        @DisplayName("the service is asked to delete the line item")
+        void serviceAskedToDeleteLineItem() {
+            var service = serviceWith(item("a"));
+            var vm = new LineItemsExplorerViewModel(AN_ORDER, service, req -> {});
             vm.selectedItemProperty().set(vm.items().getFirst());
 
             vm.deleteItemAction().execute();
 
-            verify(onDelete).accept(any(LineItem.class));
+            verify(service).deleteLineItem("a", "ord-1");
         }
     }
 
@@ -199,15 +205,15 @@ class LineItemsExplorerViewModelTest {
     class WhenARowIsEdited {
 
         @Test
-        @DisplayName("the edit callback is invoked with the index and item")
-        void editCallbackInvokedWithIndexAndItem() {
-            BiConsumer<Integer, LineItem> onEditRow = mock();
-            var vm = new LineItemsExplorerViewModel(List.of(item("a")), stubFetch(), () -> {}, onEditRow, it -> {});
+        @DisplayName("editItemAction asks the host to show the item editor")
+        void editRowInvokesHost() {
+            LineItemsHost host = mock(LineItemsHost.class);
+            var vm = new LineItemsExplorerViewModel(AN_ORDER, serviceWith(item("a")), host);
             vm.selectedItemProperty().set(vm.items().getFirst());
 
             vm.editItemAction().execute();
 
-            verify(onEditRow).accept(eq(0), any(LineItem.class));
+            verify(host).showItemEditor(any());
         }
 
         @Test
