@@ -1,14 +1,12 @@
 package mvvm.example.orders.editor;
 
-import mvvm.example.customers.domain.Customer;
-import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.LineItem;
 
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.List;
 
 public interface OrderEditorService {
-    Order fetchOrder(String orderId);
-    Optional<Customer> findCustomer(String customerId);
-    void saveOrder(Order order);
+    void upsert(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems);
     String copyOrder(String orderId);
     void deleteOrder(String orderId);
 }

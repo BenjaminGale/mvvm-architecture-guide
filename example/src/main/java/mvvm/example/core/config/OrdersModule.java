@@ -1,7 +1,6 @@
 package mvvm.example.core.config;
 
 import mvvm.example.core.view.ViewServices;
-import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.commands.CopyOrderCommand;
 import mvvm.example.stock.domain.commands.DeleteStockAllocationsCommand;
@@ -9,16 +8,18 @@ import mvvm.example.orders.domain.queries.GetLineItemSummariesQuery;
 import mvvm.example.orders.domain.queries.GetOrderHeaderSummaryQuery;
 import mvvm.example.orders.domain.queries.GetOrderSummariesQuery;
 import mvvm.example.orders.domain.queries.OrderLineItemsService;
-import mvvm.example.orders.domain.Order;
+import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.stock.domain.StockRepository;
+import mvvm.example.orders.domain.commands.UpsertOrderCommand;
 import mvvm.example.orders.editor.*;
 import mvvm.example.orders.editor.header.CustomerSelectorView;
 import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
 import mvvm.example.orders.editor.EditOrderRequest;
-import mvvm.example.orders.editor.header.SelectCustomerRequest;
+import mvvm.example.orders.editor.header.OrderHeaderHost;
 import mvvm.example.orders.editor.lineitems.EditItemRequest;
+import mvvm.example.orders.editor.lineitems.LineItemsHost;
 import mvvm.example.orders.editor.lineitems.LineItemEditorView;
 import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;
 import mvvm.example.orders.editor.lineitems.ProductSelectorView;
@@ -34,7 +35,8 @@ import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.shell.main.statusbar.LabelType;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.List;
 
 public class OrdersModule {
 
@@ -90,22 +92,26 @@ public class OrdersModule {
 
     private OrderEditorViewModel orderEditorViewModel(EditOrderRequest request) {
         var lineItemsQuery = new GetLineItemSummariesQuery(productRepository, stockRepository);
+
+        OrderHeaderHost headerHost = req -> view.dialogManager().show(new CustomerSelectorViewModel(req, customerRepository.findAll()));
+        var header = new OrderHeaderViewModel(request, new GetOrderHeaderSummaryQuery(orderRepository, customerRepository), headerHost);
+
+        LineItemsHost lineItemsHost = req -> view.dialogManager().show(editItemViewModel(req));
+        var lineItems = new LineItemsExplorerViewModel(request, new OrderLineItemsService(orderRepository, lineItemsQuery, deleteStockAllocationsCommand), lineItemsHost);
+
+        var upsertCommand = new UpsertOrderCommand(orderRepository);
         return new OrderEditorViewModel(
             request,
-            new GetOrderHeaderSummaryQuery(orderRepository, customerRepository),
-            new OrderLineItemsService(orderRepository, lineItemsQuery, deleteStockAllocationsCommand),
-            req -> view.dialogManager().show(editItemViewModel(req)),
+            header,
+            lineItems,
             new OrderEditorService() {
-                @Override public Order fetchOrder(String orderId) { return orderRepository.findById(orderId).orElseThrow(); }
-                @Override public Optional<Customer> findCustomer(String customerId) { return customerRepository.findById(customerId); }
-                @Override public void saveOrder(Order order) { orderRepository.save(order); }
+                @Override public void upsert(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> items) { upsertCommand.execute(orderId, customerId, reference, plannedShipDate, items); }
                 @Override public String copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
                 @Override public void openOrder(EditOrderRequest copyRequest) { shell.show(() -> orderEditorViewModel(copyRequest)); }
-                @Override public void showCustomerSelector(SelectCustomerRequest request) { view.dialogManager().show(new CustomerSelectorViewModel(request, customerRepository.findAll())); }
             });
     }
 
