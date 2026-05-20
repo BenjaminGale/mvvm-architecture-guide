@@ -9,36 +9,29 @@ import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.queries.LineItemSummary;
+import mvvm.example.orders.editor.EditOrderRequest;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class LineItemsExplorerViewModel extends ExplorerViewModel<LineItemSummary> {
 
     private final ObservableList<LineItem> lineItems = FXCollections.observableArrayList();
     private final BooleanProperty valid = new SimpleBooleanProperty(false);
 
-    private final Function<List<LineItem>, CompletableFuture<List<LineItemSummary>>> fetchSummaries;
-    private final Runnable onAdd;
-    private final BiConsumer<Integer, LineItem> onEdit;
-    private final Consumer<LineItem> onDelete;
+    private final LineItemsService service;
+    private final LineItemsHost host;
+    private final String orderId;
 
-    public LineItemsExplorerViewModel(
-        List<LineItem> items,
-        Function<List<LineItem>, CompletableFuture<List<LineItemSummary>>> fetchSummaries,
-        Runnable onAdd,
-        BiConsumer<Integer, LineItem> onEdit,
-        Consumer<LineItem> onDelete
-    ) {
-        this.fetchSummaries = fetchSummaries;
-        this.onAdd = onAdd;
-        this.onEdit = onEdit;
-        this.onDelete = onDelete;
+    public LineItemsExplorerViewModel(EditOrderRequest request, LineItemsService service, LineItemsHost host) {
+        this.service = service;
+        this.host = host;
+        this.orderId = request.orderId();
 
-        lineItems.setAll(items);
+        lineItems.setAll(service.fetchLineItems(request));
         lineItems.addListener((ListChangeListener<LineItem>) c -> validate());
         validate();
         refreshItems();
@@ -49,25 +42,35 @@ public class LineItemsExplorerViewModel extends ExplorerViewModel<LineItemSummar
     }
 
     private void refreshItems() {
-        fetchSummaries.apply(List.copyOf(lineItems))
+        service.fetchSummaries(List.copyOf(lineItems), orderId)
             .thenAccept(results -> items().setAll(results));
     }
 
     @Override
     protected CompletableFuture<List<LineItemSummary>> fetchItemsAsync() {
-        return fetchSummaries.apply(List.copyOf(lineItems));
+        return service.fetchSummaries(List.copyOf(lineItems), orderId);
     }
 
     @Override
     protected void addItem() {
-        onAdd.run();
+        Set<String> excluded = lineItems.stream()
+            .map(LineItem::productId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+        host.showItemEditor(new EditItemRequest(LineItem.empty(), excluded, this::addConfirmedRow));
     }
 
     @Override
     protected void editItem(LineItemSummary summary) {
         int index = items().indexOf(summary);
         if (index < 0) return;
-        onEdit.accept(index, lineItems.get(index));
+        var item = lineItems.get(index);
+        Set<String> excluded = lineItems.stream()
+            .map(LineItem::productId)
+            .filter(Objects::nonNull)
+            .filter(id -> !id.equals(item.productId()))
+            .collect(Collectors.toSet());
+        host.showItemEditor(new EditItemRequest(item, excluded, updated -> updateConfirmedRow(index, updated)));
     }
 
     @Override
@@ -76,7 +79,7 @@ public class LineItemsExplorerViewModel extends ExplorerViewModel<LineItemSummar
         if (index < 0) return;
         var item = lineItems.get(index);
         lineItems.remove(index);
-        onDelete.accept(item);
+        service.deleteLineItem(item.productId(), orderId);
         refreshItems();
         selectedItemProperty().set(null);
     }

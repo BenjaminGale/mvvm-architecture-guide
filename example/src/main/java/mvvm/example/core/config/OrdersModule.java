@@ -8,8 +8,7 @@ import mvvm.example.stock.domain.commands.DeleteStockAllocationsCommand;
 import mvvm.example.orders.domain.queries.GetLineItemSummariesQuery;
 import mvvm.example.orders.domain.queries.GetOrderHeaderSummaryQuery;
 import mvvm.example.orders.domain.queries.GetOrderSummariesQuery;
-import mvvm.example.orders.domain.LineItem;
-import mvvm.example.orders.domain.queries.LineItemSummary;
+import mvvm.example.orders.domain.queries.OrderLineItemsService;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
@@ -35,7 +34,6 @@ import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.shell.main.statusbar.LabelType;
 import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
-import java.util.List;
 import java.util.Optional;
 
 public class OrdersModule {
@@ -95,19 +93,18 @@ public class OrdersModule {
         return new OrderEditorViewModel(
             request,
             new GetOrderHeaderSummaryQuery(orderRepository, customerRepository),
+            new OrderLineItemsService(orderRepository, lineItemsQuery, deleteStockAllocationsCommand),
+            req -> view.dialogManager().show(editItemViewModel(req)),
             new OrderEditorService() {
                 @Override public Order fetchOrder(String orderId) { return orderRepository.findById(orderId).orElseThrow(); }
                 @Override public Optional<Customer> findCustomer(String customerId) { return customerRepository.findById(customerId); }
                 @Override public void saveOrder(Order order) { orderRepository.save(order); }
                 @Override public String copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
-                @Override public java.util.concurrent.CompletableFuture<List<LineItemSummary>> fetchLineItemSummaries(List<LineItem> items, String orderId) { return lineItemsQuery.execute(items, orderId); }
-                @Override public void deleteLineItem(String productId, String orderId) { deleteStockAllocationsCommand.execute(productId, orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
                 @Override public void openOrder(EditOrderRequest copyRequest) { shell.show(() -> orderEditorViewModel(copyRequest)); }
-                @Override public void showItemEditor(EditItemRequest request) { view.dialogManager().show(editItemViewModel(request)); }
                 @Override public void showCustomerSelector(SelectCustomerRequest request) { view.dialogManager().show(new CustomerSelectorViewModel(request, customerRepository.findAll())); }
             });
     }
@@ -115,5 +112,4 @@ public class OrdersModule {
     private LineItemEditorViewModel editItemViewModel(EditItemRequest request) {
         return new LineItemEditorViewModel(request, r -> view.dialogManager().show(new ProductSelectorViewModel(r, productRepository.findAll())));
     }
-
 }

@@ -3,17 +3,14 @@ package mvvm.example.orders.editor;
 import javafx.beans.binding.Bindings;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
-import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.editor.header.OrderHeaderService;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
-import mvvm.example.orders.editor.lineitems.EditItemRequest;
 import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
+import mvvm.example.orders.editor.lineitems.LineItemsHost;
+import mvvm.example.orders.editor.lineitems.LineItemsService;
 
-import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class OrderEditorViewModel {
 
@@ -32,6 +29,8 @@ public class OrderEditorViewModel {
     public OrderEditorViewModel(
         EditOrderRequest request,
         OrderHeaderService headerService,
+        LineItemsService lineItemsService,
+        LineItemsHost lineItemsHost,
         OrderEditorService service,
         OrderEditorHost host
     ) {
@@ -44,7 +43,7 @@ public class OrderEditorViewModel {
             : service.fetchOrder(request.orderId());
 
         this.header = new OrderHeaderViewModel(request, headerService, host::showCustomerSelector);
-        this.lineItems = new LineItemsExplorerViewModel(order.lineItems(), items -> service.fetchLineItemSummaries(items, order.id()), this::addRow, this::editRow, item -> service.deleteLineItem(item.productId(), order.id()));
+        this.lineItems = new LineItemsExplorerViewModel(request, lineItemsService, lineItemsHost);
 
         this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));
         this.delete = new Action(this::onDelete);
@@ -66,25 +65,6 @@ public class OrderEditorViewModel {
     private void onCopy() {
         var copiedId = service.copyOrder(order.id());
         host.openOrder(EditOrderRequest.of(copiedId));
-    }
-
-    private void addRow() {
-        Set<String> excluded = lineItems.buildLineItems().stream()
-            .map(LineItem::productId)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
-
-        host.showItemEditor(new EditItemRequest(LineItem.empty(), excluded, lineItems::addConfirmedRow));
-    }
-
-    private void editRow(int index, LineItem item) {
-        Set<String> excluded = lineItems.buildLineItems().stream()
-            .map(LineItem::productId)
-            .filter(Objects::nonNull)
-            .filter(id -> !id.equals(item.productId()))
-            .collect(Collectors.toSet());
-
-        host.showItemEditor(new EditItemRequest(item, excluded, updated -> lineItems.updateConfirmedRow(index, updated)));
     }
 
     public OrderHeaderViewModel getHeader()  { return header; }
