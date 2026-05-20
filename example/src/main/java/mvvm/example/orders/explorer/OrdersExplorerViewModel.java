@@ -3,12 +3,9 @@ package mvvm.example.orders.explorer;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
 import mvvm.example.orders.domain.OrderSummary;
 import mvvm.example.orders.requests.EditOrderRequest;
-import mvvm.example.shell.main.statusbar.LabelType;
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
 import java.util.Comparator;
 import java.util.List;
@@ -22,7 +19,7 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<OrderSummary> {
     private final OrdersExplorerService service;
     private final OrdersExplorerHost host;
 
-    public OrdersExplorerViewModel(OrdersExplorerService service, OrdersExplorerHost host, ObservableList<StatusItemViewModel> statusItems) {
+    public OrdersExplorerViewModel(OrdersExplorerService service, OrdersExplorerHost host) {
         this.service = service;
         this.host = host;
 
@@ -31,11 +28,6 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<OrderSummary> {
             ordersCount.set(list.size());
             overdueOrdersCount.set((int) list.stream().filter(OrderSummary::isOverdue).count());
         });
-
-        statusItems.addAll(
-            new StatusItemViewModel(ordersCount, LabelType.All_ORDERS),
-            new StatusItemViewModel(overdueOrdersCount, LabelType.OVERDUE_ORDERS)
-        );
     }
 
     public ReadOnlyIntegerProperty ordersCountProperty() {

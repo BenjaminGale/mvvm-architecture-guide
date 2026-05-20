@@ -31,6 +31,8 @@ import mvvm.example.orders.requests.EditOrderRequest;
 import mvvm.example.orders.requests.SelectCustomerRequest;
 import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
+import mvvm.example.shell.main.statusbar.LabelType;
+import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
 import java.util.List;
 import java.util.Optional;
@@ -74,11 +76,17 @@ public class OrdersModule {
     }
 
     public OrdersExplorerViewModel ordersExplorerViewModel() {
-        return new OrdersExplorerViewModel(
+        var vm = new OrdersExplorerViewModel(
             new GetOrderSummariesQuery(orderRepository, customerRepository)::execute,
-            request -> shell.show(() -> orderEditorViewModel(request)),
-            shell.statusItems()
+            request -> shell.show(() -> orderEditorViewModel(request))
         );
+
+        shell.statusItems().addAll(
+            new StatusItemViewModel(vm.ordersCountProperty(), LabelType.All_ORDERS),
+            new StatusItemViewModel(vm.overdueOrdersCountProperty(), LabelType.OVERDUE_ORDERS)
+        );
+
+        return vm;
     }
 
     private OrderEditorViewModel orderEditorViewModel(EditOrderRequest request) {

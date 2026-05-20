@@ -1,13 +1,9 @@
 package mvvm.example.orders.explorer;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.ExplorerViewModelTest;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.OrderSummary;
 import mvvm.example.orders.requests.EditOrderRequest;
-import mvvm.example.shell.main.statusbar.LabelType;
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,17 +33,15 @@ class OrdersExplorerViewModelTest extends ExplorerViewModelTest<OrderSummary, Or
     @Mock private OrdersExplorerHost host;
 
     private List<OrderSummary> summaries;
-    private ObservableList<StatusItemViewModel> statusItems;
 
     @BeforeEach
     void setUp() {
         summaries = new ArrayList<>();
-        statusItems = FXCollections.observableArrayList();
     }
 
     @Override
     protected OrdersExplorerViewModel createViewModel() {
-        return new OrdersExplorerViewModel(() -> CompletableFuture.completedFuture(List.copyOf(summaries)), host, statusItems);
+        return new OrdersExplorerViewModel(() -> CompletableFuture.completedFuture(List.copyOf(summaries)), host);
     }
 
     @Override
@@ -107,29 +101,6 @@ class OrdersExplorerViewModelTest extends ExplorerViewModelTest<OrderSummary, Or
             assertEquals(expectedOverdueCount, vm.overdueOrdersCountProperty().get());
         }
 
-        @Test
-        @DisplayName("it adds a status item for order count")
-        void addsOrderCountStatusItem() {
-            summaries.add(MockOrders.summaryOf("1", RECENT));
-            summaries.add(MockOrders.summaryOf("2", RECENT));
-            var vm = createViewModel();
-            executeFetch(vm);
-
-            assertEquals(2, statusItems.getFirst().countProperty().get());
-            assertEquals(LabelType.All_ORDERS, statusItems.getFirst().label());
-        }
-
-        @Test
-        @DisplayName("it adds a status item for overdue count")
-        void addsOverdueCountStatusItem() {
-            summaries.add(MockOrders.summaryOf("1", RECENT));
-            summaries.add(MockOrders.summaryOf("2", OVERDUE));
-            var vm = createViewModel();
-            executeFetch(vm);
-
-            assertEquals(1, statusItems.getLast().countProperty().get());
-            assertEquals(LabelType.OVERDUE_ORDERS, statusItems.getLast().label());
-        }
     }
 
     @Nested
