@@ -28,7 +28,7 @@ class OrderEditorViewModelTest {
     private static OrderHeaderViewModel headerVmFor(Order order) {
         var customer = order.customerId() != null ? MockOrders.ACME_CUSTOMER : null;
         var summary = new OrderHeaderSummary(order.createdDate(), order.status(), customer, order.plannedShipDate(), order.reference());
-        return new OrderHeaderViewModel(EditOrderRequest.of(order.id()), req -> summary, mock(OrderHeaderHost.class));
+        return new OrderHeaderViewModel(OrderEditorRequest.of(order.id()), req -> summary, mock(OrderHeaderHost.class));
     }
 
     private static LineItemsExplorerViewModel lineItemsVmFor(Order order) {
@@ -41,12 +41,12 @@ class OrderEditorViewModelTest {
                 .toList();
             return CompletableFuture.completedFuture(summaries);
         });
-        return new LineItemsExplorerViewModel(EditOrderRequest.of(order.id()), service, mock(LineItemsExplorerHost.class));
+        return new LineItemsExplorerViewModel(OrderEditorRequest.of(order.id()), service, mock(LineItemsExplorerHost.class));
     }
 
     private static OrderEditorViewModel vmFor(Order order) {
         return new OrderEditorViewModel(
-            EditOrderRequest.of(order.id()),
+            OrderEditorRequest.of(order.id()),
             headerVmFor(order),
             lineItemsVmFor(order),
             mock(OrderEditorService.class),
@@ -119,7 +119,7 @@ class OrderEditorViewModelTest {
             var order = MockOrders.validOrderWithLineItems();
             var service = mock(OrderEditorService.class);
             var vm = new OrderEditorViewModel(
-                EditOrderRequest.of(order.id()),
+                OrderEditorRequest.of(order.id()),
                 headerVmFor(order),
                 lineItemsVmFor(order),
                 service,
@@ -142,7 +142,7 @@ class OrderEditorViewModelTest {
             var order = MockOrders.validOrderWithLineItems();
             var service = mock(OrderEditorService.class);
             var vm = new OrderEditorViewModel(
-                EditOrderRequest.of(order.id()),
+                OrderEditorRequest.of(order.id()),
                 headerVmFor(order),
                 lineItemsVmFor(order),
                 service,
@@ -167,7 +167,7 @@ class OrderEditorViewModelTest {
             when(service.copyOrder(order.id())).thenReturn("copied-" + order.id());
             var host = mock(OrderEditorHost.class);
             var vm = new OrderEditorViewModel(
-                EditOrderRequest.of(order.id()),
+                OrderEditorRequest.of(order.id()),
                 headerVmFor(order),
                 lineItemsVmFor(order),
                 service,
@@ -177,7 +177,7 @@ class OrderEditorViewModelTest {
             vm.copy.execute();
 
             verify(service).copyOrder(order.id());
-            verify(host).openOrder(EditOrderRequest.of("copied-" + order.id()));
+            verify(host).openOrder(OrderEditorRequest.of("copied-" + order.id()));
         }
     }
 
@@ -194,9 +194,9 @@ class OrderEditorViewModelTest {
             when(lineItemsService.fetchSummaries(any(), any())).thenReturn(CompletableFuture.completedFuture(List.of()));
 
             var vm = new OrderEditorViewModel(
-                EditOrderRequest.forNewOrder(),
-                new OrderHeaderViewModel(EditOrderRequest.forNewOrder(), req -> emptySummary, mock(OrderHeaderHost.class)),
-                new LineItemsExplorerViewModel(EditOrderRequest.forNewOrder(), lineItemsService, mock(LineItemsExplorerHost.class)),
+                OrderEditorRequest.forNewOrder(),
+                new OrderHeaderViewModel(OrderEditorRequest.forNewOrder(), req -> emptySummary, mock(OrderHeaderHost.class)),
+                new LineItemsExplorerViewModel(OrderEditorRequest.forNewOrder(), lineItemsService, mock(LineItemsExplorerHost.class)),
                 mock(OrderEditorService.class),
                 mock(OrderEditorHost.class)
             );
@@ -215,9 +215,9 @@ class OrderEditorViewModelTest {
             var order = MockOrders.validOrderWithLineItems();
             var headerHost = mock(OrderHeaderHost.class);
             var summary = new OrderHeaderSummary(order.createdDate(), order.status(), MockOrders.ACME_CUSTOMER, order.plannedShipDate(), order.reference());
-            var header = new OrderHeaderViewModel(EditOrderRequest.of(order.id()), req -> summary, headerHost);
+            var header = new OrderHeaderViewModel(OrderEditorRequest.of(order.id()), req -> summary, headerHost);
             var vm = new OrderEditorViewModel(
-                EditOrderRequest.of(order.id()),
+                OrderEditorRequest.of(order.id()),
                 header,
                 lineItemsVmFor(order),
                 mock(OrderEditorService.class),

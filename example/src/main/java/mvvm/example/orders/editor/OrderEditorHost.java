@@ -2,5 +2,5 @@ package mvvm.example.orders.editor;
 
 public interface OrderEditorHost {
     void returnToList();
-    void openOrder(EditOrderRequest request);
+    void openOrder(OrderEditorRequest request);
 }

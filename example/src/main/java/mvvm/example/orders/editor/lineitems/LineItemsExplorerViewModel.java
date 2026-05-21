@@ -9,7 +9,7 @@ import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.queries.LineItemSummary;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.OrderEditorRequest;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +26,7 @@ public class LineItemsExplorerViewModel extends ExplorerViewModel<LineItemSummar
     private final LineItemsExplorerHost host;
     private final String orderId;
 
-    public LineItemsExplorerViewModel(EditOrderRequest request, LineItemsExplorerService service, LineItemsExplorerHost host) {
+    public LineItemsExplorerViewModel(OrderEditorRequest request, LineItemsExplorerService service, LineItemsExplorerHost host) {
         this.service = service;
         this.host = host;
         this.orderId = request.orderId();

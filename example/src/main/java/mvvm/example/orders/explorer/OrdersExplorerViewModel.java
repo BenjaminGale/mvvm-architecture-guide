@@ -5,7 +5,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.ListChangeListener;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
 import mvvm.example.orders.domain.queries.OrderSummary;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.OrderEditorRequest;
 
 import java.util.Comparator;
 import java.util.List;
@@ -54,12 +54,12 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<OrderSummary> {
 
     @Override
     protected void addItem() {
-        host.showOrderDetails(EditOrderRequest.forNewOrder());
+        host.showOrderDetails(OrderEditorRequest.forNewOrder());
     }
 
     @Override
     protected void editItem(OrderSummary summary) {
-        host.showOrderDetails(EditOrderRequest.of(summary.id()));
+        host.showOrderDetails(OrderEditorRequest.of(summary.id()));
     }
 
     @Override

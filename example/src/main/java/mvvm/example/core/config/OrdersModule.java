@@ -17,7 +17,7 @@ import mvvm.example.orders.editor.*;
 import mvvm.example.orders.editor.header.CustomerSelectorView;
 import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
 import mvvm.example.orders.editor.header.CustomerSelectorRequest;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.OrderEditorRequest;
 import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
 import mvvm.example.orders.editor.lineitems.LineItemEditorView;
 import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;
@@ -90,7 +90,7 @@ public class OrdersModule {
         return vm;
     }
 
-    private OrderEditorViewModel orderEditorViewModel(EditOrderRequest request) {
+    private OrderEditorViewModel orderEditorViewModel(OrderEditorRequest request) {
         return new OrderEditorViewModel(
             request,
             orderHeaderViewModel(request),
@@ -102,12 +102,12 @@ public class OrdersModule {
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
-                @Override public void openOrder(EditOrderRequest req) { shell.show(() -> orderEditorViewModel(req)); }
+                @Override public void openOrder(OrderEditorRequest req) { shell.show(() -> orderEditorViewModel(req)); }
             }
         );
     }
 
-    private OrderHeaderViewModel orderHeaderViewModel(EditOrderRequest request) {
+    private OrderHeaderViewModel orderHeaderViewModel(OrderEditorRequest request) {
         return new OrderHeaderViewModel(
             request,
             new GetOrderHeaderSummaryQuery(orderRepository, customerRepository),
@@ -115,7 +115,7 @@ public class OrdersModule {
         );
     }
 
-    private LineItemsExplorerViewModel lineItemsExplorerViewModel(EditOrderRequest request) {
+    private LineItemsExplorerViewModel lineItemsExplorerViewModel(OrderEditorRequest request) {
         return new LineItemsExplorerViewModel(
             request,
             new OrderLineItemsService(orderRepository, new GetLineItemSummariesQuery(productRepository, stockRepository), deleteStockAllocationsCommand),

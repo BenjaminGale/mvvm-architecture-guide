@@ -10,7 +10,7 @@ import javafx.beans.property.StringProperty;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.orders.domain.OrderStatus;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.OrderEditorRequest;
 
 import java.time.LocalDate;
 
@@ -25,7 +25,7 @@ public class OrderHeaderViewModel {
     private final StringProperty reference = new SimpleStringProperty();
     private final BooleanProperty valid = new SimpleBooleanProperty(false);
 
-    public OrderHeaderViewModel(EditOrderRequest request, OrderHeaderService service, OrderHeaderHost host) {
+    public OrderHeaderViewModel(OrderEditorRequest request, OrderHeaderService service, OrderHeaderHost host) {
         var summary = service.fetch(request);
         createdDate = summary.createdDate();
         status = summary.status();

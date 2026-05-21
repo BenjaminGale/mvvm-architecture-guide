@@ -14,7 +14,7 @@ public class OrderEditorViewModel {
     public final Action delete;
     public final Action copy;
 
-    private final EditOrderRequest request;
+    private final OrderEditorRequest request;
     private final OrderHeaderViewModel header;
     private final LineItemsExplorerViewModel lineItems;
 
@@ -22,7 +22,7 @@ public class OrderEditorViewModel {
     private final OrderEditorHost host;
 
     public OrderEditorViewModel(
-        EditOrderRequest request,
+        OrderEditorRequest request,
         OrderHeaderViewModel header,
         LineItemsExplorerViewModel lineItems,
         OrderEditorService service,
@@ -59,7 +59,7 @@ public class OrderEditorViewModel {
 
     private void onCopy() {
         var copiedId = service.copyOrder(request.orderId());
-        host.openOrder(EditOrderRequest.of(copiedId));
+        host.openOrder(OrderEditorRequest.of(copiedId));
     }
 
     public OrderHeaderViewModel getHeader() { return header; }

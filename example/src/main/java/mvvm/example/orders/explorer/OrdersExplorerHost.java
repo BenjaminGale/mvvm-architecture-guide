@@ -1,7 +1,7 @@
 package mvvm.example.orders.explorer;
 
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.OrderEditorRequest;
 
 public interface OrdersExplorerHost {
-    void showOrderDetails(EditOrderRequest request);
+    void showOrderDetails(OrderEditorRequest request);
 }

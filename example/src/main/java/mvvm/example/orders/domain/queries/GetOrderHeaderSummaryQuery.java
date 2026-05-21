@@ -3,7 +3,7 @@ package mvvm.example.orders.domain.queries;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.domain.OrderStatus;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.OrderEditorRequest;
 import mvvm.example.orders.editor.header.OrderHeaderService;
 
 import java.time.LocalDate;
@@ -19,7 +19,7 @@ public class GetOrderHeaderSummaryQuery implements OrderHeaderService {
     }
 
     @Override
-    public OrderHeaderSummary fetch(EditOrderRequest request) {
+    public OrderHeaderSummary fetch(OrderEditorRequest request) {
         if (request.isNew()) {
             return new OrderHeaderSummary(LocalDate.now(), OrderStatus.PENDING, null, LocalDate.now(), "");
         }

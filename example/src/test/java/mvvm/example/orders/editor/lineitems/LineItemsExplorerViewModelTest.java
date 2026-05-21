@@ -2,7 +2,7 @@ package mvvm.example.orders.editor.lineitems;
 
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.queries.LineItemSummary;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.OrderEditorRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 @DisplayName("Orders.LineItemsViewModel")
 class LineItemsExplorerViewModelTest {
 
-    private static final EditOrderRequest AN_ORDER = EditOrderRequest.of("ord-1");
+    private static final OrderEditorRequest AN_ORDER = OrderEditorRequest.of("ord-1");
 
     private static LineItemsExplorerService serviceWith(LineItem... items) {
         var service = mock(LineItemsExplorerService.class);

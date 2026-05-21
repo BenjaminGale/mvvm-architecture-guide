@@ -2,7 +2,7 @@ package mvvm.example.orders.domain.queries;
 
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.OrderRepository;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.OrderEditorRequest;
 import mvvm.example.orders.editor.lineitems.LineItemsExplorerService;
 import mvvm.example.stock.domain.commands.DeleteStockAllocationsCommand;
 
@@ -22,7 +22,7 @@ public class OrderLineItemsService implements LineItemsExplorerService {
     }
 
     @Override
-    public List<LineItem> fetchLineItems(EditOrderRequest request) {
+    public List<LineItem> fetchLineItems(OrderEditorRequest request) {
         return request.isNew() ? List.of() : orderRepository.findById(request.orderId()).orElseThrow().lineItems();
     }
 

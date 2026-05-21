@@ -3,7 +3,7 @@ package mvvm.example.orders.explorer;
 import mvvm.example.core.viewmodel.ExplorerViewModelTest;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.queries.OrderSummary;
-import mvvm.example.orders.editor.EditOrderRequest;
+import mvvm.example.orders.editor.OrderEditorRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -118,7 +118,7 @@ class OrdersExplorerViewModelTest extends ExplorerViewModelTest<OrderSummary, Or
             vm.selectedItemProperty().set(summary);
             vm.editItemAction().execute();
 
-            verify(host).showOrderDetails(EditOrderRequest.of(summary.id()));
+            verify(host).showOrderDetails(OrderEditorRequest.of(summary.id()));
         }
     }
 
@@ -133,7 +133,7 @@ class OrdersExplorerViewModelTest extends ExplorerViewModelTest<OrderSummary, Or
 
             vm.addItemAction().execute();
 
-            verify(host).showOrderDetails(EditOrderRequest.forNewOrder());
+            verify(host).showOrderDetails(OrderEditorRequest.forNewOrder());
         }
     }
 }
