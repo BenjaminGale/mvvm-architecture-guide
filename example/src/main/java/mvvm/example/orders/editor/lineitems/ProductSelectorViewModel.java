@@ -15,9 +15,9 @@ public class ProductSelectorViewModel {
     private final StringProperty searchText = new SimpleStringProperty(this, "searchText", "");
     private final ObjectProperty<Product> selectedProduct = new SimpleObjectProperty<>(this, "selectedProduct");
     private final FilteredList<Product> products;
-    private final SelectProductRequest request;
+    private final ProductSelectorRequest request;
 
-    public ProductSelectorViewModel(SelectProductRequest request, List<Product> allProducts) {
+    public ProductSelectorViewModel(ProductSelectorRequest request, List<Product> allProducts) {
         this.request = request;
         var available = allProducts.stream()
             .filter(p -> !request.excludedProductIds().contains(p.id()))

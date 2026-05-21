@@ -2,7 +2,7 @@ package mvvm.example.orders.editor.header;
 
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
-import mvvm.example.orders.editor.header.SelectCustomerRequest;
+import mvvm.example.orders.editor.header.CustomerSelectorRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class CustomerSelectorViewModelTest {
     private static final List<Customer> ALL_CUSTOMERS = List.of(ACME, GLOBEX, INACTIVE);
 
     private static CustomerSelectorViewModel viewModelFor(Customer current) {
-        return new CustomerSelectorViewModel(new SelectCustomerRequest(current, confirmed -> {}), ALL_CUSTOMERS);
+        return new CustomerSelectorViewModel(new CustomerSelectorRequest(current, confirmed -> {}), ALL_CUSTOMERS);
     }
 
     @Nested
@@ -92,7 +92,7 @@ class CustomerSelectorViewModelTest {
         @DisplayName("the request callback is invoked with the selected customer")
         void callbackInvokedWithSelection() {
             Consumer<Customer> listener = mock();
-            var vm = new CustomerSelectorViewModel(new SelectCustomerRequest(null, listener), ALL_CUSTOMERS);
+            var vm = new CustomerSelectorViewModel(new CustomerSelectorRequest(null, listener), ALL_CUSTOMERS);
             vm.selectedCustomerProperty().set(ACME);
 
             vm.confirm();
@@ -104,7 +104,7 @@ class CustomerSelectorViewModelTest {
         @DisplayName("the callback is not invoked when no customer is selected")
         void callbackNotInvokedWithoutSelection() {
             Consumer<Customer> listener = mock();
-            var vm = new CustomerSelectorViewModel(new SelectCustomerRequest(null, listener), ALL_CUSTOMERS);
+            var vm = new CustomerSelectorViewModel(new CustomerSelectorRequest(null, listener), ALL_CUSTOMERS);
 
             vm.confirm();
 

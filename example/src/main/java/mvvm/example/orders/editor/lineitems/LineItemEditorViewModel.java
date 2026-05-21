@@ -19,13 +19,13 @@ public class LineItemEditorViewModel {
 
     public final Action selectProduct;
 
-    private final EditItemRequest request;
+    private final LineItemEditorRequest request;
     private String productId;
     private final StringProperty description = new SimpleStringProperty();
     private final IntegerProperty quantity = new SimpleIntegerProperty();
     private final ObjectProperty<BigDecimal> unitPrice = new SimpleObjectProperty<>();
 
-    public LineItemEditorViewModel(EditItemRequest request, Consumer<SelectProductRequest> selectProductHost) {
+    public LineItemEditorViewModel(LineItemEditorRequest request, Consumer<ProductSelectorRequest> selectProductHost) {
         this.request = request;
         this.productId = request.item().productId();
 
@@ -34,7 +34,7 @@ public class LineItemEditorViewModel {
         unitPrice.set(request.item().unitPrice());
 
         selectProduct = new Action(() -> selectProductHost.accept(
-            new SelectProductRequest(request.excludedProductIds(), this::onProductSelected)
+            new ProductSelectorRequest(request.excludedProductIds(), this::onProductSelected)
         ));
     }
 

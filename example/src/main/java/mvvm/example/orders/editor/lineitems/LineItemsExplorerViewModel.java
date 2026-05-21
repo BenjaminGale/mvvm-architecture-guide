@@ -57,7 +57,7 @@ public class LineItemsExplorerViewModel extends ExplorerViewModel<LineItemSummar
             .map(LineItem::productId)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
-        host.showItemEditor(new EditItemRequest(LineItem.empty(), excluded, this::addConfirmedRow));
+        host.showItemEditor(new LineItemEditorRequest(LineItem.empty(), excluded, this::addConfirmedRow));
     }
 
     @Override
@@ -70,7 +70,7 @@ public class LineItemsExplorerViewModel extends ExplorerViewModel<LineItemSummar
             .filter(Objects::nonNull)
             .filter(id -> !id.equals(item.productId()))
             .collect(Collectors.toSet());
-        host.showItemEditor(new EditItemRequest(item, excluded, updated -> updateConfirmedRow(index, updated)));
+        host.showItemEditor(new LineItemEditorRequest(item, excluded, updated -> updateConfirmedRow(index, updated)));
     }
 
     @Override

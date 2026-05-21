@@ -1,6 +1,6 @@
 package mvvm.example.orders.editor.lineitems;
 
-import mvvm.example.orders.editor.lineitems.SelectProductRequest;
+import mvvm.example.orders.editor.lineitems.ProductSelectorRequest;
 import mvvm.example.stock.domain.Product;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,7 +24,7 @@ class ProductSelectorViewModelTest {
     private static final List<Product> ALL_PRODUCTS = List.of(WIDGET, GADGET, DOOHICKEY);
 
     private static ProductSelectorViewModel viewModelFor(Set<String> excluded) {
-        return new ProductSelectorViewModel(new SelectProductRequest(excluded, p -> {}), ALL_PRODUCTS);
+        return new ProductSelectorViewModel(new ProductSelectorRequest(excluded, p -> {}), ALL_PRODUCTS);
     }
 
     @Nested
@@ -93,7 +93,7 @@ class ProductSelectorViewModelTest {
         @DisplayName("the request callback is invoked with the selected product")
         void callbackInvokedWithSelection() {
             Consumer<Product> listener = mock();
-            var vm = new ProductSelectorViewModel(new SelectProductRequest(Set.of(), listener), ALL_PRODUCTS);
+            var vm = new ProductSelectorViewModel(new ProductSelectorRequest(Set.of(), listener), ALL_PRODUCTS);
             vm.selectedProductProperty().set(WIDGET);
 
             vm.confirm();
@@ -105,7 +105,7 @@ class ProductSelectorViewModelTest {
         @DisplayName("the callback is not invoked when no product is selected")
         void callbackNotInvokedWithoutSelection() {
             Consumer<Product> listener = mock();
-            var vm = new ProductSelectorViewModel(new SelectProductRequest(Set.of(), listener), ALL_PRODUCTS);
+            var vm = new ProductSelectorViewModel(new ProductSelectorRequest(Set.of(), listener), ALL_PRODUCTS);
 
             vm.confirm();
 

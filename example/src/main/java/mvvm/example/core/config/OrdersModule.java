@@ -16,14 +16,14 @@ import mvvm.example.orders.domain.commands.UpsertOrderCommand;
 import mvvm.example.orders.editor.*;
 import mvvm.example.orders.editor.header.CustomerSelectorView;
 import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
-import mvvm.example.orders.editor.header.SelectCustomerRequest;
+import mvvm.example.orders.editor.header.CustomerSelectorRequest;
 import mvvm.example.orders.editor.EditOrderRequest;
-import mvvm.example.orders.editor.lineitems.EditItemRequest;
+import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
 import mvvm.example.orders.editor.lineitems.LineItemEditorView;
 import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;
 import mvvm.example.orders.editor.lineitems.ProductSelectorView;
 import mvvm.example.orders.editor.lineitems.ProductSelectorViewModel;
-import mvvm.example.orders.editor.lineitems.SelectProductRequest;
+import mvvm.example.orders.editor.lineitems.ProductSelectorRequest;
 import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsExplorerView;
@@ -123,15 +123,15 @@ public class OrdersModule {
         );
     }
 
-    private LineItemEditorViewModel editItemViewModel(EditItemRequest request) {
+    private LineItemEditorViewModel editItemViewModel(LineItemEditorRequest request) {
         return new LineItemEditorViewModel(request, r -> view.dialogManager().show(productSelectorViewModel(r)));
     }
 
-    private CustomerSelectorViewModel customerSelectorViewModel(SelectCustomerRequest request) {
+    private CustomerSelectorViewModel customerSelectorViewModel(CustomerSelectorRequest request) {
         return new CustomerSelectorViewModel(request, customerRepository.findAll());
     }
 
-    private ProductSelectorViewModel productSelectorViewModel(SelectProductRequest request) {
+    private ProductSelectorViewModel productSelectorViewModel(ProductSelectorRequest request) {
         return new ProductSelectorViewModel(request, productRepository.findAll());
     }
 

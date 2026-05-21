@@ -181,7 +181,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the request carries the currently selected customer")
         void requestCarriesCurrentCustomer() {
-            var capturedRequest = new SelectCustomerRequest[]{null};
+            var capturedRequest = new CustomerSelectorRequest[]{null};
             var order = MockOrders.validOrderWithLineItems();
             var summary = new OrderHeaderSummary(order.createdDate(), order.status(), MockOrders.ACME_CUSTOMER, order.plannedShipDate(), order.reference());
             var vm = new OrderHeaderViewModel(EditOrderRequest.of(order.id()), req -> summary, request -> capturedRequest[0] = request);

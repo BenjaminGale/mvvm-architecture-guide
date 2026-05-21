@@ -5,7 +5,7 @@ import mvvm.example.orders.domain.LineItem;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public record EditItemRequest(LineItem item, Set<String> excludedProductIds, Consumer<LineItem> listener) {
+public record LineItemEditorRequest(LineItem item, Set<String> excludedProductIds, Consumer<LineItem> listener) {
 
     public void confirmChanges(LineItem updated) { listener.accept(updated); }
 }

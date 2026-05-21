@@ -16,9 +16,9 @@ public class CustomerSelectorViewModel {
     private final StringProperty searchText = new SimpleStringProperty(this, "searchText", "");
     private final ObjectProperty<Customer> selectedCustomer = new SimpleObjectProperty<>(this, "selectedCustomer");
     private final FilteredList<Customer> customers;
-    private final SelectCustomerRequest request;
+    private final CustomerSelectorRequest request;
 
-    public CustomerSelectorViewModel(SelectCustomerRequest request, List<Customer> allCustomers) {
+    public CustomerSelectorViewModel(CustomerSelectorRequest request, List<Customer> allCustomers) {
         this.request = request;
         var active = allCustomers.stream().filter(c -> c.status() == CustomerStatus.ACTIVE).toList();
         this.customers = new FilteredList<>(FXCollections.observableArrayList(active));

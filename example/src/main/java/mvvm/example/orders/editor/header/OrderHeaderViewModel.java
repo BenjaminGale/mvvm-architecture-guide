@@ -38,7 +38,7 @@ public class OrderHeaderViewModel {
         reference.addListener(obs -> validate());
 
         selectCustomer = new Action(() -> host.showCustomerSelector(
-            new SelectCustomerRequest(selectedCustomer.get(), selectedCustomer::set)
+            new CustomerSelectorRequest(selectedCustomer.get(), selectedCustomer::set)
         ));
 
         validate();
