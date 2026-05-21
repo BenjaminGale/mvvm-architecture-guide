@@ -6,7 +6,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
-import mvvm.example.customers.requests.EditCustomerRequest;
 
 import java.util.UUID;
 
@@ -16,10 +15,10 @@ public class CustomerEditorViewModel {
     private final StringProperty email = new SimpleStringProperty();
     private final ObjectProperty<CustomerStatus> status = new SimpleObjectProperty<>();
 
-    private final EditCustomerRequest request;
+    private final CustomerEditorRequest request;
     private final CustomerEditorService service;
 
-    public CustomerEditorViewModel(EditCustomerRequest request, CustomerEditorService service) {
+    public CustomerEditorViewModel(CustomerEditorRequest request, CustomerEditorService service) {
         this.request = request;
         this.service = service;
 

@@ -3,7 +3,7 @@ package mvvm.example.customers.explorer;
 import mvvm.example.core.viewmodel.ExplorerViewModelTest;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
-import mvvm.example.customers.requests.EditCustomerRequest;
+import mvvm.example.customers.editor.CustomerEditorRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -93,7 +93,7 @@ class CustomersExplorerViewModelTest extends ExplorerViewModelTest<Customer, Cus
             vm.selectedItemProperty().set(customer);
             vm.editItemAction().execute();
 
-            var captor = ArgumentCaptor.forClass(EditCustomerRequest.class);
+            var captor = ArgumentCaptor.forClass(CustomerEditorRequest.class);
             verify(host).editCustomer(captor.capture());
             assertEquals(customer.id(), captor.getValue().customerId());
         }
@@ -111,7 +111,7 @@ class CustomersExplorerViewModelTest extends ExplorerViewModelTest<Customer, Cus
 
             vm.addItemAction().execute();
 
-            var captor = ArgumentCaptor.forClass(EditCustomerRequest.class);
+            var captor = ArgumentCaptor.forClass(CustomerEditorRequest.class);
             verify(host).editCustomer(captor.capture());
             assertTrue(captor.getValue().isNew());
         }

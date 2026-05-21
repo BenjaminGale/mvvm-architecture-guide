@@ -6,7 +6,7 @@ import javafx.beans.value.ObservableBooleanValue;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
-import mvvm.example.customers.requests.EditCustomerRequest;
+import mvvm.example.customers.editor.CustomerEditorRequest;
 
 import java.util.Comparator;
 import java.util.List;
@@ -40,12 +40,12 @@ public class CustomersExplorerViewModel extends ExplorerViewModel<Customer> {
 
     @Override
     protected void addItem() {
-        host.editCustomer(EditCustomerRequest.newCustomer(this::refresh));
+        host.editCustomer(CustomerEditorRequest.newCustomer(this::refresh));
     }
 
     @Override
     protected void editItem(Customer customer) {
-        host.editCustomer(EditCustomerRequest.forCustomer(customer.id(), this::refresh));
+        host.editCustomer(CustomerEditorRequest.forCustomer(customer.id(), this::refresh));
     }
 
     @Override
