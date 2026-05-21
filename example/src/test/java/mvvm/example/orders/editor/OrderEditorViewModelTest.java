@@ -9,8 +9,8 @@ import mvvm.example.orders.editor.header.OrderHeaderHost;
 import mvvm.example.orders.domain.queries.OrderHeaderSummary;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
-import mvvm.example.orders.editor.lineitems.LineItemsHost;
-import mvvm.example.orders.editor.lineitems.LineItemsService;
+import mvvm.example.orders.editor.lineitems.LineItemsExplorerHost;
+import mvvm.example.orders.editor.lineitems.LineItemsExplorerService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class OrderEditorViewModelTest {
     }
 
     private static LineItemsExplorerViewModel lineItemsVmFor(Order order) {
-        var service = mock(LineItemsService.class);
+        var service = mock(LineItemsExplorerService.class);
         when(service.fetchLineItems(any())).thenReturn(order.lineItems());
         when(service.fetchSummaries(any(), any())).thenAnswer(inv -> {
             List<LineItem> items = inv.getArgument(0);
@@ -41,7 +41,7 @@ class OrderEditorViewModelTest {
                 .toList();
             return CompletableFuture.completedFuture(summaries);
         });
-        return new LineItemsExplorerViewModel(EditOrderRequest.of(order.id()), service, mock(LineItemsHost.class));
+        return new LineItemsExplorerViewModel(EditOrderRequest.of(order.id()), service, mock(LineItemsExplorerHost.class));
     }
 
     private static OrderEditorViewModel vmFor(Order order) {
@@ -189,14 +189,14 @@ class OrderEditorViewModelTest {
         @DisplayName("canSave is false when no fields have been filled")
         void canSaveIsFalseInitially() {
             var emptySummary = new OrderHeaderSummary(LocalDate.now(), OrderStatus.PENDING, null, LocalDate.now(), "");
-            var lineItemsService = mock(LineItemsService.class);
+            var lineItemsService = mock(LineItemsExplorerService.class);
             when(lineItemsService.fetchLineItems(any())).thenReturn(List.of());
             when(lineItemsService.fetchSummaries(any(), any())).thenReturn(CompletableFuture.completedFuture(List.of()));
 
             var vm = new OrderEditorViewModel(
                 EditOrderRequest.forNewOrder(),
                 new OrderHeaderViewModel(EditOrderRequest.forNewOrder(), req -> emptySummary, mock(OrderHeaderHost.class)),
-                new LineItemsExplorerViewModel(EditOrderRequest.forNewOrder(), lineItemsService, mock(LineItemsHost.class)),
+                new LineItemsExplorerViewModel(EditOrderRequest.forNewOrder(), lineItemsService, mock(LineItemsExplorerHost.class)),
                 mock(OrderEditorService.class),
                 mock(OrderEditorHost.class)
             );

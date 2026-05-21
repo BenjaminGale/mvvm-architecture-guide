@@ -1,5 +1,5 @@
 package mvvm.example.orders.editor.lineitems;
 
-public interface LineItemsHost {
+public interface LineItemsExplorerHost {
     void showItemEditor(LineItemEditorRequest request);
 }

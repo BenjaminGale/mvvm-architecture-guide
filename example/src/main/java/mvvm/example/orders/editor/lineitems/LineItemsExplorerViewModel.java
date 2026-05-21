@@ -22,11 +22,11 @@ public class LineItemsExplorerViewModel extends ExplorerViewModel<LineItemSummar
     private final ObservableList<LineItem> lineItems = FXCollections.observableArrayList();
     private final BooleanProperty valid = new SimpleBooleanProperty(false);
 
-    private final LineItemsService service;
-    private final LineItemsHost host;
+    private final LineItemsExplorerService service;
+    private final LineItemsExplorerHost host;
     private final String orderId;
 
-    public LineItemsExplorerViewModel(EditOrderRequest request, LineItemsService service, LineItemsHost host) {
+    public LineItemsExplorerViewModel(EditOrderRequest request, LineItemsExplorerService service, LineItemsExplorerHost host) {
         this.service = service;
         this.host = host;
         this.orderId = request.orderId();

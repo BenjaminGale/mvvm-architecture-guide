@@ -3,13 +3,13 @@ package mvvm.example.orders.domain.queries;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.editor.EditOrderRequest;
-import mvvm.example.orders.editor.lineitems.LineItemsService;
+import mvvm.example.orders.editor.lineitems.LineItemsExplorerService;
 import mvvm.example.stock.domain.commands.DeleteStockAllocationsCommand;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class OrderLineItemsService implements LineItemsService {
+public class OrderLineItemsService implements LineItemsExplorerService {
 
     private final OrderRepository orderRepository;
     private final GetLineItemSummariesQuery summariesQuery;

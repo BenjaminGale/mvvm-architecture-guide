@@ -7,7 +7,7 @@ import mvvm.example.orders.editor.EditOrderRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface LineItemsService {
+public interface LineItemsExplorerService {
     List<LineItem> fetchLineItems(EditOrderRequest request);
     CompletableFuture<List<LineItemSummary>> fetchSummaries(List<LineItem> items, String orderId);
     void deleteLineItem(String productId, String orderId);

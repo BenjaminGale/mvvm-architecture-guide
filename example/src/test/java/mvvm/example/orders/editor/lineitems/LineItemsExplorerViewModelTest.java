@@ -19,8 +19,8 @@ class LineItemsExplorerViewModelTest {
 
     private static final EditOrderRequest AN_ORDER = EditOrderRequest.of("ord-1");
 
-    private static LineItemsService serviceWith(LineItem... items) {
-        var service = mock(LineItemsService.class);
+    private static LineItemsExplorerService serviceWith(LineItem... items) {
+        var service = mock(LineItemsExplorerService.class);
         when(service.fetchLineItems(any())).thenReturn(List.of(items));
         when(service.fetchSummaries(any(), any())).thenAnswer(inv -> {
             List<LineItem> lineItems = inv.getArgument(0);
@@ -135,7 +135,7 @@ class LineItemsExplorerViewModelTest {
         @Test
         @DisplayName("addItemAction asks the host to show the item editor")
         void addRowInvokesHost() {
-            LineItemsHost host = mock(LineItemsHost.class);
+            LineItemsExplorerHost host = mock(LineItemsExplorerHost.class);
             var vm = new LineItemsExplorerViewModel(AN_ORDER, serviceWith(item("a")), host);
 
             vm.addItemAction().execute();
@@ -207,7 +207,7 @@ class LineItemsExplorerViewModelTest {
         @Test
         @DisplayName("editItemAction asks the host to show the item editor")
         void editRowInvokesHost() {
-            LineItemsHost host = mock(LineItemsHost.class);
+            LineItemsExplorerHost host = mock(LineItemsExplorerHost.class);
             var vm = new LineItemsExplorerViewModel(AN_ORDER, serviceWith(item("a")), host);
             vm.selectedItemProperty().set(vm.items().getFirst());
 
