@@ -4,6 +4,7 @@ import mvvm.example.customers.domain.Customer;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderStatus;
+import mvvm.example.orders.domain.queries.OrderHeaderSummary;
 import mvvm.example.orders.editor.EditOrderRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

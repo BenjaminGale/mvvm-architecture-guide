@@ -6,7 +6,7 @@ import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderStatus;
 import mvvm.example.orders.domain.queries.LineItemSummary;
 import mvvm.example.orders.editor.header.OrderHeaderHost;
-import mvvm.example.orders.editor.header.OrderHeaderSummary;
+import mvvm.example.orders.domain.queries.OrderHeaderSummary;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsHost;
