@@ -16,14 +16,14 @@ import mvvm.example.orders.domain.commands.UpsertOrderCommand;
 import mvvm.example.orders.editor.*;
 import mvvm.example.orders.editor.header.CustomerSelectorView;
 import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
+import mvvm.example.orders.editor.header.SelectCustomerRequest;
 import mvvm.example.orders.editor.EditOrderRequest;
-import mvvm.example.orders.editor.header.OrderHeaderHost;
 import mvvm.example.orders.editor.lineitems.EditItemRequest;
-import mvvm.example.orders.editor.lineitems.LineItemsHost;
 import mvvm.example.orders.editor.lineitems.LineItemEditorView;
 import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;
 import mvvm.example.orders.editor.lineitems.ProductSelectorView;
 import mvvm.example.orders.editor.lineitems.ProductSelectorViewModel;
+import mvvm.example.orders.editor.lineitems.SelectProductRequest;
 import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemsExplorerView;
@@ -83,39 +83,63 @@ public class OrdersModule {
         );
 
         shell.statusItems().addAll(
-            new StatusItemViewModel(vm.ordersCountProperty(), LabelType.All_ORDERS),
-            new StatusItemViewModel(vm.overdueOrdersCountProperty(), LabelType.OVERDUE_ORDERS)
+            ordersCountStatusItem(vm),
+            overdueOrdersStatusItem(vm)
         );
 
         return vm;
     }
 
     private OrderEditorViewModel orderEditorViewModel(EditOrderRequest request) {
-        var lineItemsQuery = new GetLineItemSummariesQuery(productRepository, stockRepository);
-
-        OrderHeaderHost headerHost = req -> view.dialogManager().show(new CustomerSelectorViewModel(req, customerRepository.findAll()));
-        var header = new OrderHeaderViewModel(request, new GetOrderHeaderSummaryQuery(orderRepository, customerRepository), headerHost);
-
-        LineItemsHost lineItemsHost = req -> view.dialogManager().show(editItemViewModel(req));
-        var lineItems = new LineItemsExplorerViewModel(request, new OrderLineItemsService(orderRepository, lineItemsQuery, deleteStockAllocationsCommand), lineItemsHost);
-
-        var upsertCommand = new UpsertOrderCommand(orderRepository);
         return new OrderEditorViewModel(
             request,
-            header,
-            lineItems,
+            orderHeaderViewModel(request),
+            lineItemsExplorerViewModel(request),
             new OrderEditorService() {
-                @Override public void upsert(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> items) { upsertCommand.execute(orderId, customerId, reference, plannedShipDate, items); }
+                @Override public void upsert(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> items) { new UpsertOrderCommand(orderRepository).execute(orderId, customerId, reference, plannedShipDate, items); }
                 @Override public String copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
                 @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
-                @Override public void openOrder(EditOrderRequest copyRequest) { shell.show(() -> orderEditorViewModel(copyRequest)); }
-            });
+                @Override public void openOrder(EditOrderRequest req) { shell.show(() -> orderEditorViewModel(req)); }
+            }
+        );
+    }
+
+    private OrderHeaderViewModel orderHeaderViewModel(EditOrderRequest request) {
+        return new OrderHeaderViewModel(
+            request,
+            new GetOrderHeaderSummaryQuery(orderRepository, customerRepository),
+            req -> view.dialogManager().show(customerSelectorViewModel(req))
+        );
+    }
+
+    private LineItemsExplorerViewModel lineItemsExplorerViewModel(EditOrderRequest request) {
+        return new LineItemsExplorerViewModel(
+            request,
+            new OrderLineItemsService(orderRepository, new GetLineItemSummariesQuery(productRepository, stockRepository), deleteStockAllocationsCommand),
+            req -> view.dialogManager().show(editItemViewModel(req))
+        );
     }
 
     private LineItemEditorViewModel editItemViewModel(EditItemRequest request) {
-        return new LineItemEditorViewModel(request, r -> view.dialogManager().show(new ProductSelectorViewModel(r, productRepository.findAll())));
+        return new LineItemEditorViewModel(request, r -> view.dialogManager().show(productSelectorViewModel(r)));
+    }
+
+    private CustomerSelectorViewModel customerSelectorViewModel(SelectCustomerRequest request) {
+        return new CustomerSelectorViewModel(request, customerRepository.findAll());
+    }
+
+    private ProductSelectorViewModel productSelectorViewModel(SelectProductRequest request) {
+        return new ProductSelectorViewModel(request, productRepository.findAll());
+    }
+
+    private StatusItemViewModel ordersCountStatusItem(OrdersExplorerViewModel vm) {
+        return new StatusItemViewModel(vm.ordersCountProperty(), LabelType.All_ORDERS);
+    }
+
+    private StatusItemViewModel overdueOrdersStatusItem(OrdersExplorerViewModel vm) {
+        return new StatusItemViewModel(vm.overdueOrdersCountProperty(), LabelType.OVERDUE_ORDERS);
     }
 }
