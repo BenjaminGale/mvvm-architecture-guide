@@ -11,7 +11,6 @@ public class ProductSelectorView extends VBox {
 
     public static Dialog<Runnable> dialog(ProductSelectorViewModel viewModel) {
         var selectBtn = new ButtonType("Select", ButtonBar.ButtonData.OK_DONE);
-
         var dialog = new Dialog<Runnable>();
         dialog.setTitle("Select Product");
         dialog.getDialogPane().setContent(new ProductSelectorView(viewModel));
@@ -21,7 +20,6 @@ public class ProductSelectorView extends VBox {
 
         var okButton = (Button) dialog.getDialogPane().lookupButton(selectBtn);
         okButton.disableProperty().bind(viewModel.selectedProductProperty().isNull());
-
         return dialog;
     }
 
@@ -37,20 +35,17 @@ public class ProductSelectorView extends VBox {
         var list = new ListView<Product>();
         list.setItems(viewModel.getProducts());
         list.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(Product item, boolean empty) {
+            @Override protected void updateItem(Product item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null : item.name());
             }
         });
-
         list.getSelectionModel().selectedItemProperty().addListener((obs, old, product) -> {
             if (product != null) viewModel.selectedProductProperty().set(product);
         });
 
         VBox.setVgrow(list, Priority.ALWAYS);
         getChildren().addAll(searchField, list);
-
         Controls.focusOnShow(searchField);
     }
 }

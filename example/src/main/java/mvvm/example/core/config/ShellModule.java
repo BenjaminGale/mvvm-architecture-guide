@@ -52,8 +52,7 @@ public class ShellModule {
             stockRepository,
             view,
             shell,
-            new CopyOrderCommand(orderRepository),
-            new DeleteStockAllocationsCommand(stockRepository));
+            new CopyOrderCommand(orderRepository));
     }
 
     public CustomersModule createCustomersModule() {

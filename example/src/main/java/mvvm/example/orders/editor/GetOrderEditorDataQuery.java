@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor2;
+package mvvm.example.orders.editor;
 
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.Order;

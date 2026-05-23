@@ -4,8 +4,6 @@ import mvvm.example.customers.domain.Customer;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderStatus;
-import mvvm.example.orders.domain.queries.OrderHeaderSummary;
-import mvvm.example.orders.editor.OrderEditorRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,8 +19,7 @@ class OrderHeaderViewModelTest {
     private static final LocalDate A_DATE = LocalDate.of(2025, 1, 15);
 
     private static OrderHeaderViewModel viewModelFor(Order order, Customer customer) {
-        var summary = new OrderHeaderSummary(order.createdDate(), order.status(), customer, order.plannedShipDate(), order.reference());
-        return new OrderHeaderViewModel(OrderEditorRequest.of(order.id()), req -> summary, req -> {});
+        return new OrderHeaderViewModel(order, customer, req -> {});
     }
 
     private static OrderHeaderViewModel validViewModel() {
@@ -170,10 +167,9 @@ class OrderHeaderViewModelTest {
         void hostCallbackInvoked() {
             var hostCalled = new boolean[]{false};
             var order = MockOrders.validOrderWithLineItems();
-            var summary = new OrderHeaderSummary(order.createdDate(), order.status(), MockOrders.ACME_CUSTOMER, order.plannedShipDate(), order.reference());
-            var vm = new OrderHeaderViewModel(OrderEditorRequest.of(order.id()), req -> summary, request -> hostCalled[0] = true);
+            var vm = new OrderHeaderViewModel(order, MockOrders.ACME_CUSTOMER, request -> hostCalled[0] = true);
 
-            vm.selectCustomer.execute();
+            vm.selectCustomerAction.execute();
 
             assertTrue(hostCalled[0]);
         }
@@ -183,10 +179,9 @@ class OrderHeaderViewModelTest {
         void requestCarriesCurrentCustomer() {
             var capturedRequest = new CustomerSelectorRequest[]{null};
             var order = MockOrders.validOrderWithLineItems();
-            var summary = new OrderHeaderSummary(order.createdDate(), order.status(), MockOrders.ACME_CUSTOMER, order.plannedShipDate(), order.reference());
-            var vm = new OrderHeaderViewModel(OrderEditorRequest.of(order.id()), req -> summary, request -> capturedRequest[0] = request);
+            var vm = new OrderHeaderViewModel(order, MockOrders.ACME_CUSTOMER, request -> capturedRequest[0] = request);
 
-            vm.selectCustomer.execute();
+            vm.selectCustomerAction.execute();
 
             assertEquals(MockOrders.ACME_CUSTOMER, capturedRequest[0].current());
         }

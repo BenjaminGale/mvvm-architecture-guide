@@ -1,4 +1,4 @@
-package mvvm.example.orders.editor2.lineitems;
+package mvvm.example.orders.editor.lineitems;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
