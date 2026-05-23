@@ -80,7 +80,7 @@ class LineItemEditorViewModelTest {
                 new LineItemEditorRequest(ORIGINAL, List.of(), listener),
                 r -> r.confirmSelection(product)
             );
-            vm.selectProductAction.execute();
+            vm.selectProductAction().execute();
             vm.quantityProperty().set(5);
 
             vm.confirm();

@@ -8,7 +8,7 @@ import mvvm.example.orders.domain.queries.GetOrderSummariesQuery;
 import mvvm.example.orders.editor.OrderEditorHost;
 import mvvm.example.orders.editor.OrderEditorRequest;
 import mvvm.example.orders.editor.header.CustomerSelectorRequest;
-import mvvm.example.orders.editor.header.CustomerSelectorView;
+import mvvm.example.orders.editor.header.CustomerSelectorDialog;
 import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
 import mvvm.example.orders.editor.GetOrderEditorDataQuery;
 import mvvm.example.orders.editor.OrderEditorData;
@@ -18,10 +18,10 @@ import mvvm.example.orders.editor.OrderEditorViewModel;
 import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
-import mvvm.example.orders.editor.lineitems.LineItemEditorView;
+import mvvm.example.orders.editor.lineitems.LineItemEditorDialog;
 import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;
+import mvvm.example.orders.editor.lineitems.ProductSelectorDialog;
 import mvvm.example.orders.editor.lineitems.ProductSelectorRequest;
-import mvvm.example.orders.editor.lineitems.ProductSelectorView;
 import mvvm.example.orders.editor.lineitems.ProductSelectorViewModel;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.OrderRepository;
@@ -60,9 +60,9 @@ public class OrdersModule {
         view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
         view.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
         view.viewLocator().register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, view.viewLocator()));
-        view.dialogManager().register(LineItemEditorViewModel.class, LineItemEditorView::dialog);
-        view.dialogManager().register(CustomerSelectorViewModel.class, CustomerSelectorView::dialog);
-        view.dialogManager().register(ProductSelectorViewModel.class, ProductSelectorView::dialog);
+        view.dialogManager().register(LineItemEditorViewModel.class, LineItemEditorDialog::dialog);
+        view.dialogManager().register(CustomerSelectorViewModel.class, CustomerSelectorDialog::dialog);
+        view.dialogManager().register(ProductSelectorViewModel.class, ProductSelectorDialog::dialog);
     }
 
     public SidebarItemViewModel sidebarItem() {

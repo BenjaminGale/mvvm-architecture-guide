@@ -4,6 +4,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import mvvm.example.core.viewmodel.Action;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
 
@@ -15,6 +16,7 @@ public class CustomerEditorViewModel {
     private final StringProperty email = new SimpleStringProperty();
     private final ObjectProperty<CustomerStatus> status = new SimpleObjectProperty<>();
 
+    private final Action confirmAction;
     private final CustomerEditorRequest request;
     private final CustomerEditorService service;
 
@@ -28,6 +30,13 @@ public class CustomerEditorViewModel {
             email.set(customer.email());
             status.set(customer.status());
         }
+
+        confirmAction = new Action(
+            this::confirm,
+            name.isNotEmpty()
+                .and(email.isNotEmpty())
+                .and(status.isNotNull())
+        );
     }
 
     public StringProperty nameProperty() {
@@ -41,6 +50,8 @@ public class CustomerEditorViewModel {
     public ObjectProperty<CustomerStatus> statusProperty() {
         return status;
     }
+
+    public Action confirmAction() { return confirmAction; }
 
     public void confirm() {
         var id = request.isNew() ? UUID.randomUUID() : request.customerId();

@@ -1,8 +1,5 @@
 package mvvm.example.orders.editor.lineitems;
 
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
@@ -13,17 +10,7 @@ import mvvm.example.core.view.controls.FormGrid;
 
 public class LineItemEditorView extends FormGrid {
 
-    public static Dialog<Runnable> dialog(LineItemEditorViewModel viewModel) {
-        var confirmBtn = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
-        var dialog = new Dialog<Runnable>();
-        dialog.setTitle("Edit Item");
-        dialog.getDialogPane().setContent(new LineItemEditorView(viewModel));
-        dialog.getDialogPane().getButtonTypes().addAll(confirmBtn, ButtonType.CANCEL);
-        dialog.setResultConverter(bt -> bt == confirmBtn ? viewModel::confirm : null);
-        return dialog;
-    }
-
-    private LineItemEditorView(LineItemEditorViewModel viewModel) {
+    LineItemEditorView(LineItemEditorViewModel viewModel) {
         addRow("Product", selectProductButton(viewModel));
         addRow("Description", descriptionLabel(viewModel));
         addRow("Quantity", quantitySpinner(viewModel));
@@ -31,7 +18,7 @@ public class LineItemEditorView extends FormGrid {
     }
 
     private static Button selectProductButton(LineItemEditorViewModel viewModel) {
-        var btn = Buttons.button("Select Product...", viewModel.selectProductAction);
+        var btn = Buttons.button("Select Product...", viewModel.selectProductAction());
         Controls.focusOnShow(btn);
         return btn;
     }

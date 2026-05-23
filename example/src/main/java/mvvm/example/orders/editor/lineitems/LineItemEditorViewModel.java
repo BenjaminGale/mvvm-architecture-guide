@@ -18,8 +18,8 @@ import java.util.function.Consumer;
 
 public class LineItemEditorViewModel {
 
-    public final Action selectProductAction;
-
+    private final Action selectProductAction;
+    private final Action confirmAction;
     private final LineItemEditorRequest request;
     private UUID productId;
     private final StringProperty description = new SimpleStringProperty();
@@ -36,6 +36,8 @@ public class LineItemEditorViewModel {
         selectProductAction = new Action(() -> selectProductHost.accept(
             new ProductSelectorRequest(request.currentLineItems(), productId, this::onProductSelected)
         ));
+
+        confirmAction = new Action(this::confirm, description.isNotEmpty());
     }
 
     private void onProductSelected(Product product) {
@@ -47,6 +49,9 @@ public class LineItemEditorViewModel {
     public void confirm() {
         request.confirmChanges(new LineItem(productId, description.get(), quantity.get(), unitPrice.get()));
     }
+
+    public Action selectProductAction() { return selectProductAction; }
+    public Action confirmAction() { return confirmAction; }
 
     public ReadOnlyStringProperty descriptionProperty() { return description; }
     public IntegerProperty quantityProperty() { return quantity; }

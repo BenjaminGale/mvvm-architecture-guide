@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
+import mvvm.example.core.viewmodel.Action;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.stock.domain.Product;
 
@@ -20,6 +21,7 @@ public class ProductSelectorViewModel {
     private final StringProperty searchText = new SimpleStringProperty("");
     private final ObjectProperty<Product> selectedProduct = new SimpleObjectProperty<>();
     private final FilteredList<Product> products;
+    private final Action confirmAction;
 
     public ProductSelectorViewModel(ProductSelectorRequest request, List<Product> allProducts) {
         this.request = request;
@@ -41,12 +43,15 @@ public class ProductSelectorViewModel {
                 val == null || val.isBlank() || p.name().toLowerCase().contains(val.toLowerCase())
             )
         );
+
+        confirmAction = new Action(this::confirm, selectedProduct.isNotNull());
     }
 
     public void confirm() {
-        if (selectedProduct.get() != null) request.confirmSelection(selectedProduct.get());
+        request.confirmSelection(selectedProduct.get());
     }
 
+    public Action confirmAction() { return confirmAction; }
     public StringProperty searchTextProperty() { return searchText; }
     public ObjectProperty<Product> selectedProductProperty() { return selectedProduct; }
     public FilteredList<Product> getProducts() { return products; }

@@ -4,10 +4,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -18,31 +14,7 @@ import java.util.function.Function;
 
 public class SelectorView<T> extends VBox {
 
-    public static <T> Dialog<Runnable> dialog(
-            String title,
-            String searchPrompt,
-            StringProperty searchText,
-            ObservableList<T> items,
-            ObjectProperty<T> selection,
-            Function<T, String> displayFn,
-            Runnable onConfirm) {
-
-        var selectBtn = new ButtonType("Select", ButtonBar.ButtonData.OK_DONE);
-        var dialog = new Dialog<Runnable>();
-
-        dialog.setTitle(title);
-        dialog.getDialogPane().setContent(new SelectorView<>(searchPrompt, searchText, items, selection, displayFn));
-        dialog.getDialogPane().setPrefWidth(380);
-        dialog.getDialogPane().getButtonTypes().addAll(selectBtn, ButtonType.CANCEL);
-        dialog.setResultConverter(bt -> bt == selectBtn ? onConfirm : null);
-
-        var okButton = (Button) dialog.getDialogPane().lookupButton(selectBtn);
-        okButton.disableProperty().bind(selection.isNull());
-
-        return dialog;
-    }
-
-    private SelectorView(
+    public SelectorView(
             String searchPrompt,
             StringProperty searchText,
             ObservableList<T> items,
@@ -51,6 +23,7 @@ public class SelectorView<T> extends VBox {
 
         setSpacing(8);
         setPadding(new Insets(8));
+        setPrefWidth(380);
         setPrefHeight(280);
 
         getChildren().addAll(

@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
+import mvvm.example.core.viewmodel.Action;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
 
@@ -17,6 +18,7 @@ public class CustomerSelectorViewModel {
     private final ObjectProperty<Customer> selectedCustomer = new SimpleObjectProperty<>(this, "selectedCustomer");
     private final FilteredList<Customer> customers;
     private final CustomerSelectorRequest request;
+    private final Action confirmAction;
 
     public CustomerSelectorViewModel(CustomerSelectorRequest request, List<Customer> allCustomers) {
         this.request = request;
@@ -35,14 +37,15 @@ public class CustomerSelectorViewModel {
                     .contains(searchText.toLowerCase())
             )
         );
+
+        confirmAction = new Action(this::confirm, selectedCustomer.isNotNull());
     }
 
     public void confirm() {
-        if (selectedCustomer.get() != null) {
-            request.confirmSelection(selectedCustomer.get());
-        }
+        request.confirmSelection(selectedCustomer.get());
     }
 
+    public Action confirmAction() { return confirmAction; }
     public StringProperty searchTextProperty() { return searchText; }
     public ObjectProperty<Customer> selectedCustomerProperty() { return selectedCustomer; }
     public FilteredList<Customer> getCustomers() { return customers; }

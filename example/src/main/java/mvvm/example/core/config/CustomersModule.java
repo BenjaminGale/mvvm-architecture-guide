@@ -5,7 +5,7 @@ import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.customers.editor.CustomerEditorRequest;
 import mvvm.example.customers.editor.CustomerEditorService;
-import mvvm.example.customers.editor.CustomerEditorView;
+import mvvm.example.customers.editor.CustomerEditorDialog;
 import mvvm.example.customers.editor.CustomerEditorViewModel;
 import mvvm.example.customers.explorer.CustomersExplorerView;
 import mvvm.example.customers.explorer.CustomersExplorerViewModel;
@@ -26,7 +26,7 @@ public class CustomersModule {
         this.shell = shell;
 
         view.viewLocator().register(CustomersExplorerViewModel.class, CustomersExplorerView::new);
-        view.dialogManager().register(CustomerEditorViewModel.class, CustomerEditorView::dialog);
+        view.dialogManager().register(CustomerEditorViewModel.class, CustomerEditorDialog::dialog);
     }
 
     public SidebarItemViewModel sidebarItem() {

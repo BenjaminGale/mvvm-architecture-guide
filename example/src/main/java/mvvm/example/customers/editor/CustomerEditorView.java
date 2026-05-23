@@ -1,9 +1,6 @@
 package mvvm.example.customers.editor;
 
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 import mvvm.example.core.view.controls.Controls;
@@ -12,17 +9,7 @@ import mvvm.example.customers.domain.CustomerStatus;
 
 public class CustomerEditorView extends FormGrid {
 
-    public static Dialog<Runnable> dialog(CustomerEditorViewModel viewModel) {
-        var saveBtn = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
-        var dialog = new Dialog<Runnable>();
-        dialog.setTitle(viewModel.isNew() ? "Add Customer" : "Edit Customer");
-        dialog.getDialogPane().setContent(new CustomerEditorView(viewModel));
-        dialog.getDialogPane().getButtonTypes().addAll(saveBtn, ButtonType.CANCEL);
-        dialog.setResultConverter(bt -> bt == saveBtn ? viewModel::confirm : null);
-        return dialog;
-    }
-
-    private CustomerEditorView(CustomerEditorViewModel viewModel) {
+    public CustomerEditorView(CustomerEditorViewModel viewModel) {
         addRow("Name", nameField(viewModel));
         addRow("Email", emailField(viewModel));
         addRow("Status", statusCombo(viewModel));

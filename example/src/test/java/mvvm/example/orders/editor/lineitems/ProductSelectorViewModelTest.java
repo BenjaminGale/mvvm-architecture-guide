@@ -106,14 +106,11 @@ class ProductSelectorViewModelTest {
         }
 
         @Test
-        @DisplayName("the callback is not invoked when no product is selected")
-        void callbackNotInvokedWithoutSelection() {
-            Consumer<Product> listener = mock();
-            var vm = new ProductSelectorViewModel(new ProductSelectorRequest(List.of(), null, listener), ALL_PRODUCTS);
+        @DisplayName("confirm action cannot execute when no product is selected")
+        void confirmActionDisabledWithoutSelection() {
+            var vm = new ProductSelectorViewModel(new ProductSelectorRequest(List.of(), null, _ -> {}), ALL_PRODUCTS);
 
-            vm.confirm();
-
-            verifyNoInteractions(listener);
+            assertFalse(vm.confirmAction().canExecute());
         }
     }
 }

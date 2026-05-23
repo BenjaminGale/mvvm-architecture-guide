@@ -102,14 +102,11 @@ class CustomerSelectorViewModelTest {
         }
 
         @Test
-        @DisplayName("the callback is not invoked when no customer is selected")
-        void callbackNotInvokedWithoutSelection() {
-            Consumer<Customer> listener = mock();
-            var vm = new CustomerSelectorViewModel(new CustomerSelectorRequest(null, listener), ALL_CUSTOMERS);
+        @DisplayName("confirm action cannot execute when no customer is selected")
+        void confirmActionDisabledWithoutSelection() {
+            var vm = new CustomerSelectorViewModel(new CustomerSelectorRequest(null, _ -> {}), ALL_CUSTOMERS);
 
-            vm.confirm();
-
-            verifyNoInteractions(listener);
+            assertFalse(vm.confirmAction().canExecute());
         }
     }
 }
