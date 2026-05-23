@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import mvvm.example.core.view.controls.Controls;
 import mvvm.example.core.view.controls.FormGrid;
+import mvvm.example.customers.domain.Customer;
 
 import java.time.format.DateTimeFormatter;
 
@@ -20,13 +21,9 @@ public class OrderHeaderView extends BorderPane {
     public OrderHeaderView(OrderHeaderViewModel viewModel) {
         var customerNameLabel = new Label();
         customerNameLabel.textProperty().bind(
-            Bindings.createStringBinding(
-                () -> {
-                    var customer = viewModel.selectedCustomerProperty().get();
-                    return customer != null ? customer.name() : "No customer selected";
-                },
-                viewModel.selectedCustomerProperty()
-            )
+            viewModel.selectedCustomerProperty()
+                .map(Customer::name)
+                .orElse("No customer selected")
         );
         customerNameLabel.styleProperty().bind(
             Bindings.when(viewModel.selectedCustomerProperty().isNull())
