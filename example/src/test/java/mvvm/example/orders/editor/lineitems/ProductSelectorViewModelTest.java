@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,14 +17,14 @@ import static org.mockito.Mockito.*;
 @DisplayName("Orders.ProductSelectorViewModel")
 class ProductSelectorViewModelTest {
 
-    private static final Product WIDGET = new Product("prod-1", "Widget", BigDecimal.valueOf(9.99), 10);
-    private static final Product GADGET = new Product("prod-2", "Gadget", BigDecimal.valueOf(19.99), 5);
-    private static final Product DOOHICKEY = new Product("prod-3", "Doohickey", BigDecimal.valueOf(4.99), 20);
+    private static final Product WIDGET    = new Product(UUID.randomUUID(), "Widget",    BigDecimal.valueOf(9.99),  10);
+    private static final Product GADGET    = new Product(UUID.randomUUID(), "Gadget",    BigDecimal.valueOf(19.99),  5);
+    private static final Product DOOHICKEY = new Product(UUID.randomUUID(), "Doohickey", BigDecimal.valueOf(4.99),  20);
 
     private static final List<Product> ALL_PRODUCTS = List.of(WIDGET, GADGET, DOOHICKEY);
 
-    private static LineItem itemFor(String productId) {
-        return new LineItem(productId, "", 1, BigDecimal.ZERO);
+    private static LineItem itemFor(Product product) {
+        return new LineItem(product.id(), "", 1, BigDecimal.ZERO);
     }
 
     private static ProductSelectorViewModel viewModelFor(List<LineItem> currentLineItems) {
@@ -45,7 +46,7 @@ class ProductSelectorViewModelTest {
         @Test
         @DisplayName("excluded products are not shown")
         void excludedProductsNotShown() {
-            var vm = viewModelFor(List.of(itemFor("prod-1"), itemFor("prod-2")));
+            var vm = viewModelFor(List.of(itemFor(WIDGET), itemFor(GADGET)));
 
             assertEquals(1, vm.getProducts().size());
             assertEquals(DOOHICKEY, vm.getProducts().getFirst());

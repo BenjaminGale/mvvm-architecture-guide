@@ -87,8 +87,7 @@ public class OrderEditorViewModel {
     }
 
     private void onCopy() {
-        var copiedId = service.copy(request.orderId());
-        host.openOrder(OrderEditorRequest.of(copiedId));
+        host.openOrder(OrderEditorRequest.of(service.copy(request.orderId())));
     }
 
     private void onDeleteOrder() {

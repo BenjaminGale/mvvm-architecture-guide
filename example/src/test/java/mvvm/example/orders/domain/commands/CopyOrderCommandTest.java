@@ -10,17 +10,22 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Orders.CopyOrderCommand")
 class CopyOrderCommandTest {
 
+    private static final UUID CUST_ID = UUID.randomUUID();
+    private static final UUID PROD_ID = UUID.randomUUID();
+
     private final InMemoryOrderRepository repository = new InMemoryOrderRepository();
     private final CopyOrderCommand command = new CopyOrderCommand(repository);
 
-    private Order savedOrder(String id, String reference, List<LineItem> lineItems) {
-        var order = new Order(id, "cust-1", LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1), reference, OrderStatus.PENDING, null, lineItems);
+    private Order savedOrder(String reference, List<LineItem> lineItems) {
+        var id = UUID.randomUUID();
+        var order = new Order(id, CUST_ID, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1), reference, OrderStatus.PENDING, null, lineItems);
         repository.save(order);
         return order;
     }
@@ -28,20 +33,20 @@ class CopyOrderCommandTest {
     @Test
     @DisplayName("returns the id of the new order")
     void returnsNewOrderId() {
-        savedOrder("order-1", "REF-001", List.of());
+        var original = savedOrder("REF-001", List.of());
 
-        var newId = command.execute("order-1");
+        var newId = command.execute(original.id());
 
         assertNotNull(newId);
-        assertNotEquals("order-1", newId);
+        assertNotEquals(original.id(), newId);
     }
 
     @Test
     @DisplayName("saves the copy to the repository")
     void savesExecuteToRepository() {
-        savedOrder("order-1", "REF-001", List.of());
+        var original = savedOrder("REF-001", List.of());
 
-        var newId = command.execute("order-1");
+        var newId = command.execute(original.id());
 
         assertTrue(repository.findById(newId).isPresent());
     }
@@ -49,37 +54,35 @@ class CopyOrderCommandTest {
     @Test
     @DisplayName("prefixes the reference with COPY-")
     void prefixesReference() {
-        savedOrder("order-1", "REF-001", List.of());
+        var original = savedOrder("REF-001", List.of());
 
-        var newId = command.execute("order-1");
+        var newId = command.execute(original.id());
 
-        var copy = repository.findById(newId).orElseThrow();
-        assertEquals("COPY-REF-001", copy.reference());
+        assertEquals("COPY-REF-001", repository.findById(newId).orElseThrow().reference());
     }
 
     @Test
     @DisplayName("copies the customer id from the original")
     void copiesCustomerId() {
-        savedOrder("order-1", "REF-001", List.of());
+        var original = savedOrder("REF-001", List.of());
 
-        var newId = command.execute("order-1");
+        var newId = command.execute(original.id());
 
-        var copy = repository.findById(newId).orElseThrow();
-        assertEquals("cust-1", copy.customerId());
+        assertEquals(CUST_ID, repository.findById(newId).orElseThrow().customerId());
     }
 
     @Test
     @DisplayName("copies line items from the original")
     void copiesLineItems() {
-        var lineItems = List.of(new LineItem("prod-1", "Widget", 3, BigDecimal.TEN));
-        savedOrder("order-1", "REF-001", lineItems);
+        var lineItems = List.of(new LineItem(PROD_ID, "Widget", 3, BigDecimal.TEN));
+        var original = savedOrder("REF-001", lineItems);
 
-        var newId = command.execute("order-1");
+        var newId = command.execute(original.id());
 
         var copy = repository.findById(newId).orElseThrow();
         assertEquals(1, copy.lineItems().size());
         var item = copy.lineItems().getFirst();
-        assertEquals("prod-1", item.productId());
+        assertEquals(PROD_ID, item.productId());
         assertEquals("Widget", item.description());
         assertEquals(3, item.quantity());
         assertEquals(BigDecimal.TEN, item.unitPrice());
@@ -88,18 +91,19 @@ class CopyOrderCommandTest {
     @Test
     @DisplayName("does not modify the original order")
     void doesNotModifyOriginal() {
-        savedOrder("order-1", "REF-001", List.of());
+        var original = savedOrder("REF-001", List.of());
 
-        command.execute("order-1");
+        command.execute(original.id());
 
-        var original = repository.findById("order-1").orElseThrow();
-        assertEquals("REF-001", original.reference());
+        assertEquals("REF-001", repository.findById(original.id()).orElseThrow().reference());
     }
 
     @Test
     @DisplayName("throws when the order does not exist")
     void throwsWhenOrderNotFound() {
-        var ex = assertThrows(IllegalArgumentException.class, () -> command.execute("no-such-id"));
-        assertTrue(ex.getMessage().contains("no-such-id"));
+        var missingId = UUID.randomUUID();
+
+        var ex = assertThrows(IllegalArgumentException.class, () -> command.execute(missingId));
+        assertTrue(ex.getMessage().contains(missingId.toString()));
     }
 }

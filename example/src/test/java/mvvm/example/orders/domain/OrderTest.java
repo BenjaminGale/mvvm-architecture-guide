@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,9 +17,11 @@ class OrderTest {
     private static final LocalDate TODAY = LocalDate.now();
     private static final LocalDate YESTERDAY = TODAY.minusDays(1);
     private static final LocalDate TOMORROW = TODAY.plusDays(1);
+    private static final UUID AN_ID = UUID.randomUUID();
+    private static final UUID A_CUST = UUID.randomUUID();
 
     private static Order order(OrderStatus status, LocalDate plannedShipDate) {
-        return new Order("id", "cust-1", TODAY, plannedShipDate, "REF-001", status, null, List.of());
+        return new Order(AN_ID, A_CUST, TODAY, plannedShipDate, "REF-001", status, null, List.of());
     }
 
     @Nested
@@ -75,7 +78,7 @@ class OrderTest {
         @Test
         @DisplayName("returns the sum of all line item totals")
         void sumOfLineItemTotals() {
-            var order = new Order("id", "cust-1", TODAY, TOMORROW, "REF-001", OrderStatus.PENDING, null, List.of(
+            var order = new Order(AN_ID, A_CUST, TODAY, TOMORROW, "REF-001", OrderStatus.PENDING, null, List.of(
                 new LineItem(null, "Widget A", 2, new BigDecimal("10.00")),
                 new LineItem(null, "Widget B", 3, new BigDecimal("5.00"))
             ));

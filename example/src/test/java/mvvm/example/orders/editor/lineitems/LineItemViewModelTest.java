@@ -7,13 +7,16 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Orders.LineItemViewModel")
 class LineItemViewModelTest {
 
-    private static final LineItem WIDGET = new LineItem("prod-1", "Widget", 2, BigDecimal.valueOf(9.99));
+    private static final UUID PROD_1 = UUID.randomUUID();
+    private static final UUID PROD_2 = UUID.randomUUID();
+    private static final LineItem WIDGET = new LineItem(PROD_1, "Widget", 2, BigDecimal.valueOf(9.99));
 
     private static LineItemViewModel viewModelFor(LineItem item) {
         return new LineItemViewModel(item, 0, req -> {}, List::of, vm -> {});
@@ -74,7 +77,7 @@ class LineItemViewModelTest {
         @Test
         @DisplayName("the edit host receives the current line items from the supplier")
         void editHostReceivesCurrentLineItems() {
-            var other = new LineItem("prod-2", "Gadget", 1, BigDecimal.TEN);
+            var other = new LineItem(PROD_2, "Gadget", 1, BigDecimal.TEN);
             var captured = new LineItemEditorRequest[]{null};
             var vm = new LineItemViewModel(WIDGET, 0, req -> captured[0] = req, () -> List.of(other), v -> {});
 
@@ -86,7 +89,7 @@ class LineItemViewModelTest {
         @Test
         @DisplayName("description updates when the edit is confirmed")
         void descriptionUpdatesOnConfirm() {
-            var updated = new LineItem("prod-1", "Super Widget", 2, BigDecimal.valueOf(9.99));
+            var updated = new LineItem(PROD_1, "Super Widget", 2, BigDecimal.valueOf(9.99));
             var vm = new LineItemViewModel(WIDGET, 0, req -> req.confirmChanges(updated), List::of, v -> {});
 
             vm.editAction.execute();
@@ -97,7 +100,7 @@ class LineItemViewModelTest {
         @Test
         @DisplayName("quantity updates when the edit is confirmed")
         void quantityUpdatesOnConfirm() {
-            var updated = new LineItem("prod-1", "Widget", 5, BigDecimal.valueOf(9.99));
+            var updated = new LineItem(PROD_1, "Widget", 5, BigDecimal.valueOf(9.99));
             var vm = new LineItemViewModel(WIDGET, 0, req -> req.confirmChanges(updated), List::of, v -> {});
 
             vm.editAction.execute();
@@ -108,7 +111,7 @@ class LineItemViewModelTest {
         @Test
         @DisplayName("unit price updates when the edit is confirmed")
         void unitPriceUpdatesOnConfirm() {
-            var updated = new LineItem("prod-1", "Widget", 2, BigDecimal.valueOf(19.99));
+            var updated = new LineItem(PROD_1, "Widget", 2, BigDecimal.valueOf(19.99));
             var vm = new LineItemViewModel(WIDGET, 0, req -> req.confirmChanges(updated), List::of, v -> {});
 
             vm.editAction.execute();
@@ -119,7 +122,7 @@ class LineItemViewModelTest {
         @Test
         @DisplayName("total updates when the edit is confirmed")
         void totalUpdatesOnConfirm() {
-            var updated = new LineItem("prod-1", "Widget", 5, BigDecimal.valueOf(9.99));
+            var updated = new LineItem(PROD_1, "Widget", 5, BigDecimal.valueOf(9.99));
             var vm = new LineItemViewModel(WIDGET, 0, req -> req.confirmChanges(updated), List::of, v -> {});
 
             vm.editAction.execute();

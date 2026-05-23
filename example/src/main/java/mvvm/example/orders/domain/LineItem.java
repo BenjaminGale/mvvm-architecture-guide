@@ -2,7 +2,9 @@ package mvvm.example.orders.domain;
 
 import java.math.BigDecimal;
 
-public record LineItem(String productId, String description, int quantity, BigDecimal unitPrice) {
+import java.util.UUID;
+
+public record LineItem(UUID productId, String description, int quantity, BigDecimal unitPrice) {
 
     public BigDecimal total() {
         return unitPrice.multiply(BigDecimal.valueOf(quantity));

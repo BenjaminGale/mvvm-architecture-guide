@@ -10,6 +10,7 @@ import mvvm.example.stock.domain.Product;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.mockito.ArgumentCaptor;
@@ -74,7 +75,7 @@ class LineItemEditorViewModelTest {
         @DisplayName("the confirmed item reflects the selected product and edited quantity")
         void confirmedItemReflectsSelectedProductAndQuantity() {
             Consumer<LineItem> listener = mock();
-            var product = new Product("prod-1", "Gadget", BigDecimal.valueOf(19.99), 10);
+            var product = new Product(UUID.randomUUID(), "Gadget", BigDecimal.valueOf(19.99), 10);
             var vm = new LineItemEditorViewModel(
                 new LineItemEditorRequest(ORIGINAL, List.of(), listener),
                 r -> r.confirmSelection(product)
@@ -86,7 +87,7 @@ class LineItemEditorViewModelTest {
 
             var captor = ArgumentCaptor.forClass(LineItem.class);
             verify(listener).accept(captor.capture());
-            assertEquals("prod-1", captor.getValue().productId());
+            assertEquals(product.id(), captor.getValue().productId());
             assertEquals("Gadget", captor.getValue().description());
             assertEquals(5, captor.getValue().quantity());
             assertEquals(BigDecimal.valueOf(19.99), captor.getValue().unitPrice());

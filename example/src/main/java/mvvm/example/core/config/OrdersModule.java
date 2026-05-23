@@ -36,6 +36,7 @@ import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public class OrdersModule {
 
@@ -92,9 +93,9 @@ public class OrdersModule {
             request,
             new OrderEditorService() {
                 @Override public OrderEditorData fetch(OrderEditorRequest req) { return query.execute(req); }
-                @Override public String save(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) { return new UpsertOrderCommand(orderRepository).execute(orderId, customerId, reference, plannedShipDate, lineItems); }
-                @Override public String copy(String orderId) { return copyOrderCommand.execute(orderId); }
-                @Override public void delete(String orderId) { orderRepository.delete(orderId); }
+                @Override public UUID save(UUID orderId, UUID customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) { return new UpsertOrderCommand(orderRepository).execute(orderId, customerId, reference, plannedShipDate, lineItems); }
+                @Override public UUID copy(UUID orderId) { return copyOrderCommand.execute(orderId); }
+                @Override public void delete(UUID orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }

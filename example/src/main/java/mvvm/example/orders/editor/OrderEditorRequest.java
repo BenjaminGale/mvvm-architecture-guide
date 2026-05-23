@@ -1,8 +1,10 @@
 package mvvm.example.orders.editor;
 
-public record OrderEditorRequest(String orderId) {
+import java.util.UUID;
 
-    public static OrderEditorRequest of(String orderId) {
+public record OrderEditorRequest(UUID orderId) {
+
+    public static OrderEditorRequest of(UUID orderId) {
         return new OrderEditorRequest(orderId);
     }
 

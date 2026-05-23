@@ -12,6 +12,8 @@ import mvvm.example.customers.explorer.CustomersExplorerViewModel;
 import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 
+import java.util.UUID;
+
 public class CustomersModule {
 
     private final CustomerRepository customerRepository;
@@ -45,7 +47,7 @@ public class CustomersModule {
         return new CustomerEditorViewModel(
             request,
             new CustomerEditorService() {
-                @Override public Customer load(String id) {
+                @Override public Customer load(UUID id) {
                     return customerRepository.findById(id).orElseThrow();
                 }
                 @Override public void save(Customer customer) {

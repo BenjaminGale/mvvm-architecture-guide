@@ -1,8 +1,10 @@
 package mvvm.example.customers.editor;
 
-public record CustomerEditorRequest(String customerId, boolean isNew, Runnable onSaved) {
+import java.util.UUID;
 
-    public static CustomerEditorRequest forCustomer(String customerId, Runnable onSaved) {
+public record CustomerEditorRequest(UUID customerId, boolean isNew, Runnable onSaved) {
+
+    public static CustomerEditorRequest forCustomer(UUID customerId, Runnable onSaved) {
         return new CustomerEditorRequest(customerId, false, onSaved);
     }
 

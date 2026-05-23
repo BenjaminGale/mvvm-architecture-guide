@@ -43,7 +43,7 @@ public class CustomerEditorViewModel {
     }
 
     public void confirm() {
-        var id = request.isNew() ? UUID.randomUUID().toString() : request.customerId();
+        var id = request.isNew() ? UUID.randomUUID() : request.customerId();
         service.save(new Customer(id, name.get(), email.get(), status.get()));
         request.onSaved().run();
     }

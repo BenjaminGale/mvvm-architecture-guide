@@ -1,3 +1,5 @@
 package mvvm.example.customers.domain;
 
-public record Customer(String id, String name, String email, CustomerStatus status) {}
+import java.util.UUID;
+
+public record Customer(UUID id, String name, String email, CustomerStatus status) {}

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 public record Order(
-    String id,
-    String customerId,
+    UUID id,
+    UUID customerId,
     LocalDate createdDate,
     LocalDate plannedShipDate,
     String reference,
@@ -31,10 +31,10 @@ public record Order(
 
     public static Order empty() {
         return new Order(
-            UUID.randomUUID().toString(),
+            UUID.randomUUID(),
             null,
             LocalDate.now(),
-            LocalDate.now(),
+            null,
             "",
             OrderStatus.PENDING,
             null,

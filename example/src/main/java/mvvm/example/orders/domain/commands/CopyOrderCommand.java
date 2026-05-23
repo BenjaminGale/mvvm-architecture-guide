@@ -15,13 +15,13 @@ public class CopyOrderCommand {
         this.repository = repository;
     }
 
-    public String execute(String orderId) {
+    public UUID execute(UUID orderId) {
         var original = repository
             .findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
         var copy = new Order(
-            UUID.randomUUID().toString(),
+            UUID.randomUUID(),
             original.customerId(),
             LocalDate.now(),
             null,

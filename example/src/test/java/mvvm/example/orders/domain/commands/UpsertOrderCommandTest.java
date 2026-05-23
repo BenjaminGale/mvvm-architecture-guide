@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +20,9 @@ class UpsertOrderCommandTest {
 
     private static final LocalDate TODAY = LocalDate.now();
     private static final LocalDate SHIP_DATE = TODAY.plusDays(10);
-    private static final List<LineItem> ITEMS = List.of(new LineItem("prod-1", "Widget", 2, BigDecimal.TEN));
+    private static final UUID CUST_ID = UUID.randomUUID();
+    private static final UUID PROD_ID = UUID.randomUUID();
+    private static final List<LineItem> ITEMS = List.of(new LineItem(PROD_ID, "Widget", 2, BigDecimal.TEN));
 
     private final InMemoryOrderRepository orderRepository = new InMemoryOrderRepository();
     private final UpsertOrderCommand command = new UpsertOrderCommand(orderRepository);
@@ -31,7 +34,7 @@ class UpsertOrderCommandTest {
         @Test
         @DisplayName("returns the id of the new order")
         void returnsNewOrderId() {
-            var id = command.execute(null, "cust-1", "REF-001", SHIP_DATE, ITEMS);
+            var id = command.execute(null, CUST_ID, "REF-001", SHIP_DATE, ITEMS);
 
             assertNotNull(id);
         }
@@ -39,7 +42,7 @@ class UpsertOrderCommandTest {
         @Test
         @DisplayName("saves the order to the repository")
         void savesOrder() {
-            var id = command.execute(null, "cust-1", "REF-001", SHIP_DATE, ITEMS);
+            var id = command.execute(null, CUST_ID, "REF-001", SHIP_DATE, ITEMS);
 
             assertTrue(orderRepository.findById(id).isPresent());
         }
@@ -47,7 +50,7 @@ class UpsertOrderCommandTest {
         @Test
         @DisplayName("new order has PENDING status")
         void newOrderIsPending() {
-            var id = command.execute(null, "cust-1", "REF-001", SHIP_DATE, ITEMS);
+            var id = command.execute(null, CUST_ID, "REF-001", SHIP_DATE, ITEMS);
 
             assertEquals(OrderStatus.PENDING, orderRepository.findById(id).orElseThrow().status());
         }
@@ -55,7 +58,7 @@ class UpsertOrderCommandTest {
         @Test
         @DisplayName("new order has today as its created date")
         void createdDateIsToday() {
-            var id = command.execute(null, "cust-1", "REF-001", SHIP_DATE, ITEMS);
+            var id = command.execute(null, CUST_ID, "REF-001", SHIP_DATE, ITEMS);
 
             assertEquals(TODAY, orderRepository.findById(id).orElseThrow().createdDate());
         }
@@ -63,10 +66,10 @@ class UpsertOrderCommandTest {
         @Test
         @DisplayName("new order carries the provided fields")
         void fieldsAreSet() {
-            var id = command.execute(null, "cust-1", "REF-001", SHIP_DATE, ITEMS);
+            var id = command.execute(null, CUST_ID, "REF-001", SHIP_DATE, ITEMS);
 
             var order = orderRepository.findById(id).orElseThrow();
-            assertEquals("cust-1", order.customerId());
+            assertEquals(CUST_ID, order.customerId());
             assertEquals("REF-001", order.reference());
             assertEquals(SHIP_DATE, order.plannedShipDate());
             assertEquals(ITEMS, order.lineItems());
@@ -77,8 +80,11 @@ class UpsertOrderCommandTest {
     @DisplayName("update (orderId is provided)")
     class Update {
 
+        private static final UUID CUST_2 = UUID.randomUUID();
+
         private Order savedOrder() {
-            var order = new Order("ord-1", "cust-1", TODAY.minusDays(5), TODAY.plusDays(5), "REF-001", OrderStatus.FULFILLED, null, List.of());
+            var id = UUID.randomUUID();
+            var order = new Order(id, CUST_ID, TODAY.minusDays(5), TODAY.plusDays(5), "REF-001", OrderStatus.FULFILLED, null, List.of());
             orderRepository.save(order);
             return order;
         }
@@ -86,22 +92,22 @@ class UpsertOrderCommandTest {
         @Test
         @DisplayName("returns the same order id")
         void returnsSameId() {
-            savedOrder();
+            var existing = savedOrder();
 
-            var id = command.execute("ord-1", "cust-2", "REF-002", SHIP_DATE, ITEMS);
+            var id = command.execute(existing.id(), CUST_2, "REF-002", SHIP_DATE, ITEMS);
 
-            assertEquals("ord-1", id);
+            assertEquals(existing.id(), id);
         }
 
         @Test
         @DisplayName("saves the updated order")
         void savesUpdatedOrder() {
-            savedOrder();
+            var existing = savedOrder();
 
-            command.execute("ord-1", "cust-2", "REF-002", SHIP_DATE, ITEMS);
+            command.execute(existing.id(), CUST_2, "REF-002", SHIP_DATE, ITEMS);
 
-            var order = orderRepository.findById("ord-1").orElseThrow();
-            assertEquals("cust-2", order.customerId());
+            var order = orderRepository.findById(existing.id()).orElseThrow();
+            assertEquals(CUST_2, order.customerId());
             assertEquals("REF-002", order.reference());
             assertEquals(SHIP_DATE, order.plannedShipDate());
             assertEquals(ITEMS, order.lineItems());
@@ -110,11 +116,11 @@ class UpsertOrderCommandTest {
         @Test
         @DisplayName("preserves status and created date from the existing order")
         void preservesImmutableFields() {
-            savedOrder();
+            var existing = savedOrder();
 
-            command.execute("ord-1", "cust-2", "REF-002", SHIP_DATE, ITEMS);
+            command.execute(existing.id(), CUST_2, "REF-002", SHIP_DATE, ITEMS);
 
-            var order = orderRepository.findById("ord-1").orElseThrow();
+            var order = orderRepository.findById(existing.id()).orElseThrow();
             assertEquals(OrderStatus.FULFILLED, order.status());
             assertEquals(TODAY.minusDays(5), order.createdDate());
         }
@@ -122,10 +128,12 @@ class UpsertOrderCommandTest {
         @Test
         @DisplayName("throws when the order does not exist")
         void throwsWhenNotFound() {
-            var ex = assertThrows(IllegalArgumentException.class,
-                () -> command.execute("no-such-id", "cust-1", "REF-001", SHIP_DATE, ITEMS));
+            var missingId = UUID.randomUUID();
 
-            assertTrue(ex.getMessage().contains("no-such-id"));
+            var ex = assertThrows(IllegalArgumentException.class,
+                () -> command.execute(missingId, CUST_ID, "REF-001", SHIP_DATE, ITEMS));
+
+            assertTrue(ex.getMessage().contains(missingId.toString()));
         }
     }
 }

@@ -13,6 +13,7 @@ import mvvm.example.orders.domain.LineItem;
 import mvvm.example.stock.domain.Product;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class LineItemEditorViewModel {
@@ -20,7 +21,7 @@ public class LineItemEditorViewModel {
     public final Action selectProductAction;
 
     private final LineItemEditorRequest request;
-    private String productId;
+    private UUID productId;
     private final StringProperty description = new SimpleStringProperty();
     private final IntegerProperty quantity = new SimpleIntegerProperty();
     private final ObjectProperty<BigDecimal> unitPrice = new SimpleObjectProperty<>();

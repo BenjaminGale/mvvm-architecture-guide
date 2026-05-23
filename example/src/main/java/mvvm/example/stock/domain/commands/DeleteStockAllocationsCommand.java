@@ -2,6 +2,8 @@ package mvvm.example.stock.domain.commands;
 
 import mvvm.example.stock.domain.StockRepository;
 
+import java.util.UUID;
+
 public class DeleteStockAllocationsCommand {
 
     private final StockRepository stockRepository;
@@ -10,7 +12,7 @@ public class DeleteStockAllocationsCommand {
         this.stockRepository = stockRepository;
     }
 
-    public void execute(String productId, String orderId) {
+    public void execute(UUID productId, UUID orderId) {
         stockRepository.findByOrderId(orderId).stream()
             .filter(a -> a.productId().equals(productId))
             .forEach(a -> stockRepository.delete(a.id()));

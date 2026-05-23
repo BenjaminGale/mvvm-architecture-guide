@@ -12,15 +12,15 @@ import java.util.UUID;
 
 public class InMemoryProductRepository implements ProductRepository {
 
-    public static final String WIDGET_A     = "prod-widget-a";
-    public static final String WIDGET_B     = "prod-widget-b";
-    public static final String GIZMO_X      = "prod-gizmo-x";
-    public static final String SPROCKET     = "prod-sprocket";
-    public static final String COG          = "prod-cog";
-    public static final String REAGENT      = "prod-reagent";
-    public static final String MYSTERY_ITEM = "prod-mystery-item";
+    public static final UUID WIDGET_A     = UUID.randomUUID();
+    public static final UUID WIDGET_B     = UUID.randomUUID();
+    public static final UUID GIZMO_X      = UUID.randomUUID();
+    public static final UUID SPROCKET     = UUID.randomUUID();
+    public static final UUID COG          = UUID.randomUUID();
+    public static final UUID REAGENT      = UUID.randomUUID();
+    public static final UUID MYSTERY_ITEM = UUID.randomUUID();
 
-    private final Map<String, Product> store = new HashMap<>();
+    private final Map<UUID, Product> store = new HashMap<>();
 
     public InMemoryProductRepository() {
         seed();
@@ -32,7 +32,7 @@ public class InMemoryProductRepository implements ProductRepository {
     }
 
     @Override
-    public Optional<Product> findById(String id) {
+    public Optional<Product> findById(UUID id) {
         return Optional.ofNullable(store.get(id));
     }
 
@@ -51,7 +51,7 @@ public class InMemoryProductRepository implements ProductRepository {
         add(MYSTERY_ITEM, "Mystery Item", new BigDecimal("999.00"),   5);
     }
 
-    private void add(String id, String name, BigDecimal unitPrice, int quantityInStock) {
+    private void add(UUID id, String name, BigDecimal unitPrice, int quantityInStock) {
         store.put(id, new Product(id, name, unitPrice, quantityInStock));
     }
 }

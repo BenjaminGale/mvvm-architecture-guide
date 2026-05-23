@@ -17,19 +17,19 @@ public class UpsertOrderCommand {
         this.orderRepository = orderRepository;
     }
 
-    public String execute(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) {
+    public UUID execute(UUID orderId, UUID customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) {
         return orderId == null
             ? insert(customerId, reference, plannedShipDate, lineItems)
             : update(orderId, customerId, reference, plannedShipDate, lineItems);
     }
 
-    private String insert(String customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) {
-        var order = new Order(UUID.randomUUID().toString(), customerId, LocalDate.now(), plannedShipDate, reference, OrderStatus.PENDING, null, lineItems);
+    private UUID insert(UUID customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) {
+        var order = new Order(UUID.randomUUID(), customerId, LocalDate.now(), plannedShipDate, reference, OrderStatus.PENDING, null, lineItems);
         orderRepository.save(order);
         return order.id();
     }
 
-    private String update(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) {
+    private UUID update(UUID orderId, UUID customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) {
         var existing = orderRepository
             .findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));

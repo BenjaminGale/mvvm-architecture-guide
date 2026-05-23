@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @DisplayName("Stock.StockExplorerViewModel")
 class StockExplorerViewModelTest extends ExplorerViewModelTest<Product, StockExplorerViewModel> {
 
-    private static Product product(String id, String name) {
-        return new Product(id, name, BigDecimal.ONE, 10);
+    private static Product product(String name) {
+        return new Product(UUID.randomUUID(), name, BigDecimal.ONE, 10);
     }
 
     @Override
@@ -26,7 +27,7 @@ class StockExplorerViewModelTest extends ExplorerViewModelTest<Product, StockExp
 
     @Override
     protected Product createItem() {
-        return product("1", "Widget");
+        return product("Widget");
     }
 
     @Nested
@@ -74,7 +75,7 @@ class StockExplorerViewModelTest extends ExplorerViewModelTest<Product, StockExp
         @DisplayName("products are loaded and sorted alphabetically by name")
         void productsSortedAlphabetically() {
             var vm = new StockExplorerViewModel(
-                () -> List.of(product("1", "Zebra Part"), product("2", "Acme Widget"))
+                () -> List.of(product("Zebra Part"), product("Acme Widget"))
             );
             executeFetch(vm);
 

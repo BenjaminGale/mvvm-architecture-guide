@@ -13,14 +13,14 @@ public class InMemoryStockRepository implements StockRepository {
     private final Map<UUID, StockAllocation> store = new HashMap<>();
 
     @Override
-    public List<StockAllocation> findByOrderId(String orderId) {
+    public List<StockAllocation> findByOrderId(UUID orderId) {
         return store.values().stream()
             .filter(a -> a.orderId().equals(orderId))
             .toList();
     }
 
     @Override
-    public List<StockAllocation> findByProductId(String productId) {
+    public List<StockAllocation> findByProductId(UUID productId) {
         return store.values().stream()
             .filter(a -> a.productId().equals(productId))
             .toList();

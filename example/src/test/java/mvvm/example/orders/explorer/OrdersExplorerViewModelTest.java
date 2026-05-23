@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,7 +47,7 @@ class OrdersExplorerViewModelTest extends ExplorerViewModelTest<OrderSummary, Or
 
     @Override
     protected OrderSummary createItem() {
-        return MockOrders.summaryOf("1", RECENT);
+        return MockOrders.summaryOf(UUID.randomUUID(), RECENT);
     }
 
     @Nested
@@ -56,7 +57,7 @@ class OrdersExplorerViewModelTest extends ExplorerViewModelTest<OrderSummary, Or
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#refreshListCases")
         @DisplayName("it loads orders from storage")
-        void reloadsOrdersFromStorage(String caseName, List<OrderSummary> input, List<String> expectedOrder) {
+        void reloadsOrdersFromStorage(String caseName, List<OrderSummary> input, List<UUID> expectedOrder) {
             summaries.addAll(input);
             var vm = createViewModel();
             executeFetch(vm);
@@ -69,7 +70,7 @@ class OrdersExplorerViewModelTest extends ExplorerViewModelTest<OrderSummary, Or
         @ParameterizedTest(name = "{0}")
         @MethodSource("mvvm.example.orders.explorer.OrdersExplorerViewModelScenarios#sortingCases")
         @DisplayName("it sorts orders by most recent date")
-        void sortsOrdersByDateDescendingOnCreation(String caseName, List<OrderSummary> input, List<String> expectedOrder) {
+        void sortsOrdersByDateDescendingOnCreation(String caseName, List<OrderSummary> input, List<UUID> expectedOrder) {
             summaries.addAll(input);
             var vm = createViewModel();
             executeFetch(vm);
@@ -110,7 +111,7 @@ class OrdersExplorerViewModelTest extends ExplorerViewModelTest<OrderSummary, Or
         @Test
         @DisplayName("it displays the selected order")
         void navigationCallbackInvoked() {
-            var summary = MockOrders.summaryOf("1", RECENT);
+            var summary = MockOrders.summaryOf(UUID.randomUUID(), RECENT);
             summaries.add(summary);
             var vm = createViewModel();
             executeFetch(vm);

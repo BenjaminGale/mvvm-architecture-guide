@@ -2,9 +2,10 @@ package mvvm.example.orders.domain.queries;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 public record OrderSummary(
-    String id,
+    UUID id,
     String reference,
     String customerName,
     LocalDate createdDate,

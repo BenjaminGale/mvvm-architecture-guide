@@ -11,6 +11,7 @@ import mvvm.example.stock.domain.Product;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ProductSelectorViewModel {
@@ -23,7 +24,7 @@ public class ProductSelectorViewModel {
     public ProductSelectorViewModel(ProductSelectorRequest request, List<Product> allProducts) {
         this.request = request;
 
-        Set<String> excluded = request.currentLineItems()
+        Set<UUID> excluded = request.currentLineItems()
             .stream()
             .map(LineItem::productId)
             .filter(id -> id != null && !id.equals(request.currentProductId()))

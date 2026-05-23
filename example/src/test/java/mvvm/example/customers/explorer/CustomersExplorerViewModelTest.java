@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -17,12 +18,12 @@ import static org.mockito.Mockito.*;
 @DisplayName("Customers.CustomersExplorerViewModel")
 class CustomersExplorerViewModelTest extends ExplorerViewModelTest<Customer, CustomersExplorerViewModel> {
 
-    private static Customer customer(String id, String name) {
-        return new Customer(id, name, name.toLowerCase().replace(" ", ".") + "@example.com", CustomerStatus.ACTIVE);
+    private static Customer customer(String name) {
+        return new Customer(UUID.randomUUID(), name, name.toLowerCase().replace(" ", ".") + "@example.com", CustomerStatus.ACTIVE);
     }
 
-    private static Customer inactiveCustomer(String id, String name) {
-        return new Customer(id, name, name.toLowerCase().replace(" ", ".") + "@example.com", CustomerStatus.INACTIVE);
+    private static Customer inactiveCustomer(String name) {
+        return new Customer(UUID.randomUUID(), name, name.toLowerCase().replace(" ", ".") + "@example.com", CustomerStatus.INACTIVE);
     }
 
     @Override
@@ -32,7 +33,7 @@ class CustomersExplorerViewModelTest extends ExplorerViewModelTest<Customer, Cus
 
     @Override
     protected Customer createItem() {
-        return customer("1", "Acme Ltd");
+        return customer("Acme Ltd");
     }
 
     @Nested
@@ -43,7 +44,7 @@ class CustomersExplorerViewModelTest extends ExplorerViewModelTest<Customer, Cus
         @DisplayName("all customers are loaded from the service")
         void allCustomersLoaded() {
             var vm = new CustomersExplorerViewModel(
-                () -> List.of(customer("1", "Acme Ltd"), customer("2", "Beta Corp")),
+                () -> List.of(customer("Acme Ltd"), customer("Beta Corp")),
                 request -> {}
             );
             executeFetch(vm);
@@ -55,7 +56,7 @@ class CustomersExplorerViewModelTest extends ExplorerViewModelTest<Customer, Cus
         @DisplayName("customers are sorted alphabetically by name")
         void customersSortedAlphabetically() {
             var vm = new CustomersExplorerViewModel(
-                () -> List.of(customer("1", "Zebra Inc"), customer("2", "Acme Ltd")),
+                () -> List.of(customer("Zebra Inc"), customer("Acme Ltd")),
                 request -> {}
             );
             executeFetch(vm);
@@ -68,7 +69,7 @@ class CustomersExplorerViewModelTest extends ExplorerViewModelTest<Customer, Cus
         @DisplayName("inactive customers are not shown")
         void inactiveCustomersExcluded() {
             var vm = new CustomersExplorerViewModel(
-                () -> List.of(customer("1", "Acme Ltd"), inactiveCustomer("2", "Beta Corp")),
+                () -> List.of(customer("Acme Ltd"), inactiveCustomer("Beta Corp")),
                 request -> {}
             );
             executeFetch(vm);
@@ -86,7 +87,7 @@ class CustomersExplorerViewModelTest extends ExplorerViewModelTest<Customer, Cus
         @DisplayName("the navigation callback is invoked with the selected customer id")
         void navigationCallbackInvoked() {
             var host = mock(CustomerExplorerHost.class);
-            var customer = customer("1", "Acme Ltd");
+            var customer = customer("Acme Ltd");
             var vm = new CustomersExplorerViewModel(() -> List.of(customer), host);
             executeFetch(vm);
 

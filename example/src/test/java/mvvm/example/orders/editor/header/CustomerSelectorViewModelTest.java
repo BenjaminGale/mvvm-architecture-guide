@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,9 +17,9 @@ import static org.mockito.Mockito.*;
 @DisplayName("Orders.CustomerSelectorViewModel")
 class CustomerSelectorViewModelTest {
 
-    private static final Customer ACME = new Customer("c-1", "Acme Corp", "acme@example.com", CustomerStatus.ACTIVE);
-    private static final Customer GLOBEX = new Customer("c-2", "Globex Inc", "globex@example.com", CustomerStatus.ACTIVE);
-    private static final Customer INACTIVE = new Customer("c-3", "Defunct Ltd", "defunct@example.com", CustomerStatus.INACTIVE);
+    private static final Customer ACME     = new Customer(UUID.randomUUID(), "Acme Corp",   "acme@example.com",    CustomerStatus.ACTIVE);
+    private static final Customer GLOBEX   = new Customer(UUID.randomUUID(), "Globex Inc",  "globex@example.com",  CustomerStatus.ACTIVE);
+    private static final Customer INACTIVE = new Customer(UUID.randomUUID(), "Defunct Ltd", "defunct@example.com", CustomerStatus.INACTIVE);
 
     private static final List<Customer> ALL_CUSTOMERS = List.of(ACME, GLOBEX, INACTIVE);
 

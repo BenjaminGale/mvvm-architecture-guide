@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class InMemoryOrderRepository implements OrderRepository {
 
-    private final Map<String, Order> store = new HashMap<>();
+    private final Map<UUID, Order> store = new HashMap<>();
 
     public InMemoryOrderRepository() {
         seed();
@@ -30,7 +30,7 @@ public class InMemoryOrderRepository implements OrderRepository {
     }
 
     @Override
-    public Optional<Order> findById(String id) {
+    public Optional<Order> findById(UUID id) {
         return Optional.ofNullable(store.get(id));
     }
 
@@ -40,7 +40,7 @@ public class InMemoryOrderRepository implements OrderRepository {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(UUID id) {
         store.remove(id);
     }
 
@@ -53,8 +53,8 @@ public class InMemoryOrderRepository implements OrderRepository {
         add("ORD-006", CYBERDYNE_SYSTEMS,  LocalDate.now().minusDays(35), LocalDate.now().minusDays(5),   OrderStatus.PENDING,    null,                          List.of(new LineItem(WIDGET_A, "Widget A", 10, new BigDecimal("9.99")), new LineItem(WIDGET_B, "Widget B", 5, new BigDecimal("24.99"))));
     }
 
-    private void add(String reference, String customerId, LocalDate createdDate, LocalDate plannedShipDate, OrderStatus status, LocalDate completionDate, List<LineItem> items) {
-        var id = UUID.randomUUID().toString();
+    private void add(String reference, UUID customerId, LocalDate createdDate, LocalDate plannedShipDate, OrderStatus status, LocalDate completionDate, List<LineItem> items) {
+        var id = UUID.randomUUID();
         var order = new Order(id, customerId, createdDate, plannedShipDate, reference, status, completionDate, items);
         store.put(order.id(), order);
     }

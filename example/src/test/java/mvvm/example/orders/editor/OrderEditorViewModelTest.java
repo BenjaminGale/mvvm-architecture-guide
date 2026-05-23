@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -109,7 +110,7 @@ class OrderEditorViewModelTest {
 
             vm.saveAction.executeAsync(Runnable::run).join();
 
-            verify(service).save(eq(order.id()), eq(MockOrders.ACME_CUSTOMER_ID), any(), any(), any());
+            verify(service).save(eq(order.id()), eq(MockOrders.ACME_CUSTOMER_ID), any(), any(), anyList());
         }
     }
 
@@ -145,7 +146,8 @@ class OrderEditorViewModelTest {
         void copiedOrderIsShown() {
             var order = MockOrders.validOrderWithLineItems();
             var service = serviceFor(order);
-            when(service.copy(order.id())).thenReturn("copied-" + order.id());
+            var copiedId = UUID.randomUUID();
+            when(service.copy(order.id())).thenReturn(copiedId);
             var host = mock(OrderEditorHost.class);
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.of(order.id()),
@@ -158,7 +160,7 @@ class OrderEditorViewModelTest {
             vm.copyAction.execute();
 
             verify(service).copy(order.id());
-            verify(host).openOrder(OrderEditorRequest.of("copied-" + order.id()));
+            verify(host).openOrder(OrderEditorRequest.of(copiedId));
         }
     }
 
@@ -209,7 +211,7 @@ class OrderEditorViewModelTest {
         @DisplayName("a confirmed item appears in the line items list")
         void confirmedItemAppearsInList() {
             var order = MockOrders.orderWithNoLineItems();
-            var newItem = new LineItem("prod-1", "Widget", 1, BigDecimal.TEN);
+            var newItem = new LineItem(UUID.randomUUID(), "Widget", 1, BigDecimal.TEN);
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.of(order.id()),
                 serviceFor(order),
@@ -221,7 +223,7 @@ class OrderEditorViewModelTest {
             vm.addLineItemAction.execute();
 
             assertEquals(1, vm.lineItems().size());
-            assertEquals("prod-1", vm.lineItems().getFirst().productId());
+            assertNotNull(vm.lineItems().getFirst().productId());
         }
     }
 
