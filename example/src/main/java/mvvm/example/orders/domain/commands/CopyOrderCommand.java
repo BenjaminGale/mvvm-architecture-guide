@@ -15,7 +15,7 @@ public class CopyOrderCommand {
         this.repository = repository;
     }
 
-    public String copy(String orderId) {
+    public String execute(String orderId) {
         var original = repository
             .findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));

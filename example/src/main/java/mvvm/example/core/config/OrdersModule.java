@@ -93,7 +93,7 @@ public class OrdersModule {
             new OrderEditorService() {
                 @Override public OrderEditorData fetch(OrderEditorRequest req) { return query.execute(req); }
                 @Override public String save(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) { return new UpsertOrderCommand(orderRepository).execute(orderId, customerId, reference, plannedShipDate, lineItems); }
-                @Override public String copy(String orderId) { return copyOrderCommand.copy(orderId); }
+                @Override public String copy(String orderId) { return copyOrderCommand.execute(orderId); }
                 @Override public void delete(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
