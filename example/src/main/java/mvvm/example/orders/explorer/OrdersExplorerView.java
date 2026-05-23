@@ -1,17 +1,14 @@
 package mvvm.example.orders.explorer;
 
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import mvvm.example.core.view.ExplorerView;
 import mvvm.example.core.view.controls.CurrencyTableCell;
 import mvvm.example.core.view.controls.LocalDateTableCell;
+import mvvm.example.core.view.controls.TableColumns;
 import mvvm.example.core.view.controls.TableViews;
 import mvvm.example.orders.domain.queries.OrderSummary;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -44,50 +41,18 @@ public class OrdersExplorerView extends ExplorerView<OrderSummary> {
 
     @Override
     protected List<TableColumn<OrderSummary, ?>> columns() {
-        return List.of(referenceColumn(), customerColumn(), createdDateColumn(), plannedShipDateColumn(), statusColumn(), totalColumn());
+        return List.of(
+            TableColumns.column("Reference", OrderSummary::reference),
+            TableColumns.column("Customer", OrderSummary::customerName),
+            TableColumns.column("Created", OrderSummary::createdDate, LocalDateTableCell.forTableColumn(DATE_FORMAT)),
+            TableColumns.column("Ship By", OrderSummary::plannedShipDate, LocalDateTableCell.forTableColumn(DATE_FORMAT)),
+            TableColumns.column("Status", OrderSummary::status),
+            TableColumns.column("Total", OrderSummary::total, CurrencyTableCell.forTableColumn())
+        );
     }
 
     private static String overdueStyle(OrderSummary summary, boolean selected) {
         return summary != null && summary.isOverdue() && !selected
             ? "-fx-background-color: #fff3cd;" : "";
-    }
-
-    private static TableColumn<OrderSummary, String> referenceColumn() {
-        var col = new TableColumn<OrderSummary, String>("Reference");
-        col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().reference()));
-        return col;
-    }
-
-    private static TableColumn<OrderSummary, String> customerColumn() {
-        var col = new TableColumn<OrderSummary, String>("Customer");
-        col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().customerName()));
-        return col;
-    }
-
-    private static TableColumn<OrderSummary, LocalDate> createdDateColumn() {
-        var col = new TableColumn<OrderSummary, LocalDate>("Created");
-        col.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().createdDate()));
-        col.setCellFactory(LocalDateTableCell.forTableColumn(DATE_FORMAT));
-        return col;
-    }
-
-    private static TableColumn<OrderSummary, LocalDate> plannedShipDateColumn() {
-        var col = new TableColumn<OrderSummary, LocalDate>("Ship By");
-        col.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().plannedShipDate()));
-        col.setCellFactory(LocalDateTableCell.forTableColumn(DATE_FORMAT));
-        return col;
-    }
-
-    private static TableColumn<OrderSummary, String> statusColumn() {
-        var col = new TableColumn<OrderSummary, String>("Status");
-        col.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().status()));
-        return col;
-    }
-
-    private static TableColumn<OrderSummary, BigDecimal> totalColumn() {
-        var col = new TableColumn<OrderSummary, BigDecimal>("Total");
-        col.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().total()));
-        col.setCellFactory(CurrencyTableCell.forTableColumn());
-        return col;
     }
 }
