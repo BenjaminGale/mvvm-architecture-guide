@@ -8,6 +8,18 @@ import javafx.scene.Scene;
 
 public class Controls {
 
+    public static void onAttached(Node node, Runnable action) {
+        node.sceneProperty().addListener(new ChangeListener<>() {
+            @Override
+            public void changed(ObservableValue<? extends Scene> obs, Scene old, Scene scene) {
+                if (scene != null) {
+                    action.run();
+                    node.sceneProperty().removeListener(this);
+                }
+            }
+        });
+    }
+
     public static void focusOnShow(Node node) {
         node.sceneProperty().addListener(new ChangeListener<>() {
             @Override

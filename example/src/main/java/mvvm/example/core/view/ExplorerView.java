@@ -23,7 +23,7 @@ public abstract class ExplorerView<T> extends BorderPane {
         setCenter(setupTable(viewModel));
 
         Controls.focusOnShow(table);
-        viewModel.fetchItemsAction().executeAsync(Platform::runLater);
+        Controls.onAttached(this, () -> viewModel.fetchItemsAction().executeAsync(Platform::runLater));
     }
 
     protected TableView<T> table() {
