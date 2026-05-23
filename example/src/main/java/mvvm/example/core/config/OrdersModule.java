@@ -66,6 +66,11 @@ public class OrdersModule {
         view.dialogManager().register(LineItemEditorViewModel.class, LineItemEditorView::dialog);
         view.dialogManager().register(CustomerSelectorViewModel.class, CustomerSelectorView::dialog);
         view.dialogManager().register(ProductSelectorViewModel.class, ProductSelectorView::dialog);
+
+        view.viewLocator().register(mvvm.example.orders.editor2.header.OrderHeaderViewModel.class, mvvm.example.orders.editor2.header.OrderHeaderView::new);
+        view.viewLocator().register(mvvm.example.orders.editor2.OrderEditorViewModel.class, vm -> new mvvm.example.orders.editor2.OrderEditorView(vm, view.viewLocator()));
+        view.dialogManager().register(mvvm.example.orders.editor2.lineitems.LineItemEditorViewModel.class, mvvm.example.orders.editor2.lineitems.LineItemEditorView::dialog);
+        view.dialogManager().register(mvvm.example.orders.editor2.lineitems.ProductSelectorViewModel.class, mvvm.example.orders.editor2.lineitems.ProductSelectorView::dialog);
     }
 
     public SidebarItemViewModel sidebarItem() {
@@ -79,7 +84,7 @@ public class OrdersModule {
     public OrdersExplorerViewModel ordersExplorerViewModel() {
         var vm = new OrdersExplorerViewModel(
             new GetOrderSummariesQuery(orderRepository, customerRepository)::execute,
-            request -> shell.show(() -> orderEditorViewModel(request))
+            request -> shell.show(() -> orderEditorViewModelV2(request))
         );
 
         shell.statusItems().addAll(
@@ -133,6 +138,40 @@ public class OrdersModule {
 
     private ProductSelectorViewModel productSelectorViewModel(ProductSelectorRequest request) {
         return new ProductSelectorViewModel(request, productRepository.findAll());
+    }
+
+    private mvvm.example.orders.editor2.OrderEditorViewModel orderEditorViewModelV2(OrderEditorRequest request) {
+        var query = new mvvm.example.orders.editor2.GetOrderEditorDataQuery(orderRepository, customerRepository, stockRepository);
+        return new mvvm.example.orders.editor2.OrderEditorViewModel(
+            request,
+            new mvvm.example.orders.editor2.OrderEditorService() {
+                @Override public mvvm.example.orders.editor2.OrderEditorData fetch(OrderEditorRequest req) { return query.execute(req); }
+                @Override public String save(String orderId, String customerId, String reference, java.time.LocalDate plannedShipDate, java.util.List<mvvm.example.orders.domain.LineItem> lineItems) { return new UpsertOrderCommand(orderRepository).execute(orderId, customerId, reference, plannedShipDate, lineItems); }
+                @Override public String copy(String orderId) { return copyOrderCommand.copy(orderId); }
+                @Override public void delete(String orderId) { orderRepository.delete(orderId); }
+            },
+            new OrderEditorHost() {
+                @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
+                @Override public void openOrder(OrderEditorRequest req) { shell.show(() -> orderEditorViewModelV2(req)); }
+            },
+            req -> view.dialogManager().show(customerSelectorViewModel(req)),
+            req -> view.dialogManager().show(editLineItemViewModelV2(req))
+        );
+    }
+
+    private mvvm.example.orders.editor2.lineitems.LineItemEditorViewModel editLineItemViewModelV2(
+        mvvm.example.orders.editor2.lineitems.LineItemEditorRequest request
+    ) {
+        return new mvvm.example.orders.editor2.lineitems.LineItemEditorViewModel(
+            request,
+            req -> view.dialogManager().show(productSelectorViewModelV2(req))
+        );
+    }
+
+    private mvvm.example.orders.editor2.lineitems.ProductSelectorViewModel productSelectorViewModelV2(
+        mvvm.example.orders.editor2.lineitems.ProductSelectorRequest request
+    ) {
+        return new mvvm.example.orders.editor2.lineitems.ProductSelectorViewModel(request, productRepository.findAll());
     }
 
     private StatusItemViewModel ordersCountStatusItem(OrdersExplorerViewModel vm) {
