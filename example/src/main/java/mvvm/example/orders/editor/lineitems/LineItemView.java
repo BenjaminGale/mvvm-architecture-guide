@@ -15,7 +15,14 @@ import java.math.BigDecimal;
 public class LineItemView {
 
     public static List<TableColumn<LineItemViewModel, ?>> columns() {
-        return List.of(descriptionColumn(), quantityColumn(), unitPriceColumn(), totalColumn(), allocatedColumn(), actionsColumn());
+        return List.of(
+            descriptionColumn(),
+            quantityColumn(),
+            unitPriceColumn(),
+            totalColumn(),
+            allocatedColumn(),
+            actionsColumn()
+        );
     }
 
     private static TableColumn<LineItemViewModel, String> descriptionColumn() {
