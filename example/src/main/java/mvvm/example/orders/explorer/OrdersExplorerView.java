@@ -19,24 +19,23 @@ public class OrdersExplorerView extends ExplorerView<OrderSummary> {
     public OrdersExplorerView(OrdersExplorerViewModel viewModel) {
         super(viewModel);
         TableViews.bind(table(), viewModel.editItemAction());
-        table().setRowFactory(_ -> {
-            var row = new TableRow<OrderSummary>() {
-                @Override
-                protected void updateItem(OrderSummary summary, boolean empty) {
-                    super.updateItem(summary, empty);
-                    setStyle(overdueStyle(summary, isSelected()));
-                }
-            };
+        table().setRowFactory(_ -> overdueRow(viewModel));
+    }
 
-            row.setOnMouseClicked(e -> {
-                if (e.getClickCount() == 2) viewModel.editItemAction().execute();
-            });
-
-            row.selectedProperty().addListener((obs, old, selected) ->
-                row.setStyle(overdueStyle(row.getItem(), selected)));
-
-            return row;
+    private static TableRow<OrderSummary> overdueRow(OrdersExplorerViewModel viewModel) {
+        var row = new TableRow<OrderSummary>() {
+            @Override
+            protected void updateItem(OrderSummary summary, boolean empty) {
+                super.updateItem(summary, empty);
+                setStyle(overdueStyle(summary, isSelected()));
+            }
+        };
+        row.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) viewModel.editItemAction().execute();
         });
+        row.selectedProperty().addListener((obs, old, selected) ->
+            row.setStyle(overdueStyle(row.getItem(), selected)));
+        return row;
     }
 
     @Override
