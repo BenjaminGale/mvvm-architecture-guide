@@ -53,11 +53,23 @@ public class SelectorView<T> extends VBox {
         setPadding(new Insets(8));
         setPrefHeight(280);
 
-        var searchField = new TextField();
-        searchField.setPromptText(searchPrompt);
-        searchField.textProperty().bindBidirectional(searchText);
+        getChildren().addAll(
+            searchField(searchPrompt, searchText),
+            listView(items, selection, displayFn)
+        );
+    }
 
+    private static TextField searchField(String prompt, StringProperty searchText) {
+        var field = new TextField();
+        field.setPromptText(prompt);
+        field.textProperty().bindBidirectional(searchText);
+        Controls.focusOnShow(field);
+        return field;
+    }
+
+    private static <T> ListView<T> listView(ObservableList<T> items, ObjectProperty<T> selection, Function<T, String> displayFn) {
         var list = new ListView<T>();
+        VBox.setVgrow(list, Priority.ALWAYS);
         list.setItems(items);
         list.setCellFactory(lv -> new ListCell<>() {
             @Override
@@ -66,20 +78,14 @@ public class SelectorView<T> extends VBox {
                 setText(empty || item == null ? null : displayFn.apply(item));
             }
         });
-
         list.getSelectionModel().selectedItemProperty().addListener((obs, old, val) -> {
             if (val != null) selection.set(val);
         });
-
         var current = selection.get();
         if (current != null) {
             list.getSelectionModel().select(current);
             list.scrollTo(current);
         }
-
-        VBox.setVgrow(list, Priority.ALWAYS);
-        getChildren().addAll(searchField, list);
-
-        Controls.focusOnShow(searchField);
+        return list;
     }
 }
