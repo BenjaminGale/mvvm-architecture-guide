@@ -1,17 +1,16 @@
 package mvvm.example.orders.editor.lineitems;
 
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.Button;
 import mvvm.example.core.view.controls.Buttons;
 import mvvm.example.core.view.controls.FormGrid;
 
-public class LineItemEditorView extends BorderPane {
+public class LineItemEditorView extends FormGrid {
 
     public static Dialog<Runnable> dialog(LineItemEditorViewModel viewModel) {
         var confirmBtn = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
@@ -24,27 +23,34 @@ public class LineItemEditorView extends BorderPane {
     }
 
     private LineItemEditorView(LineItemEditorViewModel viewModel) {
-        var selectProductBtn = new Button("Select Product...");
-        Buttons.bind(selectProductBtn, viewModel.selectProductAction);
+        addRow("Product", selectProductButton(viewModel));
+        addRow("Description", descriptionLabel(viewModel));
+        addRow("Quantity", quantitySpinner(viewModel));
+        addRow("Unit Price", unitPriceLabel(viewModel));
+    }
 
-        var descriptionLabel = new Label();
-        descriptionLabel.textProperty().bind(viewModel.descriptionProperty());
+    private static Button selectProductButton(LineItemEditorViewModel viewModel) {
+        return Buttons.button("Select Product...", viewModel.selectProductAction);
+    }
 
-        var quantitySpinner = new Spinner<Integer>();
-        var quantityFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9999, viewModel.quantityProperty().get());
-        quantitySpinner.setValueFactory(quantityFactory);
-        quantitySpinner.setEditable(true);
+    private static Label descriptionLabel(LineItemEditorViewModel viewModel) {
+        var label = new Label();
+        label.textProperty().bind(viewModel.descriptionProperty());
+        return label;
+    }
 
-        var unitPriceLabel = new Label();
-        unitPriceLabel.textProperty().bind(viewModel.unitPriceProperty().asString());
+    private static Spinner<Integer> quantitySpinner(LineItemEditorViewModel viewModel) {
+        var factory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 9999, viewModel.quantityProperty().get());
+        factory.valueProperty().bindBidirectional(viewModel.quantityProperty().asObject());
+        var spinner = new Spinner<Integer>();
+        spinner.setValueFactory(factory);
+        spinner.setEditable(true);
+        return spinner;
+    }
 
-        var form = new FormGrid();
-        form.addRow("Product", selectProductBtn);
-        form.addRow("Description", descriptionLabel);
-        form.addRow("Quantity", quantitySpinner);
-        form.addRow("Unit Price", unitPriceLabel);
-        setCenter(form);
-
-        quantityFactory.valueProperty().bindBidirectional(viewModel.quantityProperty().asObject());
+    private static Label unitPriceLabel(LineItemEditorViewModel viewModel) {
+        var label = new Label();
+        label.textProperty().bind(viewModel.unitPriceProperty().asString());
+        return label;
     }
 }
