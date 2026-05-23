@@ -1,6 +1,5 @@
 package mvvm.example.core.view.controls;
 
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerExpression;
 import javafx.scene.control.Label;
 
@@ -17,7 +16,7 @@ public class Labels {
             -fx-font-size: 10;
             -fx-font-weight: bold;
             """);
-        badge.visibleProperty().bind(Bindings.greaterThan(count, 0));
+        badge.visibleProperty().bind(count.greaterThan(0));
         return badge;
     }
 
