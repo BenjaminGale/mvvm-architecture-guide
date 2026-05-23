@@ -53,18 +53,22 @@ public class LineItemView {
             private final Button editBtn = new Button("Edit");
             private final Button deleteBtn = new Button("Delete");
             private final HBox box = new HBox(4, editBtn, deleteBtn);
+            private LineItemViewModel bound = null;
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
-                    setGraphic(null);
-                } else {
-                    var vm = getTableRow().getItem();
-                    Buttons.bind(editBtn, vm.editAction);
-                    Buttons.bind(deleteBtn, vm.deleteAction);
-                    setGraphic(box);
+                var vm = (!empty && getTableRow() != null) ? getTableRow().getItem() : null;
+                if (vm != bound) {
+                    editBtn.disableProperty().unbind();
+                    deleteBtn.disableProperty().unbind();
+                    bound = vm;
+                    if (vm != null) {
+                        Buttons.bind(editBtn, vm.editAction);
+                        Buttons.bind(deleteBtn, vm.deleteAction);
+                    }
                 }
+                setGraphic(vm != null ? box : null);
             }
         }));
         return col;
