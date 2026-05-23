@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 public class LineItemEditorViewModel {
 
-    public final Action selectProduct;
+    public final Action selectProductAction;
 
     private final LineItemEditorRequest request;
     private String productId;
@@ -28,13 +28,12 @@ public class LineItemEditorViewModel {
     public LineItemEditorViewModel(LineItemEditorRequest request, Consumer<ProductSelectorRequest> selectProductHost) {
         this.request = request;
         this.productId = request.item().productId();
-
         description.set(request.item().description());
         quantity.set(request.item().quantity());
         unitPrice.set(request.item().unitPrice());
 
-        selectProduct = new Action(() -> selectProductHost.accept(
-            new ProductSelectorRequest(request.excludedProductIds(), this::onProductSelected)
+        selectProductAction = new Action(() -> selectProductHost.accept(
+            new ProductSelectorRequest(request.currentLineItems(), productId, this::onProductSelected)
         ));
     }
 
@@ -45,12 +44,7 @@ public class LineItemEditorViewModel {
     }
 
     public void confirm() {
-        request.confirmChanges(new LineItem(
-            productId,
-            description.get(),
-            quantity.get(),
-            unitPrice.get()
-        ));
+        request.confirmChanges(new LineItem(productId, description.get(), quantity.get(), unitPrice.get()));
     }
 
     public ReadOnlyStringProperty descriptionProperty() { return description; }

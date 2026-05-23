@@ -1,6 +1,6 @@
 package mvvm.example.orders.editor.lineitems;
 
-import mvvm.example.orders.editor.lineitems.ProductSelectorRequest;
+import mvvm.example.orders.domain.LineItem;
 import mvvm.example.stock.domain.Product;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,8 +22,12 @@ class ProductSelectorViewModelTest {
 
     private static final List<Product> ALL_PRODUCTS = List.of(WIDGET, GADGET, DOOHICKEY);
 
-    private static ProductSelectorViewModel viewModelFor(Set<String> excluded) {
-        return new ProductSelectorViewModel(new ProductSelectorRequest(excluded, p -> {}), ALL_PRODUCTS);
+    private static LineItem itemFor(String productId) {
+        return new LineItem(productId, "", 1, BigDecimal.ZERO);
+    }
+
+    private static ProductSelectorViewModel viewModelFor(List<LineItem> currentLineItems) {
+        return new ProductSelectorViewModel(new ProductSelectorRequest(currentLineItems, null, p -> {}), ALL_PRODUCTS);
     }
 
     @Nested
@@ -34,7 +37,7 @@ class ProductSelectorViewModelTest {
         @Test
         @DisplayName("all products are shown when nothing is excluded")
         void allProductsShown() {
-            var vm = viewModelFor(Set.of());
+            var vm = viewModelFor(List.of());
 
             assertEquals(3, vm.getProducts().size());
         }
@@ -42,7 +45,7 @@ class ProductSelectorViewModelTest {
         @Test
         @DisplayName("excluded products are not shown")
         void excludedProductsNotShown() {
-            var vm = viewModelFor(Set.of("prod-1", "prod-2"));
+            var vm = viewModelFor(List.of(itemFor("prod-1"), itemFor("prod-2")));
 
             assertEquals(1, vm.getProducts().size());
             assertEquals(DOOHICKEY, vm.getProducts().getFirst());
@@ -56,7 +59,7 @@ class ProductSelectorViewModelTest {
         @Test
         @DisplayName("the list is filtered to products whose name contains the search text")
         void filtersOnName() {
-            var vm = viewModelFor(Set.of());
+            var vm = viewModelFor(List.of());
 
             vm.searchTextProperty().set("widget");
 
@@ -66,7 +69,7 @@ class ProductSelectorViewModelTest {
         @Test
         @DisplayName("matching is case-insensitive")
         void caseInsensitiveMatch() {
-            var vm = viewModelFor(Set.of());
+            var vm = viewModelFor(List.of());
 
             vm.searchTextProperty().set("GADGET");
 
@@ -76,7 +79,7 @@ class ProductSelectorViewModelTest {
         @Test
         @DisplayName("clearing the search restores all products")
         void clearingSearchRestoresAll() {
-            var vm = viewModelFor(Set.of());
+            var vm = viewModelFor(List.of());
             vm.searchTextProperty().set("widget");
 
             vm.searchTextProperty().set("");
@@ -93,7 +96,7 @@ class ProductSelectorViewModelTest {
         @DisplayName("the request callback is invoked with the selected product")
         void callbackInvokedWithSelection() {
             Consumer<Product> listener = mock();
-            var vm = new ProductSelectorViewModel(new ProductSelectorRequest(Set.of(), listener), ALL_PRODUCTS);
+            var vm = new ProductSelectorViewModel(new ProductSelectorRequest(List.of(), null, listener), ALL_PRODUCTS);
             vm.selectedProductProperty().set(WIDGET);
 
             vm.confirm();
@@ -105,7 +108,7 @@ class ProductSelectorViewModelTest {
         @DisplayName("the callback is not invoked when no product is selected")
         void callbackNotInvokedWithoutSelection() {
             Consumer<Product> listener = mock();
-            var vm = new ProductSelectorViewModel(new ProductSelectorRequest(Set.of(), listener), ALL_PRODUCTS);
+            var vm = new ProductSelectorViewModel(new ProductSelectorRequest(List.of(), null, listener), ALL_PRODUCTS);
 
             vm.confirm();
 

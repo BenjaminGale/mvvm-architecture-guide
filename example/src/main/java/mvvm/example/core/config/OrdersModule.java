@@ -3,31 +3,30 @@ package mvvm.example.core.config;
 import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.commands.CopyOrderCommand;
-import mvvm.example.stock.domain.commands.DeleteStockAllocationsCommand;
-import mvvm.example.orders.domain.queries.GetLineItemSummariesQuery;
-import mvvm.example.orders.domain.queries.GetOrderHeaderSummaryQuery;
+import mvvm.example.orders.domain.commands.UpsertOrderCommand;
 import mvvm.example.orders.domain.queries.GetOrderSummariesQuery;
-import mvvm.example.orders.domain.queries.OrderLineItemsService;
+import mvvm.example.orders.editor.OrderEditorHost;
+import mvvm.example.orders.editor.OrderEditorRequest;
+import mvvm.example.orders.editor.header.CustomerSelectorRequest;
+import mvvm.example.orders.editor.header.CustomerSelectorView;
+import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
+import mvvm.example.orders.editor.GetOrderEditorDataQuery;
+import mvvm.example.orders.editor.OrderEditorData;
+import mvvm.example.orders.editor.OrderEditorService;
+import mvvm.example.orders.editor.OrderEditorView;
+import mvvm.example.orders.editor.OrderEditorViewModel;
+import mvvm.example.orders.editor.header.OrderHeaderView;
+import mvvm.example.orders.editor.header.OrderHeaderViewModel;
+import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
+import mvvm.example.orders.editor.lineitems.LineItemEditorView;
+import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;
+import mvvm.example.orders.editor.lineitems.ProductSelectorRequest;
+import mvvm.example.orders.editor.lineitems.ProductSelectorView;
+import mvvm.example.orders.editor.lineitems.ProductSelectorViewModel;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.stock.domain.StockRepository;
-import mvvm.example.orders.domain.commands.UpsertOrderCommand;
-import mvvm.example.orders.editor.*;
-import mvvm.example.orders.editor.header.CustomerSelectorView;
-import mvvm.example.orders.editor.header.CustomerSelectorViewModel;
-import mvvm.example.orders.editor.header.CustomerSelectorRequest;
-import mvvm.example.orders.editor.OrderEditorRequest;
-import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
-import mvvm.example.orders.editor.lineitems.LineItemEditorView;
-import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;
-import mvvm.example.orders.editor.lineitems.ProductSelectorView;
-import mvvm.example.orders.editor.lineitems.ProductSelectorViewModel;
-import mvvm.example.orders.editor.lineitems.ProductSelectorRequest;
-import mvvm.example.orders.editor.header.OrderHeaderView;
-import mvvm.example.orders.editor.header.OrderHeaderViewModel;
-import mvvm.example.orders.editor.lineitems.LineItemsExplorerView;
-import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 import mvvm.example.shell.ShellContext;
@@ -47,9 +46,8 @@ public class OrdersModule {
     private final ViewServices view;
     private final ShellContext shell;
     private final CopyOrderCommand copyOrderCommand;
-    private final DeleteStockAllocationsCommand deleteStockAllocationsCommand;
 
-    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, StockRepository stockRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand, DeleteStockAllocationsCommand deleteStockAllocationsCommand) {
+    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, StockRepository stockRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
@@ -57,11 +55,9 @@ public class OrdersModule {
         this.view = view;
         this.shell = shell;
         this.copyOrderCommand = copyOrderCommand;
-        this.deleteStockAllocationsCommand = deleteStockAllocationsCommand;
 
         view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
         view.viewLocator().register(OrderHeaderViewModel.class, OrderHeaderView::new);
-        view.viewLocator().register(LineItemsExplorerViewModel.class, LineItemsExplorerView::new);
         view.viewLocator().register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, view.viewLocator()));
         view.dialogManager().register(LineItemEditorViewModel.class, LineItemEditorView::dialog);
         view.dialogManager().register(CustomerSelectorViewModel.class, CustomerSelectorView::dialog);
@@ -91,40 +87,26 @@ public class OrdersModule {
     }
 
     private OrderEditorViewModel orderEditorViewModel(OrderEditorRequest request) {
+        var query = new GetOrderEditorDataQuery(orderRepository, customerRepository, stockRepository);
         return new OrderEditorViewModel(
             request,
-            orderHeaderViewModel(request),
-            lineItemsExplorerViewModel(request),
             new OrderEditorService() {
-                @Override public void upsert(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> items) { new UpsertOrderCommand(orderRepository).execute(orderId, customerId, reference, plannedShipDate, items); }
-                @Override public String copyOrder(String orderId) { return copyOrderCommand.copy(orderId); }
-                @Override public void deleteOrder(String orderId) { orderRepository.delete(orderId); }
+                @Override public OrderEditorData fetch(OrderEditorRequest req) { return query.execute(req); }
+                @Override public String save(String orderId, String customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) { return new UpsertOrderCommand(orderRepository).execute(orderId, customerId, reference, plannedShipDate, lineItems); }
+                @Override public String copy(String orderId) { return copyOrderCommand.copy(orderId); }
+                @Override public void delete(String orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
                 @Override public void openOrder(OrderEditorRequest req) { shell.show(() -> orderEditorViewModel(req)); }
-            }
+            },
+            req -> view.dialogManager().show(customerSelectorViewModel(req)),
+            req -> view.dialogManager().show(editLineItemViewModel(req))
         );
     }
 
-    private OrderHeaderViewModel orderHeaderViewModel(OrderEditorRequest request) {
-        return new OrderHeaderViewModel(
-            request,
-            new GetOrderHeaderSummaryQuery(orderRepository, customerRepository),
-            req -> view.dialogManager().show(customerSelectorViewModel(req))
-        );
-    }
-
-    private LineItemsExplorerViewModel lineItemsExplorerViewModel(OrderEditorRequest request) {
-        return new LineItemsExplorerViewModel(
-            request,
-            new OrderLineItemsService(orderRepository, new GetLineItemSummariesQuery(productRepository, stockRepository), deleteStockAllocationsCommand),
-            req -> view.dialogManager().show(editItemViewModel(req))
-        );
-    }
-
-    private LineItemEditorViewModel editItemViewModel(LineItemEditorRequest request) {
-        return new LineItemEditorViewModel(request, r -> view.dialogManager().show(productSelectorViewModel(r)));
+    private LineItemEditorViewModel editLineItemViewModel(LineItemEditorRequest request) {
+        return new LineItemEditorViewModel(request, req -> view.dialogManager().show(productSelectorViewModel(req)));
     }
 
     private CustomerSelectorViewModel customerSelectorViewModel(CustomerSelectorRequest request) {

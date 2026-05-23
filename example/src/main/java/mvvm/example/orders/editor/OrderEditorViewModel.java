@@ -1,67 +1,101 @@
 package mvvm.example.orders.editor;
 
-import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
+import mvvm.example.orders.domain.LineItem;
+import mvvm.example.orders.editor.OrderEditorHost;
+import mvvm.example.orders.editor.OrderEditorRequest;
+import mvvm.example.orders.editor.header.CustomerSelectorRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
-import mvvm.example.orders.editor.lineitems.LineItemsExplorerViewModel;
+import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
+import mvvm.example.orders.editor.lineitems.LineItemViewModel;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
+import static javafx.beans.binding.Bindings.isEmpty;
 
 public class OrderEditorViewModel {
 
-    public final AsyncAction save;
-    public final Action delete;
-    public final Action copy;
+    public final AsyncAction saveAction;
+    public final Action copyAction;
+    public final Action deleteOrderAction;
+    public final Action addLineItemAction;
 
     private final OrderEditorRequest request;
-    private final OrderHeaderViewModel header;
-    private final LineItemsExplorerViewModel lineItems;
-
     private final OrderEditorService service;
     private final OrderEditorHost host;
+    private final OrderHeaderViewModel header;
+    private final ObservableList<LineItemViewModel> lineItems = FXCollections.observableArrayList();
+    private final Consumer<LineItemEditorRequest> editLineItemHost;
 
     public OrderEditorViewModel(
         OrderEditorRequest request,
-        OrderHeaderViewModel header,
-        LineItemsExplorerViewModel lineItems,
         OrderEditorService service,
-        OrderEditorHost host
+        OrderEditorHost host,
+        Consumer<CustomerSelectorRequest> selectCustomerHost,
+        Consumer<LineItemEditorRequest> editLineItemHost
     ) {
         this.request = request;
-        this.header = header;
-        this.lineItems = lineItems;
         this.service = service;
         this.host = host;
+        this.editLineItemHost = editLineItemHost;
 
-        this.save = new AsyncAction(this::onSave, Bindings.and(header.validProperty(), lineItems.validProperty()));
-        this.delete = new Action(this::onDelete);
-        this.copy = new Action(this::onCopy);
+        var data = service.fetch(request);
+        this.header = new OrderHeaderViewModel(data.order(), data.customer(), selectCustomerHost);
+
+        data.order().lineItems().forEach(item ->
+            lineItems.add(createLineItemVm(item, data.allocations().getOrDefault(item.productId(), 0)))
+        );
+
+        this.saveAction = new AsyncAction(this::onSave, header.validProperty().and(isEmpty(lineItems).not()));
+        this.copyAction = new Action(this::onCopy);
+        this.deleteOrderAction = new Action(this::onDeleteOrder);
+        this.addLineItemAction = new Action(this::onAddLineItem);
+    }
+
+    private LineItemViewModel createLineItemVm(LineItem item, int allocatedQuantity) {
+        return new LineItemViewModel(
+            item,
+            allocatedQuantity,
+            editLineItemHost,
+            () -> lineItems.stream().map(LineItemViewModel::toLineItem).toList(),
+            lineItems::remove
+        );
+    }
+
+    private void onAddLineItem() {
+        var currentItems = lineItems.stream().map(LineItemViewModel::toLineItem).toList();
+        editLineItemHost.accept(new LineItemEditorRequest(LineItem.empty(), currentItems, item ->
+            lineItems.add(createLineItemVm(item, 0))
+        ));
     }
 
     private CompletableFuture<Runnable> onSave() {
         return CompletableFuture.supplyAsync(() -> {
-            service.upsert(
+            service.save(
                 request.orderId(),
                 header.selectedCustomerProperty().get().id(),
                 header.referenceProperty().get(),
                 header.plannedShipDateProperty().get(),
-                lineItems.buildLineItems()
+                lineItems.stream().map(LineItemViewModel::toLineItem).toList()
             );
             return host::returnToList;
         });
     }
 
-    private void onDelete() {
-        service.deleteOrder(request.orderId());
-        host.returnToList();
-    }
-
     private void onCopy() {
-        var copiedId = service.copyOrder(request.orderId());
+        var copiedId = service.copy(request.orderId());
         host.openOrder(OrderEditorRequest.of(copiedId));
     }
 
-    public OrderHeaderViewModel getHeader() { return header; }
-    public LineItemsExplorerViewModel getLineItems() { return lineItems; }
+    private void onDeleteOrder() {
+        service.delete(request.orderId());
+        host.returnToList();
+    }
+
+    public OrderHeaderViewModel header() { return header; }
+    public ObservableList<LineItemViewModel> lineItems() { return lineItems; }
 }

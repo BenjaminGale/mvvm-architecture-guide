@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import mvvm.example.stock.domain.Product;
 
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.mockito.ArgumentCaptor;
@@ -23,7 +23,7 @@ class LineItemEditorViewModelTest {
     private static final LineItem ORIGINAL = new LineItem(null, "Widget", 2, BigDecimal.valueOf(9.99));
 
     private static LineItemEditorViewModel viewModelFor(LineItem item) {
-        return new LineItemEditorViewModel(new LineItemEditorRequest(item, Set.of(), confirmed -> {}), r -> {});
+        return new LineItemEditorViewModel(new LineItemEditorRequest(item, List.of(), confirmed -> {}), r -> {});
     }
 
     @Nested
@@ -63,7 +63,7 @@ class LineItemEditorViewModelTest {
         @DisplayName("the request callback is invoked with the updated item")
         void requestCallbackInvokedWithUpdatedItem() {
             Consumer<LineItem> listener = mock();
-            var vm = new LineItemEditorViewModel(new LineItemEditorRequest(ORIGINAL, Set.of(), listener), r -> {});
+            var vm = new LineItemEditorViewModel(new LineItemEditorRequest(ORIGINAL, List.of(), listener), r -> {});
 
             vm.confirm();
 
@@ -76,10 +76,10 @@ class LineItemEditorViewModelTest {
             Consumer<LineItem> listener = mock();
             var product = new Product("prod-1", "Gadget", BigDecimal.valueOf(19.99), 10);
             var vm = new LineItemEditorViewModel(
-                new LineItemEditorRequest(ORIGINAL, Set.of(), listener),
+                new LineItemEditorRequest(ORIGINAL, List.of(), listener),
                 r -> r.confirmSelection(product)
             );
-            vm.selectProduct.execute();
+            vm.selectProductAction.execute();
             vm.quantityProperty().set(5);
 
             vm.confirm();

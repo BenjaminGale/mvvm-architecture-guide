@@ -12,19 +12,17 @@ public class LineItemEditorView extends BorderPane {
 
     public static Dialog<Runnable> dialog(LineItemEditorViewModel viewModel) {
         var confirmBtn = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
-
         var dialog = new Dialog<Runnable>();
         dialog.setTitle("Edit Item");
         dialog.getDialogPane().setContent(new LineItemEditorView(viewModel));
         dialog.getDialogPane().getButtonTypes().addAll(confirmBtn, ButtonType.CANCEL);
         dialog.setResultConverter(bt -> bt == confirmBtn ? viewModel::confirm : null);
-
         return dialog;
     }
 
     private LineItemEditorView(LineItemEditorViewModel viewModel) {
         var selectProductBtn = new Button("Select Product...");
-        Buttons.bind(selectProductBtn, viewModel.selectProduct);
+        Buttons.bind(selectProductBtn, viewModel.selectProductAction);
 
         var descriptionLabel = new Label();
         descriptionLabel.textProperty().bind(viewModel.descriptionProperty());
@@ -41,16 +39,12 @@ public class LineItemEditorView extends BorderPane {
         form.setHgap(8);
         form.setVgap(8);
         form.setPadding(new Insets(16));
-
         form.add(new Label("Product"), 0, 0);
         form.add(selectProductBtn, 1, 0);
-
         form.add(new Label("Description"), 0, 1);
         form.add(descriptionLabel, 1, 1);
-
         form.add(new Label("Quantity"), 0, 2);
         form.add(quantitySpinner, 1, 2);
-
         form.add(new Label("Unit Price"), 0, 3);
         form.add(unitPriceLabel, 1, 3);
 
@@ -58,7 +52,6 @@ public class LineItemEditorView extends BorderPane {
         var fieldCol = new ColumnConstraints();
         fieldCol.setHgrow(Priority.ALWAYS);
         form.getColumnConstraints().addAll(labelCol, fieldCol);
-
         setCenter(form);
 
         quantityFactory.valueProperty().bindBidirectional(viewModel.quantityProperty().asObject());
