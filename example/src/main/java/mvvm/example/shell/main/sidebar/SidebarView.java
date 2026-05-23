@@ -10,50 +10,48 @@ import mvvm.example.core.view.controls.Buttons;
 
 public class SidebarView extends BorderPane {
 
-    private final VBox navigationHost = new VBox();
+    private final VBox navigationHost = navigationHost();
 
     public SidebarView(SidebarViewModel viewModel) {
+        setRight(separator());
+        setCenter(navigationHost);
+        setPrefWidth(180);
+
+        setContent(viewModel.navigationItems());
+
+        viewModel.navigationItems()
+            .addListener((ListChangeListener<SidebarItemViewModel>) _ ->
+                setContent(viewModel.navigationItems()));
+    }
+
+    private void setContent(ObservableList<SidebarItemViewModel> items) {
+        navigationHost.getChildren().setAll(
+            items.stream().map(SidebarView::navigationButton).toList()
+        );
+    }
+
+    private static VBox navigationHost() {
+        var host = new VBox();
+        host.setPadding(new Insets(8));
+        host.setSpacing(4);
+        return host;
+    }
+
+    private static Region separator() {
         var separator = new Region();
         separator.setStyle("-fx-background-color: -fx-box-border;");
         separator.setPrefWidth(1);
         separator.setMinWidth(1);
         separator.setMaxWidth(1);
-
-        setRight(separator);
-        setCenter(navigationHost);
-        setPrefWidth(180);
-
-        navigationHost.setPadding(new Insets(8));
-        navigationHost.setSpacing(4);
-
-        setContent(viewModel.navigationItems());
-
-        viewModel
-            .navigationItems()
-            .addListener((ListChangeListener<SidebarItemViewModel>) _ ->
-                setContent(viewModel.navigationItems())
-            );
+        return separator;
     }
 
-    private void setContent(ObservableList<SidebarItemViewModel> items) {
-        navigationHost
-            .getChildren()
-            .setAll(
-                items.stream()
-                    .map(this::navigationButton)
-                    .toList()
-            );
-    }
-
-    private Button navigationButton(SidebarItemViewModel viewModel) {
+    private static Button navigationButton(SidebarItemViewModel viewModel) {
         var button = new Button();
-
         button.textProperty().bind(viewModel.titleProperty());
         button.setMaxWidth(Double.MAX_VALUE);
         button.setAlignment(Pos.CENTER_LEFT);
-
         Buttons.bind(button, viewModel.openWorkspaceAction());
-
         return button;
     }
 }
