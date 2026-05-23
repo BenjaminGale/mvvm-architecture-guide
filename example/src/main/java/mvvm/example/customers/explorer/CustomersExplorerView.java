@@ -2,8 +2,8 @@ package mvvm.example.customers.explorer;
 
 import javafx.scene.control.TableColumn;
 import mvvm.example.core.view.ExplorerView;
-import mvvm.example.core.view.controls.TableColumns;
-import mvvm.example.core.view.controls.TableViews;
+import mvvm.example.core.view.table.TableColumns;
+import mvvm.example.core.view.table.TableViews;
 import mvvm.example.customers.domain.Customer;
 
 import java.util.List;

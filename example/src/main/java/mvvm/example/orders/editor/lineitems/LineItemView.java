@@ -6,8 +6,8 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.HBox;
 import mvvm.example.core.view.controls.Buttons;
-import mvvm.example.core.view.controls.CurrencyTableCell;
-import mvvm.example.core.view.controls.IntegerTableCell;
+import mvvm.example.core.view.table.CurrencyTableCell;
+import mvvm.example.core.view.table.IntegerTableCell;
 
 import java.math.BigDecimal;
 

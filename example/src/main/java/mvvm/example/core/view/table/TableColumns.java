@@ -1,4 +1,4 @@
-package mvvm.example.core.view.controls;
+package mvvm.example.core.view.table;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.scene.control.TableCell;

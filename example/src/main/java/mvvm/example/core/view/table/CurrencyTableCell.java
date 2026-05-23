@@ -1,4 +1,4 @@
-package mvvm.example.core.view.controls;
+package mvvm.example.core.view.table;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;

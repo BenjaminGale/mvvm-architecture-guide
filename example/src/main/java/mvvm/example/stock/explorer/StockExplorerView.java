@@ -2,8 +2,8 @@ package mvvm.example.stock.explorer;
 
 import javafx.scene.control.TableColumn;
 import mvvm.example.core.view.ExplorerView;
-import mvvm.example.core.view.controls.CurrencyTableCell;
-import mvvm.example.core.view.controls.TableColumns;
+import mvvm.example.core.view.table.CurrencyTableCell;
+import mvvm.example.core.view.table.TableColumns;
 import mvvm.example.stock.domain.Product;
 
 import java.math.BigDecimal;
