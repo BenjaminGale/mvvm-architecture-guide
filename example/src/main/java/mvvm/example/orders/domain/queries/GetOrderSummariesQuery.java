@@ -21,18 +21,18 @@ public class GetOrderSummariesQuery {
     }
 
     public CompletableFuture<List<OrderSummary>> execute() {
-        var customerNames = customers
-            .findAll()
-            .stream()
-            .collect(Collectors.toMap(Customer::id, Customer::name));
+        return CompletableFuture.supplyAsync(() -> {
+            var customerNames = customers
+                .findAll()
+                .stream()
+                .collect(Collectors.toMap(Customer::id, Customer::name));
 
-        var results = orders
-            .findAll()
-            .stream()
-            .map(order -> toSummary(order, customerNames))
-            .toList();
-
-        return CompletableFuture.supplyAsync(() -> results);
+            return orders
+                .findAll()
+                .stream()
+                .map(order -> toSummary(order, customerNames))
+                .toList();
+        });
     }
 
     private static OrderSummary toSummary(Order order, Map<String, String> customerNames) {
