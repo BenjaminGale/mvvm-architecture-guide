@@ -23,24 +23,32 @@ public class CustomerEditorView extends FormGrid {
     }
 
     private CustomerEditorView(CustomerEditorViewModel viewModel) {
-        var nameField = new TextField();
-        nameField.textProperty().bindBidirectional(viewModel.nameProperty());
+        addRow("Name", nameField(viewModel));
+        addRow("Email", emailField(viewModel));
+        addRow("Status", statusCombo(viewModel));
+    }
 
-        var emailField = new TextField();
-        emailField.textProperty().bindBidirectional(viewModel.emailProperty());
+    private static TextField nameField(CustomerEditorViewModel viewModel) {
+        var field = new TextField();
+        field.textProperty().bindBidirectional(viewModel.nameProperty());
+        Controls.focusOnShow(field);
+        return field;
+    }
 
-        var statusCombo = new ComboBox<CustomerStatus>();
-        statusCombo.getItems().addAll(CustomerStatus.values());
-        statusCombo.valueProperty().bindBidirectional(viewModel.statusProperty());
-        statusCombo.setConverter(new StringConverter<>() {
+    private static TextField emailField(CustomerEditorViewModel viewModel) {
+        var field = new TextField();
+        field.textProperty().bindBidirectional(viewModel.emailProperty());
+        return field;
+    }
+
+    private static ComboBox<CustomerStatus> statusCombo(CustomerEditorViewModel viewModel) {
+        var combo = new ComboBox<CustomerStatus>();
+        combo.getItems().addAll(CustomerStatus.values());
+        combo.valueProperty().bindBidirectional(viewModel.statusProperty());
+        combo.setConverter(new StringConverter<>() {
             @Override public String toString(CustomerStatus s) { return s == null ? "" : s.displayName(); }
             @Override public CustomerStatus fromString(String s) { return null; }
         });
-
-        addRow("Name", nameField);
-        addRow("Email", emailField);
-        addRow("Status", statusCombo);
-
-        Controls.focusOnShow(nameField);
+        return combo;
     }
 }
