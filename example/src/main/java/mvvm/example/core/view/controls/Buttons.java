@@ -7,6 +7,18 @@ import mvvm.example.core.viewmodel.AsyncAction;
 
 public class Buttons {
 
+    public static Button button(String label, Action action) {
+        var button = new Button(label);
+        bind(button, action);
+        return button;
+    }
+
+    public static Button button(String label, AsyncAction action) {
+        var button = new Button(label);
+        bind(button, action);
+        return button;
+    }
+
     public static void bind(Button button, Action action) {
         button.disableProperty().bind(action.canExecuteProperty().not());
         button.setOnAction(e -> action.execute());

@@ -4,6 +4,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import java.util.List;
 import javafx.scene.layout.HBox;
 import mvvm.example.core.view.controls.Buttons;
 import mvvm.example.core.view.table.CurrencyTableCell;
@@ -13,41 +14,45 @@ import java.math.BigDecimal;
 
 public class LineItemView {
 
-    public static TableColumn<LineItemViewModel, String> descriptionColumn() {
+    public static List<TableColumn<LineItemViewModel, ?>> columns() {
+        return List.of(descriptionColumn(), quantityColumn(), unitPriceColumn(), totalColumn(), allocatedColumn(), actionsColumn());
+    }
+
+    private static TableColumn<LineItemViewModel, String> descriptionColumn() {
         var col = new TableColumn<LineItemViewModel, String>("Product");
         col.setCellValueFactory(cell -> cell.getValue().descriptionProperty());
         return col;
     }
 
-    public static TableColumn<LineItemViewModel, Number> quantityColumn() {
+    private static TableColumn<LineItemViewModel, Number> quantityColumn() {
         var col = new TableColumn<LineItemViewModel, Number>("Qty");
         col.setCellValueFactory(cell -> cell.getValue().quantityProperty());
         col.setCellFactory(_ -> centered(new IntegerTableCell<>()));
         return col;
     }
 
-    public static TableColumn<LineItemViewModel, BigDecimal> unitPriceColumn() {
+    private static TableColumn<LineItemViewModel, BigDecimal> unitPriceColumn() {
         var col = new TableColumn<LineItemViewModel, BigDecimal>("Unit Price");
         col.setCellValueFactory(cell -> cell.getValue().unitPriceProperty());
         col.setCellFactory(_ -> centered(new CurrencyTableCell<>()));
         return col;
     }
 
-    public static TableColumn<LineItemViewModel, BigDecimal> totalColumn() {
+    private static TableColumn<LineItemViewModel, BigDecimal> totalColumn() {
         var col = new TableColumn<LineItemViewModel, BigDecimal>("Total");
         col.setCellValueFactory(cell -> cell.getValue().totalProperty());
         col.setCellFactory(_ -> centered(new CurrencyTableCell<>()));
         return col;
     }
 
-    public static TableColumn<LineItemViewModel, Number> allocatedColumn() {
+    private static TableColumn<LineItemViewModel, Number> allocatedColumn() {
         var col = new TableColumn<LineItemViewModel, Number>("Allocated");
         col.setCellValueFactory(cell -> cell.getValue().allocatedQuantityProperty());
         col.setCellFactory(_ -> centered(new IntegerTableCell<>()));
         return col;
     }
 
-    public static TableColumn<LineItemViewModel, Void> actionsColumn() {
+    private static TableColumn<LineItemViewModel, Void> actionsColumn() {
         var col = new TableColumn<LineItemViewModel, Void>("");
         col.setCellFactory(_ -> centered(new TableCell<>() {
             private final Button editBtn = new Button("Edit");
@@ -58,7 +63,8 @@ public class LineItemView {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                var vm = (!empty && getTableRow() != null) ? getTableRow().getItem() : null;
+                var row = getTableRow();
+                var vm = (!empty && row != null) ? row.getItem() : null;
                 if (vm != bound) {
                     editBtn.disableProperty().unbind();
                     deleteBtn.disableProperty().unbind();

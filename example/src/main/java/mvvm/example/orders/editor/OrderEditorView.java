@@ -19,41 +19,43 @@ import mvvm.example.orders.editor.lineitems.LineItemViewModel;
 public class OrderEditorView extends BorderPane {
 
     public OrderEditorView(OrderEditorViewModel viewModel, ViewLocator<Region> viewLocator) {
-        var saveBtn = new Button("Save");
-        var copyBtn = new Button("Copy");
-        var deleteOrderBtn = new Button("Delete");
-        Buttons.bind(saveBtn, viewModel.saveAction);
-        Buttons.bind(copyBtn, viewModel.copyAction);
-        Buttons.bind(deleteOrderBtn, viewModel.deleteOrderAction);
-        var toolbar = new ToolBar(saveBtn, Spacer.create(), copyBtn, deleteOrderBtn);
+        setTop(toolbar(viewModel));
+        setCenter(body(viewModel, viewLocator));
+    }
 
+    private static ToolBar toolbar(OrderEditorViewModel viewModel) {
+        return new ToolBar(
+            Buttons.button("Save", viewModel.saveAction),
+            Spacer.create(),
+            Buttons.button("Copy", viewModel.copyAction),
+            Buttons.button("Delete", viewModel.deleteOrderAction)
+        );
+    }
+
+    private static VBox body(OrderEditorViewModel viewModel, ViewLocator<Region> viewLocator) {
         var headerView = viewLocator.locate(viewModel.header());
+        var lineItemsPane = lineItemsPane(viewModel);
+        VBox.setVgrow(lineItemsPane, Priority.ALWAYS);
+        return new VBox(headerView, new Separator(), lineItemsPane);
+    }
 
-        var addBtn = new Button("Add");
-        Buttons.bind(addBtn, viewModel.addLineItemAction);
-        var lineItemsToolbar = new ToolBar(new Label("Line Items"), Spacer.create(), addBtn);
+    private static BorderPane lineItemsPane(OrderEditorViewModel viewModel) {
+        var pane = new BorderPane();
+        pane.setTop(lineItemsToolbar(viewModel));
+        pane.setCenter(lineItemsTable(viewModel));
+        BorderPane.setMargin(pane.getCenter(), new Insets(8));
+        return pane;
+    }
 
+    private static ToolBar lineItemsToolbar(OrderEditorViewModel viewModel) {
+        return new ToolBar(new Label("Line Items"), Spacer.create(), Buttons.button("Add", viewModel.addLineItemAction));
+    }
+
+    private static TableView<LineItemViewModel> lineItemsTable(OrderEditorViewModel viewModel) {
         var table = new TableView<LineItemViewModel>();
         table.setItems(viewModel.lineItems());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        table.getColumns().addAll(
-            LineItemView.descriptionColumn(),
-            LineItemView.quantityColumn(),
-            LineItemView.unitPriceColumn(),
-            LineItemView.totalColumn(),
-            LineItemView.allocatedColumn(),
-            LineItemView.actionsColumn()
-        );
-
-        var lineItemsPane = new BorderPane();
-        lineItemsPane.setTop(lineItemsToolbar);
-        lineItemsPane.setCenter(table);
-        BorderPane.setMargin(table, new Insets(8, 8, 8, 8));
-
-        VBox.setVgrow(lineItemsPane, Priority.ALWAYS);
-        var center = new VBox(headerView, new Separator(), lineItemsPane);
-
-        setTop(toolbar);
-        setCenter(center);
+        table.getColumns().addAll(LineItemView.columns());
+        return table;
     }
 }
