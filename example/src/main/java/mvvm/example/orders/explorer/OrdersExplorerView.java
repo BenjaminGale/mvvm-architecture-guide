@@ -27,9 +27,7 @@ public class OrdersExplorerView extends ExplorerView<OrderSummary> {
                 @Override
                 protected void updateItem(OrderSummary summary, boolean empty) {
                     super.updateItem(summary, empty);
-                    setStyle(!empty && summary != null && summary.isOverdue() && !isSelected()
-                        ? "-fx-background-color: #fff3cd;"
-                        : "");
+                    setStyle(overdueStyle(summary, isSelected()));
                 }
             };
 
@@ -37,12 +35,8 @@ public class OrdersExplorerView extends ExplorerView<OrderSummary> {
                 if (e.getClickCount() == 2) viewModel.editItemAction().execute();
             });
 
-            row.selectedProperty().addListener((obs, old, selected) -> {
-                var summary = row.getItem();
-                row.setStyle(summary != null && !row.isEmpty() && summary.isOverdue() && !selected
-                    ? "-fx-background-color: #fff3cd;"
-                    : "");
-            });
+            row.selectedProperty().addListener((obs, old, selected) ->
+                row.setStyle(overdueStyle(row.getItem(), selected)));
 
             return row;
         });
@@ -51,6 +45,11 @@ public class OrdersExplorerView extends ExplorerView<OrderSummary> {
     @Override
     protected List<TableColumn<OrderSummary, ?>> columns() {
         return List.of(referenceColumn(), customerColumn(), createdDateColumn(), plannedShipDateColumn(), statusColumn(), totalColumn());
+    }
+
+    private static String overdueStyle(OrderSummary summary, boolean selected) {
+        return summary != null && summary.isOverdue() && !selected
+            ? "-fx-background-color: #fff3cd;" : "";
     }
 
     private static TableColumn<OrderSummary, String> referenceColumn() {
