@@ -1,6 +1,7 @@
 package mvvm.example.orders.editor;
 
 import mvvm.example.orders.MockOrders;
+import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.editor.header.CustomerSelectorRequest;
 import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -178,6 +180,48 @@ class OrderEditorViewModelTest {
             );
 
             assertFalse(vm.saveAction.canExecute());
+        }
+    }
+
+    @Nested
+    @DisplayName("when a line item is added")
+    class WhenLineItemAdded {
+
+        @Test
+        @DisplayName("addLineItemAction invokes the edit host")
+        void addLineItemActionInvokesEditHost() {
+            var order = MockOrders.orderWithNoLineItems();
+            Consumer<LineItemEditorRequest> editHost = mock();
+            var vm = new OrderEditorViewModel(
+                OrderEditorRequest.of(order.id()),
+                serviceFor(order),
+                mock(OrderEditorHost.class),
+                req -> {},
+                editHost
+            );
+
+            vm.addLineItemAction.execute();
+
+            verify(editHost).accept(any());
+        }
+
+        @Test
+        @DisplayName("a confirmed item appears in the line items list")
+        void confirmedItemAppearsInList() {
+            var order = MockOrders.orderWithNoLineItems();
+            var newItem = new LineItem("prod-1", "Widget", 1, BigDecimal.TEN);
+            var vm = new OrderEditorViewModel(
+                OrderEditorRequest.of(order.id()),
+                serviceFor(order),
+                mock(OrderEditorHost.class),
+                req -> {},
+                req -> req.confirmChanges(newItem)
+            );
+
+            vm.addLineItemAction.execute();
+
+            assertEquals(1, vm.lineItems().size());
+            assertEquals("prod-1", vm.lineItems().getFirst().productId());
         }
     }
 
