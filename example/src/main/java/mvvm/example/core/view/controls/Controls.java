@@ -21,15 +21,7 @@ public class Controls {
     }
 
     public static void focusOnShow(Node node) {
-        node.sceneProperty().addListener(new ChangeListener<>() {
-            @Override
-            public void changed(ObservableValue<? extends Scene> obs, Scene old, Scene scene) {
-                if (scene != null) {
-                    Platform.runLater(node::requestFocus);
-                    node.sceneProperty().removeListener(this);
-                }
-            }
-        });
+        onAttached(node, () -> Platform.runLater(node::requestFocus));
     }
 
     private Controls() {}
