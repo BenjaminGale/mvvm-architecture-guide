@@ -18,7 +18,7 @@ public class MainView extends BorderPane {
 
         viewModel
             .currentWorkspaceProperty()
-            .addListener(_ -> show(viewModel.currentWorkspaceProperty().get()));
+            .addListener((_, _, newVal) -> show(newVal));
     }
 
     private void show(Object viewModel) {
