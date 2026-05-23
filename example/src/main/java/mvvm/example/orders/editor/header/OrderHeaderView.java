@@ -9,11 +9,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import mvvm.example.core.view.controls.Controls;
+import mvvm.example.core.view.controls.FormGrid;
 
 import java.time.format.DateTimeFormatter;
 
@@ -51,25 +49,12 @@ public class OrderHeaderView extends BorderPane {
             : "");
         var statusLabel = new Label(viewModel.status().displayName());
 
-        var form = new GridPane();
-        form.setHgap(8);
-        form.setVgap(8);
-        form.setPadding(new Insets(8));
-        form.add(new Label("Customer"), 0, 0);
-        form.add(customerRow, 1, 0);
-        form.add(new Label("Created"), 0, 1);
-        form.add(createdDateLabel, 1, 1);
-        form.add(new Label("Status"), 0, 2);
-        form.add(statusLabel, 1, 2);
-        form.add(new Label("Ship By"), 0, 3);
-        form.add(orderDatePicker, 1, 3);
-        form.add(new Label("Reference"), 0, 4);
-        form.add(referenceField, 1, 4);
-
-        var labelCol = new ColumnConstraints();
-        var fieldCol = new ColumnConstraints();
-        fieldCol.setHgrow(Priority.ALWAYS);
-        form.getColumnConstraints().addAll(labelCol, fieldCol);
+        var form = new FormGrid(new Insets(8));
+        form.addRow("Customer", customerRow);
+        form.addRow("Created", createdDateLabel);
+        form.addRow("Status", statusLabel);
+        form.addRow("Ship By", orderDatePicker);
+        form.addRow("Reference", referenceField);
 
         var toolbar = new ToolBar(new Label("Order Header"));
         toolbar.setPadding(new Insets(4));

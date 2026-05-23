@@ -1,12 +1,15 @@
 package mvvm.example.orders.editor.lineitems;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
 import mvvm.example.core.view.controls.Buttons;
+import mvvm.example.core.view.controls.FormGrid;
 
 public class LineItemEditorView extends BorderPane {
 
@@ -35,23 +38,11 @@ public class LineItemEditorView extends BorderPane {
         var unitPriceLabel = new Label();
         unitPriceLabel.textProperty().bind(viewModel.unitPriceProperty().asString());
 
-        var form = new GridPane();
-        form.setHgap(8);
-        form.setVgap(8);
-        form.setPadding(new Insets(16));
-        form.add(new Label("Product"), 0, 0);
-        form.add(selectProductBtn, 1, 0);
-        form.add(new Label("Description"), 0, 1);
-        form.add(descriptionLabel, 1, 1);
-        form.add(new Label("Quantity"), 0, 2);
-        form.add(quantitySpinner, 1, 2);
-        form.add(new Label("Unit Price"), 0, 3);
-        form.add(unitPriceLabel, 1, 3);
-
-        var labelCol = new ColumnConstraints();
-        var fieldCol = new ColumnConstraints();
-        fieldCol.setHgrow(Priority.ALWAYS);
-        form.getColumnConstraints().addAll(labelCol, fieldCol);
+        var form = new FormGrid();
+        form.addRow("Product", selectProductBtn);
+        form.addRow("Description", descriptionLabel);
+        form.addRow("Quantity", quantitySpinner);
+        form.addRow("Unit Price", unitPriceLabel);
         setCenter(form);
 
         quantityFactory.valueProperty().bindBidirectional(viewModel.quantityProperty().asObject());
