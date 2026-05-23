@@ -8,6 +8,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Button;
 import mvvm.example.core.view.controls.Buttons;
+import mvvm.example.core.view.controls.Controls;
 import mvvm.example.core.view.controls.FormGrid;
 
 public class LineItemEditorView extends FormGrid {
@@ -30,7 +31,9 @@ public class LineItemEditorView extends FormGrid {
     }
 
     private static Button selectProductButton(LineItemEditorViewModel viewModel) {
-        return Buttons.button("Select Product...", viewModel.selectProductAction);
+        var btn = Buttons.button("Select Product...", viewModel.selectProductAction);
+        Controls.focusOnShow(btn);
+        return btn;
     }
 
     private static Label descriptionLabel(LineItemEditorViewModel viewModel) {
