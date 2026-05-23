@@ -86,7 +86,7 @@ View classes follow these conventions:
 - The constructor may accept other view-layer dependencies such as the `ViewLocator`.
 - Controls are bound to ViewModel properties in the constructor, delegating user interactions back to the ViewModel.
 
-There is no shared base class or interface. The `ViewLocator` constructs views via registered factory functions.
+No shared base class or interface is prescribed. The `ViewLocator` constructs views via registered factory functions. A base class is acceptable where several views share substantial layout scaffolding, but it must not carry application logic or ViewModel responsibilities.
 
 ```java
 public class OrdersExplorerView extends StackPane {
