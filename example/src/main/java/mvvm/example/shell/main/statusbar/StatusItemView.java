@@ -14,7 +14,7 @@ public class StatusItemView extends Label {
         );
     }
 
-    private String createFormat(StatusItemViewModel vm) {
+    private static String createFormat(StatusItemViewModel vm) {
         return switch (vm.label()) {
             case All_ORDERS -> "%d orders";
             case OVERDUE_ORDERS -> "%d overdue";
