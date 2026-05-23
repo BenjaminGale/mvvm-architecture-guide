@@ -40,10 +40,11 @@ public class OrderEditorView extends BorderPane {
     }
 
     private static BorderPane lineItemsPane(OrderEditorViewModel viewModel) {
+        var table = lineItemsTable(viewModel);
+        BorderPane.setMargin(table, new Insets(8));
         var pane = new BorderPane();
         pane.setTop(lineItemsToolbar(viewModel));
-        pane.setCenter(lineItemsTable(viewModel));
-        BorderPane.setMargin(pane.getCenter(), new Insets(8));
+        pane.setCenter(table);
         return pane;
     }
 
