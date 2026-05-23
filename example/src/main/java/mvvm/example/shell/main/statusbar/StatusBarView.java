@@ -1,6 +1,6 @@
 package mvvm.example.shell.main.statusbar;
 
-import javafx.collections.ListChangeListener;
+import javafx.beans.InvalidationListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -24,9 +24,9 @@ public class StatusBarView extends BorderPane {
 
         setContent(viewModel.statusItems());
 
-        viewModel.statusItems()
-            .addListener((ListChangeListener<StatusItemViewModel>) _ ->
-                setContent(viewModel.statusItems()));
+        viewModel
+            .statusItems()
+            .addListener((InvalidationListener) _ -> setContent(viewModel.statusItems()));
     }
 
     private void setContent(ObservableList<StatusItemViewModel> statusItems) {

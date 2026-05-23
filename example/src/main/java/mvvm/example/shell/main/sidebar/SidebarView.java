@@ -1,6 +1,6 @@
 package mvvm.example.shell.main.sidebar;
 
-import javafx.collections.ListChangeListener;
+import javafx.beans.InvalidationListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,9 +19,9 @@ public class SidebarView extends BorderPane {
 
         setContent(viewModel.navigationItems());
 
-        viewModel.navigationItems()
-            .addListener((ListChangeListener<SidebarItemViewModel>) _ ->
-                setContent(viewModel.navigationItems()));
+        viewModel
+            .navigationItems()
+            .addListener((InvalidationListener) _ -> setContent(viewModel.navigationItems()));
     }
 
     private void setContent(ObservableList<SidebarItemViewModel> items) {
