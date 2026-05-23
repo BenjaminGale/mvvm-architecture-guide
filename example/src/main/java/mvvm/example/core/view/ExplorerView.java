@@ -42,8 +42,6 @@ public abstract class ExplorerView<T> extends BorderPane {
     }
 
     private static ToolBar toolbar(Action addAction) {
-        var button = new Button("Add");
-        Buttons.bind(button, addAction);
-        return new ToolBar(button);
+        return new ToolBar(Buttons.button("Add", addAction));
     }
 }
