@@ -26,12 +26,12 @@ class GetOrderSummariesQueryTest {
 
     private static final Customer ACME = new Customer(UUID.randomUUID(), "Acme Ltd", "acme@example.com", CustomerStatus.ACTIVE);
 
-    private static Order pending(UUID customerId, LocalDate plannedShipDate) {
-        return new Order(UUID.randomUUID(), customerId, TODAY, plannedShipDate, "REF", OrderStatus.PENDING, null, List.of());
+    private static Order inProgress(UUID customerId, LocalDate plannedShipDate) {
+        return new Order(UUID.randomUUID(), customerId, TODAY, plannedShipDate, "REF", OrderStatus.IN_PROGRESS, null, List.of());
     }
 
-    private static Order pending(UUID customerId, LocalDate plannedShipDate, List<LineItem> items) {
-        return new Order(UUID.randomUUID(), customerId, TODAY, plannedShipDate, "REF", OrderStatus.PENDING, null, items);
+    private static Order inProgress(UUID customerId, LocalDate plannedShipDate, List<LineItem> items) {
+        return new Order(UUID.randomUUID(), customerId, TODAY, plannedShipDate, "REF", OrderStatus.IN_PROGRESS, null, items);
     }
 
     private static Order shipped(UUID customerId) {
@@ -66,7 +66,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("id is taken from the order")
         void id() {
-            var order = pending(ACME.id(), TOMORROW);
+            var order = inProgress(ACME.id(), TOMORROW);
             var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
 
             assertEquals(order.id(), summaries.getFirst().id());
@@ -75,7 +75,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("reference is taken from the order")
         void reference() {
-            var order = pending(ACME.id(), TOMORROW);
+            var order = inProgress(ACME.id(), TOMORROW);
             var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
 
             assertEquals(order.reference(), summaries.getFirst().reference());
@@ -84,7 +84,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("customer name is resolved from the customer repository")
         void customerName() {
-            var summaries = execute(ordersRepoWith(pending(ACME.id(), TOMORROW)), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(inProgress(ACME.id(), TOMORROW)), customersRepoWith(ACME));
 
             assertEquals("Acme Ltd", summaries.getFirst().customerName());
         }
@@ -92,7 +92,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("customer name is empty when the customer is not found")
         void customerNameUnknown() {
-            var summaries = execute(ordersRepoWith(pending(UUID.randomUUID(), TOMORROW)), customersRepoWith());
+            var summaries = execute(ordersRepoWith(inProgress(UUID.randomUUID(), TOMORROW)), customersRepoWith());
 
             assertEquals("", summaries.getFirst().customerName());
         }
@@ -100,19 +100,19 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("status is the display name of the order status")
         void status() {
-            var pendingOrder = pending(ACME.id(), TOMORROW);
+            var inProgressOrder = inProgress(ACME.id(), TOMORROW);
             var shippedOrder = shipped(ACME.id());
-            var summaries = execute(ordersRepoWith(pendingOrder, shippedOrder), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(inProgressOrder, shippedOrder), customersRepoWith(ACME));
             var statusById = summaries.stream().collect(Collectors.toMap(OrderSummary::id, OrderSummary::status));
 
-            assertEquals("Pending", statusById.get(pendingOrder.id()));
+            assertEquals("In Progress", statusById.get(inProgressOrder.id()));
             assertEquals("Shipped", statusById.get(shippedOrder.id()));
         }
 
         @Test
         @DisplayName("total is the sum of line item totals")
         void total() {
-            var order = pending(ACME.id(), TOMORROW, List.of(new LineItem(null, "Widget", 2, new BigDecimal("5.00"))));
+            var order = inProgress(ACME.id(), TOMORROW, List.of(new LineItem(null, "Widget", 2, new BigDecimal("5.00"))));
             var summaries = execute(ordersRepoWith(order), customersRepoWith(ACME));
 
             assertEquals(new BigDecimal("10.00"), summaries.getFirst().total());
@@ -121,7 +121,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("isOverdue is true for a pending order past its ship date")
         void overdue() {
-            var summaries = execute(ordersRepoWith(pending(ACME.id(), YESTERDAY)), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(inProgress(ACME.id(), YESTERDAY)), customersRepoWith(ACME));
 
             assertTrue(summaries.getFirst().isOverdue());
         }
@@ -129,7 +129,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("isOverdue is false for an order with a future ship date")
         void notOverdue() {
-            var summaries = execute(ordersRepoWith(pending(ACME.id(), TOMORROW)), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(inProgress(ACME.id(), TOMORROW)), customersRepoWith(ACME));
 
             assertFalse(summaries.getFirst().isOverdue());
         }
@@ -142,7 +142,7 @@ class GetOrderSummariesQueryTest {
         @Test
         @DisplayName("returns a summary for every order")
         void allOrdersIncluded() {
-            var summaries = execute(ordersRepoWith(pending(ACME.id(), TOMORROW), pending(ACME.id(), TOMORROW)), customersRepoWith(ACME));
+            var summaries = execute(ordersRepoWith(inProgress(ACME.id(), TOMORROW), inProgress(ACME.id(), TOMORROW)), customersRepoWith(ACME));
 
             assertEquals(2, summaries.size());
         }

@@ -31,25 +31,19 @@ class OrderTest {
         @Test
         @DisplayName("pending order with past ship date is overdue")
         void pendingOrderWithPastShipDateIsOverdue() {
-            assertTrue(order(OrderStatus.PENDING, YESTERDAY).isOverdue());
+            assertTrue(order(OrderStatus.IN_PROGRESS, YESTERDAY).isOverdue());
         }
 
         @Test
         @DisplayName("pending order with future ship date is not overdue")
         void pendingOrderWithFutureShipDateIsNotOverdue() {
-            assertFalse(order(OrderStatus.PENDING, TOMORROW).isOverdue());
+            assertFalse(order(OrderStatus.IN_PROGRESS, TOMORROW).isOverdue());
         }
 
         @Test
-        @DisplayName("fulfilled order with past ship date is overdue")
-        void fulfilledOrderWithPastShipDateIsOverdue() {
-            assertTrue(order(OrderStatus.FULFILLED, YESTERDAY).isOverdue());
-        }
-
-        @Test
-        @DisplayName("fulfilled order with future ship date is not overdue")
-        void fulfilledOrderWithFutureShipDateIsNotOverdue() {
-            assertFalse(order(OrderStatus.FULFILLED, TOMORROW).isOverdue());
+        @DisplayName("in progress order with null ship date is not overdue")
+        void inProgressOrderWithNullShipDateIsNotOverdue() {
+            assertFalse(order(OrderStatus.IN_PROGRESS, null).isOverdue());
         }
 
         @Test
@@ -72,13 +66,13 @@ class OrderTest {
         @Test
         @DisplayName("returns zero for an order with no line items")
         void zeroForNoLineItems() {
-            assertEquals(BigDecimal.ZERO, order(OrderStatus.PENDING, TOMORROW).total());
+            assertEquals(BigDecimal.ZERO, order(OrderStatus.IN_PROGRESS, TOMORROW).total());
         }
 
         @Test
         @DisplayName("returns the sum of all line item totals")
         void sumOfLineItemTotals() {
-            var order = new Order(AN_ID, A_CUST, TODAY, TOMORROW, "REF-001", OrderStatus.PENDING, null, List.of(
+            var order = new Order(AN_ID, A_CUST, TODAY, TOMORROW, "REF-001", OrderStatus.IN_PROGRESS, null, List.of(
                 new LineItem(null, "Widget A", 2, new BigDecimal("10.00")),
                 new LineItem(null, "Widget B", 3, new BigDecimal("5.00"))
             ));

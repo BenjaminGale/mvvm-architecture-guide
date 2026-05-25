@@ -26,7 +26,7 @@ public class CopyOrderCommand {
             LocalDate.now(),
             null,
             "COPY-" + original.reference(),
-            OrderStatus.PENDING,
+            OrderStatus.IN_PROGRESS,
             null,
             original.lineItems()
         );

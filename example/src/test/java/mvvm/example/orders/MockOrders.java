@@ -25,23 +25,23 @@ public class MockOrders {
     public static final Customer ACME_CUSTOMER = new Customer(ACME_CUSTOMER_ID, "Acme Ltd", "acme@example.com", CustomerStatus.ACTIVE);
 
     public static Order of(UUID id, LocalDate date) {
-        return new Order(id, ACME_CUSTOMER_ID, date, date, "REF-" + id, OrderStatus.PENDING, null, List.of());
+        return new Order(id, ACME_CUSTOMER_ID, date, date, "REF-" + id, OrderStatus.IN_PROGRESS, null, List.of());
     }
 
     public static Order validOrderWithLineItems() {
-        return new Order(UUID.randomUUID(), ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", OrderStatus.PENDING, null, List.of(A_LINE_ITEM));
+        return new Order(UUID.randomUUID(), ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", OrderStatus.IN_PROGRESS, null, List.of(A_LINE_ITEM));
     }
 
     public static Order orderWithNoCustomer() {
-        return new Order(UUID.randomUUID(), null, A_DATE, A_DATE, "REF-001", OrderStatus.PENDING, null, List.of(A_LINE_ITEM));
+        return new Order(UUID.randomUUID(), null, A_DATE, A_DATE, "REF-001", OrderStatus.IN_PROGRESS, null, List.of(A_LINE_ITEM));
     }
 
     public static Order orderWithNoLineItems() {
-        return new Order(UUID.randomUUID(), ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", OrderStatus.PENDING, null, List.of());
+        return new Order(UUID.randomUUID(), ACME_CUSTOMER_ID, A_DATE, A_DATE, "REF-001", OrderStatus.IN_PROGRESS, null, List.of());
     }
 
     public static OrderSummary summaryOf(UUID id, LocalDate date) {
         boolean overdue = date.isBefore(LocalDate.now());
-        return new OrderSummary(id, "REF-" + id, "Acme Ltd", date, date, "Pending", BigDecimal.ZERO, overdue);
+        return new OrderSummary(id, "REF-" + id, "Acme Ltd", date, date, "In Progress", BigDecimal.ZERO, overdue);
     }
 }

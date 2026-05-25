@@ -68,7 +68,7 @@ class OrderHeaderViewModelTest {
         void statusPopulated() {
             var vm = validViewModel();
 
-            assertEquals(OrderStatus.PENDING, vm.status());
+            assertEquals(OrderStatus.IN_PROGRESS, vm.status());
         }
     }
 
@@ -98,7 +98,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the reference is blank")
         void invalidWhenReferenceBlank() {
-            var order = new Order(UUID.randomUUID(), MockOrders.ACME_CUSTOMER_ID, A_DATE, A_DATE, "", OrderStatus.PENDING, null, List.of());
+            var order = new Order(UUID.randomUUID(), MockOrders.ACME_CUSTOMER_ID, A_DATE, A_DATE, "", OrderStatus.IN_PROGRESS, null, List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());
@@ -107,7 +107,7 @@ class OrderHeaderViewModelTest {
         @Test
         @DisplayName("the header is invalid when the planned ship date is null")
         void invalidWhenPlannedShipDateNull() {
-            var order = new Order(UUID.randomUUID(), MockOrders.ACME_CUSTOMER_ID, A_DATE, null, "REF-001", OrderStatus.PENDING, null, List.of());
+            var order = new Order(UUID.randomUUID(), MockOrders.ACME_CUSTOMER_ID, A_DATE, null, "REF-001", OrderStatus.IN_PROGRESS, null, List.of());
             var vm = viewModelFor(order, MockOrders.ACME_CUSTOMER);
 
             assertFalse(vm.validProperty().get());

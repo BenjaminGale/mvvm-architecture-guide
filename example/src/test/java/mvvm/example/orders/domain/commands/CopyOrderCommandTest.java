@@ -25,7 +25,7 @@ class CopyOrderCommandTest {
 
     private Order savedOrder(String reference, List<LineItem> lineItems) {
         var id = UUID.randomUUID();
-        var order = new Order(id, CUST_ID, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1), reference, OrderStatus.PENDING, null, lineItems);
+        var order = new Order(id, CUST_ID, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1), reference, OrderStatus.IN_PROGRESS, null, lineItems);
         repository.save(order);
         return order;
     }

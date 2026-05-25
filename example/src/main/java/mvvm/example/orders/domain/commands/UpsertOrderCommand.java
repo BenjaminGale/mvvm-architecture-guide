@@ -24,7 +24,7 @@ public class UpsertOrderCommand {
     }
 
     private UUID insert(UUID customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) {
-        var order = new Order(UUID.randomUUID(), customerId, LocalDate.now(), plannedShipDate, reference, OrderStatus.PENDING, null, lineItems);
+        var order = new Order(UUID.randomUUID(), customerId, LocalDate.now(), plannedShipDate, reference, OrderStatus.IN_PROGRESS, null, lineItems);
         orderRepository.save(order);
         return order.id();
     }

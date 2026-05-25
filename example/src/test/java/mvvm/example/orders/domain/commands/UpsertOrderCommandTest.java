@@ -48,11 +48,11 @@ class UpsertOrderCommandTest {
         }
 
         @Test
-        @DisplayName("new order has PENDING status")
-        void newOrderIsPending() {
+        @DisplayName("new order has IN_PROGRESS status")
+        void newOrderIsInProgress() {
             var id = command.execute(null, CUST_ID, "REF-001", SHIP_DATE, ITEMS);
 
-            assertEquals(OrderStatus.PENDING, orderRepository.findById(id).orElseThrow().status());
+            assertEquals(OrderStatus.IN_PROGRESS, orderRepository.findById(id).orElseThrow().status());
         }
 
         @Test
@@ -84,7 +84,7 @@ class UpsertOrderCommandTest {
 
         private Order savedOrder() {
             var id = UUID.randomUUID();
-            var order = new Order(id, CUST_ID, TODAY.minusDays(5), TODAY.plusDays(5), "REF-001", OrderStatus.FULFILLED, null, List.of());
+            var order = new Order(id, CUST_ID, TODAY.minusDays(5), TODAY.plusDays(5), "REF-001", OrderStatus.SHIPPED, null, List.of());
             orderRepository.save(order);
             return order;
         }
@@ -121,7 +121,7 @@ class UpsertOrderCommandTest {
             command.execute(existing.id(), CUST_2, "REF-002", SHIP_DATE, ITEMS);
 
             var order = orderRepository.findById(existing.id()).orElseThrow();
-            assertEquals(OrderStatus.FULFILLED, order.status());
+            assertEquals(OrderStatus.SHIPPED, order.status());
             assertEquals(TODAY.minusDays(5), order.createdDate());
         }
 

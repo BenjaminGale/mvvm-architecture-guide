@@ -24,7 +24,7 @@ public record Order(
     }
 
     public boolean isOverdue() {
-        return (status == OrderStatus.PENDING || status == OrderStatus.FULFILLED)
+        return status == OrderStatus.IN_PROGRESS
             && plannedShipDate != null
             && plannedShipDate.isBefore(LocalDate.now());
     }
@@ -36,7 +36,7 @@ public record Order(
             LocalDate.now(),
             null,
             "",
-            OrderStatus.PENDING,
+            OrderStatus.IN_PROGRESS,
             null,
             List.of()
         );
