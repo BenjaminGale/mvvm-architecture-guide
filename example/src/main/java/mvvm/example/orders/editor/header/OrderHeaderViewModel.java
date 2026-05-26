@@ -1,6 +1,5 @@
 package mvvm.example.orders.editor.header;
 
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
@@ -11,8 +10,6 @@ import mvvm.example.core.viewmodel.Action;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderStatus;
-import mvvm.example.orders.editor.header.CustomerSelectorRequest;
-
 import java.time.LocalDate;
 import java.util.function.Consumer;
 
@@ -38,10 +35,7 @@ public class OrderHeaderViewModel {
             selectedCustomer
                 .isNotNull()
                 .and(plannedShipDate.isNotNull())
-                .and(Bindings.createBooleanBinding(
-                    () -> reference.get() != null && !reference.get().isBlank(),
-                    reference
-                ))
+                .and(reference.isNotEmpty())
         );
 
         selectCustomerAction = new Action(() -> selectCustomerHost.accept(
