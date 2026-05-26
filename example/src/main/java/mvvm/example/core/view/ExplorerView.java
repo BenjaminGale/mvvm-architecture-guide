@@ -23,6 +23,9 @@ public abstract class ExplorerView<T> extends BorderPane {
 
         Controls.focusOnShow(table);
         Controls.onAttached(this, () -> viewModel.fetchItemsAction().executeAsync(Platform::runLater));
+        viewModel.lastUpdatedProperty().addListener((_, _, _) ->
+            viewModel.fetchItemsAction().executeAsync(Platform::runLater)
+        );
     }
 
     protected TableView<T> table() {

@@ -117,4 +117,40 @@ class CustomersExplorerViewModelTest extends ExplorerViewModelTest<Customer, Cus
             assertTrue(captor.getValue().isNew());
         }
     }
+
+    @Nested
+    @DisplayName("when a save completes")
+    class WhenASaveCompletes {
+
+        @Test
+        @DisplayName("lastUpdated is set after a new customer is saved")
+        void lastUpdatedSetAfterAdd() {
+            var host = mock(CustomerExplorerHost.class);
+            var vm = new CustomersExplorerViewModel(List::of, host);
+            vm.addItemAction().execute();
+            var captor = ArgumentCaptor.forClass(CustomerEditorRequest.class);
+            verify(host).editCustomer(captor.capture());
+
+            captor.getValue().onSaved().run();
+
+            assertNotNull(vm.lastUpdatedProperty().get());
+        }
+
+        @Test
+        @DisplayName("lastUpdated is set after an existing customer is saved")
+        void lastUpdatedSetAfterEdit() {
+            var host = mock(CustomerExplorerHost.class);
+            var customer = customer("Acme Ltd");
+            var vm = new CustomersExplorerViewModel(() -> List.of(customer), host);
+            executeFetch(vm);
+            vm.selectedItemProperty().set(customer);
+            vm.editItemAction().execute();
+            var captor = ArgumentCaptor.forClass(CustomerEditorRequest.class);
+            verify(host).editCustomer(captor.capture());
+
+            captor.getValue().onSaved().run();
+
+            assertNotNull(vm.lastUpdatedProperty().get());
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package mvvm.example.customers.explorer;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
@@ -40,20 +39,16 @@ public class CustomersExplorerViewModel extends ExplorerViewModel<Customer> {
 
     @Override
     protected void addItem() {
-        host.editCustomer(CustomerEditorRequest.newCustomer(this::refresh));
+        host.editCustomer(CustomerEditorRequest.newCustomer(this::notifyUpdated));
     }
 
     @Override
     protected void editItem(Customer customer) {
-        host.editCustomer(CustomerEditorRequest.forCustomer(customer.id(), this::refresh));
+        host.editCustomer(CustomerEditorRequest.forCustomer(customer.id(), this::notifyUpdated));
     }
 
     @Override
     protected void deleteItem(Customer customer) {
         throw new UnsupportedOperationException();
-    }
-
-    private void refresh() {
-        fetchItemsAction().executeAsync(Platform::runLater);
     }
 }

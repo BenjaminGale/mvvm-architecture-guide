@@ -1,11 +1,15 @@
 package mvvm.example.core.viewmodel;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.time.Instant;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -14,6 +18,7 @@ public abstract class ExplorerViewModel<T> {
 
     private final ObservableList<T> items = FXCollections.observableArrayList();
     private final ObjectProperty<T> selectedItem = new SimpleObjectProperty<>(this, "selectedItem");
+    private final ReadOnlyObjectWrapper<Instant> lastUpdated = new ReadOnlyObjectWrapper<>(this, "lastUpdated");
 
     private final AsyncAction fetchItemsAction;
     private final Action addItemAction;
@@ -39,6 +44,14 @@ public abstract class ExplorerViewModel<T> {
 
     public ObjectProperty<T> selectedItemProperty() {
         return selectedItem;
+    }
+
+    public ReadOnlyObjectProperty<Instant> lastUpdatedProperty() {
+        return lastUpdated.getReadOnlyProperty();
+    }
+
+    protected void notifyUpdated() {
+        lastUpdated.set(Instant.now());
     }
 
     public AsyncAction fetchItemsAction() {
