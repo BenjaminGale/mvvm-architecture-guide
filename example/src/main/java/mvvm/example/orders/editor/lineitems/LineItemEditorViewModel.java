@@ -12,7 +12,6 @@ import mvvm.example.stock.domain.Product;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class LineItemEditorViewModel {
 
@@ -24,18 +23,18 @@ public class LineItemEditorViewModel {
     private final IntegerProperty quantity = new SimpleIntegerProperty();
     private final ReadOnlyObjectWrapper<BigDecimal> unitPrice = new ReadOnlyObjectWrapper<>();
 
-    public LineItemEditorViewModel(LineItemEditorRequest request, Consumer<ProductSelectorRequest> selectProductHost) {
+    public LineItemEditorViewModel(LineItemEditorRequest request, LineItemEditorHost host) {
         this.request = request;
         this.productId = request.item().productId();
         description.set(request.item().description());
         quantity.set(request.item().quantity());
         unitPrice.set(request.item().unitPrice());
 
-        selectProductAction = new Action(() -> selectProductHost.accept(
+        selectProductAction = new Action(() -> host.selectProduct(
             new ProductSelectorRequest(request.currentLineItems(), productId, this::onProductSelected)
         ));
 
-        confirmAction = new Action(this::confirm, description.getReadOnlyProperty().isNotEmpty());
+        confirmAction = new Action(this::confirm, description.isNotEmpty());
     }
 
     private void onProductSelected(Product product) {

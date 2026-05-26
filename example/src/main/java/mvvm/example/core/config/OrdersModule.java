@@ -17,6 +17,7 @@ import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.editor.OrderEditorViewModel;
 import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
+import mvvm.example.orders.editor.lineitems.LineItemEditorHost;
 import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
 import mvvm.example.orders.editor.lineitems.LineItemEditorDialog;
 import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;

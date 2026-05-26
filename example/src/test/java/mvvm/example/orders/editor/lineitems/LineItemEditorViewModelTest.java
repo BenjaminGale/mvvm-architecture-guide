@@ -1,7 +1,6 @@
 package mvvm.example.orders.editor.lineitems;
 
 import mvvm.example.orders.domain.LineItem;
-import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,7 @@ class LineItemEditorViewModelTest {
     private static final LineItem ORIGINAL = new LineItem(null, "Widget", 2, BigDecimal.valueOf(9.99));
 
     private static LineItemEditorViewModel viewModelFor(LineItem item) {
-        return new LineItemEditorViewModel(new LineItemEditorRequest(item, List.of(), confirmed -> {}), r -> {});
+        return new LineItemEditorViewModel(new LineItemEditorRequest(item, List.of(), confirmed -> {}), mock(LineItemEditorHost.class));
     }
 
     @Nested
@@ -64,7 +63,7 @@ class LineItemEditorViewModelTest {
         @DisplayName("the request callback is invoked with the updated item")
         void requestCallbackInvokedWithUpdatedItem() {
             Consumer<LineItem> listener = mock();
-            var vm = new LineItemEditorViewModel(new LineItemEditorRequest(ORIGINAL, List.of(), listener), r -> {});
+            var vm = new LineItemEditorViewModel(new LineItemEditorRequest(ORIGINAL, List.of(), listener), mock(LineItemEditorHost.class));
 
             vm.confirm();
 
@@ -76,9 +75,12 @@ class LineItemEditorViewModelTest {
         void confirmedItemReflectsSelectedProductAndQuantity() {
             Consumer<LineItem> listener = mock();
             var product = new Product(UUID.randomUUID(), "Gadget", BigDecimal.valueOf(19.99), 10);
+            var host = mock(LineItemEditorHost.class);
+            doAnswer(inv -> { inv.getArgument(0, ProductSelectorRequest.class).confirmSelection(product); return null; })
+                .when(host).selectProduct(any());
             var vm = new LineItemEditorViewModel(
                 new LineItemEditorRequest(ORIGINAL, List.of(), listener),
-                r -> r.confirmSelection(product)
+                host
             );
             vm.selectProductAction().execute();
             vm.quantityProperty().set(5);
