@@ -54,5 +54,5 @@ public class ProductSelectorViewModel {
     public Action confirmAction() { return confirmAction; }
     public StringProperty searchTextProperty() { return searchText; }
     public ObjectProperty<Product> selectedProductProperty() { return selectedProduct; }
-    public FilteredList<Product> getProducts() { return products; }
+    public FilteredList<Product> products() { return products; }
 }

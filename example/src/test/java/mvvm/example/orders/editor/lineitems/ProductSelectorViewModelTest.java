@@ -40,7 +40,7 @@ class ProductSelectorViewModelTest {
         void allProductsShown() {
             var vm = viewModelFor(List.of());
 
-            assertEquals(3, vm.getProducts().size());
+            assertEquals(3, vm.products().size());
         }
 
         @Test
@@ -48,8 +48,8 @@ class ProductSelectorViewModelTest {
         void excludedProductsNotShown() {
             var vm = viewModelFor(List.of(itemFor(WIDGET), itemFor(GADGET)));
 
-            assertEquals(1, vm.getProducts().size());
-            assertEquals(DOOHICKEY, vm.getProducts().getFirst());
+            assertEquals(1, vm.products().size());
+            assertEquals(DOOHICKEY, vm.products().getFirst());
         }
     }
 
@@ -64,7 +64,7 @@ class ProductSelectorViewModelTest {
 
             vm.searchTextProperty().set("widget");
 
-            assertEquals(List.of(WIDGET), vm.getProducts());
+            assertEquals(List.of(WIDGET), vm.products());
         }
 
         @Test
@@ -74,7 +74,7 @@ class ProductSelectorViewModelTest {
 
             vm.searchTextProperty().set("GADGET");
 
-            assertEquals(List.of(GADGET), vm.getProducts());
+            assertEquals(List.of(GADGET), vm.products());
         }
 
         @Test
@@ -85,7 +85,7 @@ class ProductSelectorViewModelTest {
 
             vm.searchTextProperty().set("");
 
-            assertEquals(3, vm.getProducts().size());
+            assertEquals(3, vm.products().size());
         }
     }
 

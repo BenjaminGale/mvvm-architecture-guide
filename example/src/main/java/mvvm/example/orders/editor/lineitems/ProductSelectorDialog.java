@@ -13,7 +13,7 @@ public class ProductSelectorDialog {
             new SelectorView<>(
                 "Search products...",
                 viewModel.searchTextProperty(),
-                viewModel.getProducts(),
+                viewModel.products(),
                 viewModel.selectedProductProperty(),
                 Product::name
             ),

@@ -2,7 +2,6 @@ package mvvm.example.orders.editor.header;
 
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerStatus;
-import mvvm.example.orders.editor.header.CustomerSelectorRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,8 +43,8 @@ class CustomerSelectorViewModelTest {
         void onlyActiveCustomersShown() {
             var vm = viewModelFor(null);
 
-            assertFalse(vm.getCustomers().contains(INACTIVE));
-            assertEquals(2, vm.getCustomers().size());
+            assertFalse(vm.customers().contains(INACTIVE));
+            assertEquals(2, vm.customers().size());
         }
     }
 
@@ -60,7 +59,7 @@ class CustomerSelectorViewModelTest {
 
             vm.searchTextProperty().set("acme");
 
-            assertEquals(List.of(ACME), vm.getCustomers());
+            assertEquals(List.of(ACME), vm.customers());
         }
 
         @Test
@@ -70,7 +69,7 @@ class CustomerSelectorViewModelTest {
 
             vm.searchTextProperty().set("GLOBEX");
 
-            assertEquals(List.of(GLOBEX), vm.getCustomers());
+            assertEquals(List.of(GLOBEX), vm.customers());
         }
 
         @Test
@@ -81,7 +80,7 @@ class CustomerSelectorViewModelTest {
 
             vm.searchTextProperty().set("");
 
-            assertEquals(2, vm.getCustomers().size());
+            assertEquals(2, vm.customers().size());
         }
     }
 

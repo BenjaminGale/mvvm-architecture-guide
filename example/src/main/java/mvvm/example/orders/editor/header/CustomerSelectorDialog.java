@@ -13,7 +13,7 @@ public class CustomerSelectorDialog {
             new SelectorView<>(
                 "Search customers...",
                 viewModel.searchTextProperty(),
-                viewModel.getCustomers(),
+                viewModel.customers(),
                 viewModel.selectedCustomerProperty(),
                 Customer::name
             ),

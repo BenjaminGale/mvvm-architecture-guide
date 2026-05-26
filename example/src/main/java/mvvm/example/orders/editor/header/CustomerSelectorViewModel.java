@@ -48,5 +48,5 @@ public class CustomerSelectorViewModel {
     public Action confirmAction() { return confirmAction; }
     public StringProperty searchTextProperty() { return searchText; }
     public ObjectProperty<Customer> selectedCustomerProperty() { return selectedCustomer; }
-    public FilteredList<Customer> getCustomers() { return customers; }
+    public FilteredList<Customer> customers() { return customers; }
 }
