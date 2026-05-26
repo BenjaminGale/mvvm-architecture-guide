@@ -4,7 +4,6 @@ import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.orders.domain.queries.GetOrderAllocationsQuery;
-import mvvm.example.orders.editor.OrderEditorRequest;
 import mvvm.example.stock.domain.StockRepository;
 
 import java.util.Map;
@@ -23,7 +22,7 @@ public class GetOrderEditorDataQuery {
 
     public OrderEditorData execute(OrderEditorRequest request) {
         if (request.isNew()) {
-            return new OrderEditorData(Order.empty(), null, Map.of());
+            return new OrderEditorData(Order.draft(), null, Map.of());
         }
         var order = orderRepository.findById(request.orderId()).orElseThrow();
         var customer = order.customerId() != null

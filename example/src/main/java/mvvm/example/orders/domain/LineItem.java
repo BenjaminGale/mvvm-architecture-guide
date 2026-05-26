@@ -10,7 +10,7 @@ public record LineItem(UUID productId, String description, int quantity, BigDeci
         return unitPrice.multiply(BigDecimal.valueOf(quantity));
     }
 
-    public static LineItem empty() {
+    public static LineItem draft() {
         return new LineItem(null, "", 1, BigDecimal.ZERO);
     }
 }

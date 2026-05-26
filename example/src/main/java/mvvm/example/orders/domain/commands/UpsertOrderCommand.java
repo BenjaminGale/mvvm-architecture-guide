@@ -3,7 +3,6 @@ package mvvm.example.orders.domain.commands;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
-import mvvm.example.orders.domain.OrderStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,7 +23,7 @@ public class UpsertOrderCommand {
     }
 
     private UUID insert(UUID customerId, String reference, LocalDate plannedShipDate, List<LineItem> lineItems) {
-        var order = new Order(UUID.randomUUID(), customerId, LocalDate.now(), plannedShipDate, reference, OrderStatus.IN_PROGRESS, null, lineItems);
+        var order = Order.create(customerId, reference, plannedShipDate, lineItems);
         orderRepository.save(order);
         return order.id();
     }
@@ -34,7 +33,11 @@ public class UpsertOrderCommand {
             .findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
-        var updated = new Order(existing.id(), customerId, existing.createdDate(), plannedShipDate, reference, existing.status(), existing.completionDate(), lineItems);
+        var updated = existing
+            .withCustomerId(customerId)
+            .withReference(reference)
+            .withPlannedShipDate(plannedShipDate)
+            .withLineItems(lineItems);
         orderRepository.save(updated);
         return updated.id();
     }

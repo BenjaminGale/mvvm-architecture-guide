@@ -60,6 +60,98 @@ class OrderTest {
     }
 
     @Nested
+    @DisplayName("create")
+    class Create {
+
+        @Test
+        @DisplayName("sets status to IN_PROGRESS")
+        void setsStatusToInProgress() {
+            var order = Order.create(A_CUST, "REF-001", TOMORROW, List.of());
+            assertEquals(OrderStatus.IN_PROGRESS, order.status());
+        }
+
+        @Test
+        @DisplayName("sets created date to today")
+        void setsCreatedDateToToday() {
+            var order = Order.create(A_CUST, "REF-001", TOMORROW, List.of());
+            assertEquals(TODAY, order.createdDate());
+        }
+
+        @Test
+        @DisplayName("has no completion date")
+        void hasNoCompletionDate() {
+            var order = Order.create(A_CUST, "REF-001", TOMORROW, List.of());
+            assertNull(order.completionDate());
+        }
+
+        @Test
+        @DisplayName("preserves supplied fields")
+        void preservesSuppliedFields() {
+            var items = List.of(new LineItem(null, "Widget", 1, BigDecimal.TEN));
+            var order = Order.create(A_CUST, "REF-001", TOMORROW, items);
+            assertAll(
+                () -> assertEquals(A_CUST, order.customerId()),
+                () -> assertEquals("REF-001", order.reference()),
+                () -> assertEquals(TOMORROW, order.plannedShipDate()),
+                () -> assertEquals(items, order.lineItems())
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("with methods")
+    class WithMethods {
+
+        @Test
+        @DisplayName("withCustomerId returns new order with updated customer")
+        void withCustomerIdUpdatesCustomer() {
+            var newCustomer = UUID.randomUUID();
+            var updated = order(OrderStatus.IN_PROGRESS, TOMORROW).withCustomerId(newCustomer);
+            assertEquals(newCustomer, updated.customerId());
+        }
+
+        @Test
+        @DisplayName("withReference returns new order with updated reference")
+        void withReferenceUpdatesReference() {
+            var updated = order(OrderStatus.IN_PROGRESS, TOMORROW).withReference("REF-999");
+            assertEquals("REF-999", updated.reference());
+        }
+
+        @Test
+        @DisplayName("withPlannedShipDate returns new order with updated ship date")
+        void withPlannedShipDateUpdatesShipDate() {
+            var updated = order(OrderStatus.IN_PROGRESS, TOMORROW).withPlannedShipDate(YESTERDAY);
+            assertEquals(YESTERDAY, updated.plannedShipDate());
+        }
+
+        @Test
+        @DisplayName("withLineItems returns new order with updated line items")
+        void withLineItemsUpdatesLineItems() {
+            var items = List.of(new LineItem(null, "Widget", 1, BigDecimal.TEN));
+            var updated = order(OrderStatus.IN_PROGRESS, TOMORROW).withLineItems(items);
+            assertEquals(items, updated.lineItems());
+        }
+
+        @Test
+        @DisplayName("with methods do not mutate the original order")
+        void doesNotMutateOriginal() {
+            var original = order(OrderStatus.IN_PROGRESS, TOMORROW);
+            original.withCustomerId(UUID.randomUUID());
+            original.withReference("CHANGED");
+            original.withPlannedShipDate(YESTERDAY);
+            original.withLineItems(List.of(new LineItem(null, "Widget", 1, BigDecimal.TEN)));
+            assertEquals(order(OrderStatus.IN_PROGRESS, TOMORROW), original);
+        }
+
+        @Test
+        @DisplayName("with methods preserve unmodified fields")
+        void preservesUnmodifiedFields() {
+            var updated = order(OrderStatus.IN_PROGRESS, TOMORROW).withReference("NEW-REF");
+            assertEquals(new Order(AN_ID, A_CUST, TODAY, TOMORROW, "NEW-REF", OrderStatus.IN_PROGRESS, null, List.of()), updated);
+        }
+    }
+
+    @Nested
     @DisplayName("total")
     class Total {
 

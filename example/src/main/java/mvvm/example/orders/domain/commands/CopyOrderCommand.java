@@ -2,9 +2,7 @@ package mvvm.example.orders.domain.commands;
 
 import mvvm.example.orders.domain.Order;
 import mvvm.example.orders.domain.OrderRepository;
-import mvvm.example.orders.domain.OrderStatus;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 public class CopyOrderCommand {
@@ -20,13 +18,9 @@ public class CopyOrderCommand {
             .findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
 
-        var copy = new Order(
-            UUID.randomUUID(),
+        var copy = Order.create(
             original.customerId(),
-            LocalDate.now(),
-            null,
             "COPY-" + original.reference(),
-            OrderStatus.IN_PROGRESS,
             null,
             original.lineItems()
         );

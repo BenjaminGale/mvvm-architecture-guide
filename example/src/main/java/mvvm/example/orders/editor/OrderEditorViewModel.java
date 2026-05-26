@@ -5,8 +5,6 @@ import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
 import mvvm.example.orders.domain.LineItem;
-import mvvm.example.orders.editor.OrderEditorHost;
-import mvvm.example.orders.editor.OrderEditorRequest;
 import mvvm.example.orders.editor.header.CustomerSelectorRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
@@ -68,7 +66,7 @@ public class OrderEditorViewModel {
 
     private void onAddLineItem() {
         var currentItems = lineItems.stream().map(LineItemViewModel::toLineItem).toList();
-        editLineItemHost.accept(new LineItemEditorRequest(LineItem.empty(), currentItems, item ->
+        editLineItemHost.accept(new LineItemEditorRequest(LineItem.draft(), currentItems, item ->
             lineItems.add(createLineItemVm(item, 0))
         ));
     }

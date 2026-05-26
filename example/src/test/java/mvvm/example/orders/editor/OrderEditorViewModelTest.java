@@ -172,7 +172,7 @@ class OrderEditorViewModelTest {
         @DisplayName("canSave is false when no fields have been filled")
         void canSaveIsFalseInitially() {
             var service = mock(OrderEditorService.class);
-            when(service.fetch(any())).thenReturn(new OrderEditorData(Order.empty(), null, Map.of()));
+            when(service.fetch(any())).thenReturn(new OrderEditorData(Order.draft(), null, Map.of()));
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.forNewOrder(),
                 service,
