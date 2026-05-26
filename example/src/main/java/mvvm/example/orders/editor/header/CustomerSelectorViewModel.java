@@ -17,11 +17,9 @@ public class CustomerSelectorViewModel {
     private final StringProperty searchText = new SimpleStringProperty(this, "searchText", "");
     private final ObjectProperty<Customer> selectedCustomer = new SimpleObjectProperty<>(this, "selectedCustomer");
     private final FilteredList<Customer> customers;
-    private final CustomerSelectorRequest request;
     private final Action confirmAction;
 
     public CustomerSelectorViewModel(CustomerSelectorRequest request, List<Customer> allCustomers) {
-        this.request = request;
         var active = allCustomers.stream().filter(c -> c.status() == CustomerStatus.ACTIVE).toList();
         this.customers = new FilteredList<>(FXCollections.observableArrayList(active));
 
@@ -38,11 +36,9 @@ public class CustomerSelectorViewModel {
             )
         );
 
-        confirmAction = new Action(this::confirm, selectedCustomer.isNotNull());
-    }
-
-    public void confirm() {
-        request.confirmSelection(selectedCustomer.get());
+        confirmAction = new Action(
+            () -> request.confirmSelection(selectedCustomer.get()),
+            selectedCustomer.isNotNull());
     }
 
     public Action confirmAction() { return confirmAction; }

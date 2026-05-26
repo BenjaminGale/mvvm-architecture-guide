@@ -100,7 +100,7 @@ class ProductSelectorViewModelTest {
             var vm = new ProductSelectorViewModel(new ProductSelectorRequest(List.of(), null, listener), ALL_PRODUCTS);
             vm.selectedProductProperty().set(WIDGET);
 
-            vm.confirm();
+            vm.confirmAction().execute();
 
             verify(listener).accept(WIDGET);
         }

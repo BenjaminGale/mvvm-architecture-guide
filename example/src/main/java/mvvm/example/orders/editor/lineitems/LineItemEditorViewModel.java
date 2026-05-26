@@ -17,14 +17,12 @@ public class LineItemEditorViewModel {
 
     private final Action selectProductAction;
     private final Action confirmAction;
-    private final LineItemEditorRequest request;
     private UUID productId;
     private final ReadOnlyStringWrapper description = new ReadOnlyStringWrapper();
     private final IntegerProperty quantity = new SimpleIntegerProperty();
     private final ReadOnlyObjectWrapper<BigDecimal> unitPrice = new ReadOnlyObjectWrapper<>();
 
     public LineItemEditorViewModel(LineItemEditorRequest request, LineItemEditorHost host) {
-        this.request = request;
         this.productId = request.item().productId();
         description.set(request.item().description());
         quantity.set(request.item().quantity());
@@ -34,17 +32,23 @@ public class LineItemEditorViewModel {
             new ProductSelectorRequest(request.currentLineItems(), productId, this::onProductSelected)
         ));
 
-        confirmAction = new Action(this::confirm, description.isNotEmpty());
+        confirmAction = new Action(
+            () -> request.confirmChanges(
+                new LineItem(
+                    productId,
+                    description.get(),
+                    quantity.get(),
+                    unitPrice.get()
+                )
+            ),
+            description.isNotEmpty()
+        );
     }
 
     private void onProductSelected(Product product) {
         productId = product.id();
         description.set(product.name());
         unitPrice.set(product.unitPrice());
-    }
-
-    public void confirm() {
-        request.confirmChanges(new LineItem(productId, description.get(), quantity.get(), unitPrice.get()));
     }
 
     public Action selectProductAction() { return selectProductAction; }

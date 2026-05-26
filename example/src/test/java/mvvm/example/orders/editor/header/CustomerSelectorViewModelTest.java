@@ -95,7 +95,7 @@ class CustomerSelectorViewModelTest {
             var vm = new CustomerSelectorViewModel(new CustomerSelectorRequest(null, listener), ALL_CUSTOMERS);
             vm.selectedCustomerProperty().set(ACME);
 
-            vm.confirm();
+            vm.confirmAction().execute();
 
             verify(listener).accept(ACME);
         }

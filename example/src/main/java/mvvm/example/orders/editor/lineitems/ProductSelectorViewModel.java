@@ -17,15 +17,12 @@ import java.util.stream.Collectors;
 
 public class ProductSelectorViewModel {
 
-    private final ProductSelectorRequest request;
     private final StringProperty searchText = new SimpleStringProperty("");
     private final ObjectProperty<Product> selectedProduct = new SimpleObjectProperty<>();
     private final FilteredList<Product> products;
     private final Action confirmAction;
 
     public ProductSelectorViewModel(ProductSelectorRequest request, List<Product> allProducts) {
-        this.request = request;
-
         Set<UUID> excluded = request.currentLineItems()
             .stream()
             .map(LineItem::productId)
@@ -44,11 +41,10 @@ public class ProductSelectorViewModel {
             )
         );
 
-        confirmAction = new Action(this::confirm, selectedProduct.isNotNull());
-    }
-
-    public void confirm() {
-        request.confirmSelection(selectedProduct.get());
+        confirmAction = new Action(
+            () -> request.confirmSelection(selectedProduct.get()),
+            selectedProduct.isNotNull()
+        );
     }
 
     public Action confirmAction() { return confirmAction; }

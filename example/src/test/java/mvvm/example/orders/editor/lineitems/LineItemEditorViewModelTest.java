@@ -65,7 +65,7 @@ class LineItemEditorViewModelTest {
             Consumer<LineItem> listener = mock();
             var vm = new LineItemEditorViewModel(new LineItemEditorRequest(ORIGINAL, List.of(), listener), mock(LineItemEditorHost.class));
 
-            vm.confirm();
+            vm.confirmAction().execute();
 
             verify(listener).accept(any(LineItem.class));
         }
@@ -85,7 +85,7 @@ class LineItemEditorViewModelTest {
             vm.selectProductAction().execute();
             vm.quantityProperty().set(5);
 
-            vm.confirm();
+            vm.confirmAction().execute();
 
             var captor = ArgumentCaptor.forClass(LineItem.class);
             verify(listener).accept(captor.capture());
