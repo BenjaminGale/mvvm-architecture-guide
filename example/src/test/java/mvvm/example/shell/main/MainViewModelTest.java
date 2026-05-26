@@ -31,7 +31,7 @@ class MainViewModelTest {
             var workspace = new ReadOnlyObjectWrapper<>();
             var vm = new MainViewModel(SIDEBAR, STATUS_BAR, workspace.getReadOnlyProperty());
 
-            assertEquals(SIDEBAR, vm.getSidebar());
+            assertEquals(SIDEBAR, vm.sidebar());
         }
 
         @Test
@@ -40,7 +40,7 @@ class MainViewModelTest {
             var workspace = new ReadOnlyObjectWrapper<>();
             var vm = new MainViewModel(SIDEBAR, STATUS_BAR, workspace.getReadOnlyProperty());
 
-            assertEquals(STATUS_BAR, vm.getStatusBar());
+            assertEquals(STATUS_BAR, vm.statusBar());
         }
 
         @Test

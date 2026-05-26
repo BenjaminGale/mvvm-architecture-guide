@@ -11,8 +11,8 @@ public class MainView extends BorderPane {
     public MainView(MainViewModel viewModel, ViewLocator<Region> viewLocator) {
         this.viewLocator = viewLocator;
 
-        setLeft(viewLocator.locate(viewModel.getSidebar()));
-        setBottom(viewLocator.locate(viewModel.getStatusBar()));
+        setLeft(viewLocator.locate(viewModel.sidebar()));
+        setBottom(viewLocator.locate(viewModel.statusBar()));
 
         show(viewModel.currentWorkspaceProperty().get());
 

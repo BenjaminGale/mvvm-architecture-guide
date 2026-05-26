@@ -20,11 +20,11 @@ public class MainViewModel {
         this.currentWorkspace = currentWorkspace;
     }
 
-    public SidebarViewModel getSidebar() {
+    public SidebarViewModel sidebar() {
         return sidebar;
     }
 
-    public StatusBarViewModel getStatusBar() {
+    public StatusBarViewModel statusBar() {
         return statusBar;
     }
 
