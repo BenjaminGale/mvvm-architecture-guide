@@ -756,12 +756,16 @@ public interface AsyncAction {
 
 The same contract applies: calling `executeAsync()` when `canExecute()` is false throws `IllegalStateException`. `canExecute()` is automatically false while execution is in progress, preventing double-submission.
 
-A ViewModel exposes Actions directly:
+A ViewModel exposes Actions via methods, consistent with how properties are exposed:
 
 ```java
 public class OrderEditorViewModel {
-    public final AsyncAction save;
-    public final Action delete;
+
+    private final AsyncAction save;
+    private final Action delete;
+
+    public AsyncAction saveAction() { return save; }
+    public Action deleteAction() { return delete; }
 }
 ```
 
@@ -777,14 +781,14 @@ Views bind directly to Action state:
 
 ```java
 saveButton.disableProperty()
-    .bind(viewModel.save
+    .bind(viewModel.saveAction()
         .canExecuteProperty()
         .not());
 
 progressIndicator.visibleProperty().bind(
-    viewModel.save.isExecutingProperty());
+    viewModel.saveAction().isExecutingProperty());
 
-saveButton.setOnAction(e -> viewModel.save.executeAsync());
+saveButton.setOnAction(e -> viewModel.saveAction().executeAsync());
 ```
 
 This keeps views declarative while keeping execution state close to the interaction itself.
