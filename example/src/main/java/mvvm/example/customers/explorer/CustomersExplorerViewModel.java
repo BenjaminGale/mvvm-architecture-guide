@@ -47,8 +47,4 @@ public class CustomersExplorerViewModel extends ExplorerViewModel<Customer> {
         host.editCustomer(CustomerEditorRequest.forCustomer(customer.id(), this::notifyUpdated));
     }
 
-    @Override
-    protected void deleteItem(Customer customer) {
-        throw new UnsupportedOperationException();
-    }
 }

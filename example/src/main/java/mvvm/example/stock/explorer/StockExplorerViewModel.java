@@ -42,18 +42,4 @@ public class StockExplorerViewModel extends ExplorerViewModel<Product> {
         );
     }
 
-    @Override
-    protected void addItem() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected void editItem(Product product) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected void deleteItem(Product product) {
-        throw new UnsupportedOperationException();
-    }
 }

@@ -63,8 +63,4 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<OrderSummary> {
         host.showOrderDetails(OrderEditorRequest.of(summary.id()));
     }
 
-    @Override
-    protected void deleteItem(OrderSummary summary) {
-        throw new UnsupportedOperationException();
-    }
 }

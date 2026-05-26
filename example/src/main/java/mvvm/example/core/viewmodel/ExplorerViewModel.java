@@ -84,9 +84,15 @@ public abstract class ExplorerViewModel<T> {
 
     protected abstract CompletableFuture<List<T>> fetchItemsAsync();
 
-    protected abstract void addItem();
+    protected void addItem() {
+        throw new UnsupportedOperationException();
+    }
 
-    protected abstract void editItem(T item);
+    protected void editItem(T item) {
+        throw new UnsupportedOperationException();
+    }
 
-    protected abstract void deleteItem(T item);
+    protected void deleteItem(T item) {
+        throw new UnsupportedOperationException();
+    }
 }
