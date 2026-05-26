@@ -19,8 +19,8 @@ import java.util.function.Supplier;
 
 public class LineItemViewModel {
 
-    public final Action editAction;
-    public final Action deleteAction;
+    private final Action editAction;
+    private final Action deleteAction;
 
     private UUID productId;
     private final StringProperty description = new SimpleStringProperty();
@@ -57,6 +57,9 @@ public class LineItemViewModel {
     public LineItem toLineItem() {
         return new LineItem(productId, description.get(), quantity.get(), unitPrice.get());
     }
+
+    public Action editAction() { return editAction; }
+    public Action deleteAction() { return deleteAction; }
 
     public UUID productId() { return productId; }
     public ReadOnlyStringProperty descriptionProperty() { return description; }

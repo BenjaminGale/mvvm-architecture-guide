@@ -61,7 +61,7 @@ class LineItemViewModelTest {
             var captured = new LineItemEditorRequest[]{null};
             var vm = new LineItemViewModel(WIDGET, req -> captured[0] = req, List::of, v -> {});
 
-            vm.editAction.execute();
+            vm.editAction().execute();
 
             assertEquals(WIDGET, captured[0].item());
         }
@@ -73,7 +73,7 @@ class LineItemViewModelTest {
             var captured = new LineItemEditorRequest[]{null};
             var vm = new LineItemViewModel(WIDGET, req -> captured[0] = req, () -> List.of(other), v -> {});
 
-            vm.editAction.execute();
+            vm.editAction().execute();
 
             assertEquals(List.of(other), captured[0].currentLineItems());
         }
@@ -84,7 +84,7 @@ class LineItemViewModelTest {
             var updated = new LineItem(PROD_1, "Super Widget", 2, BigDecimal.valueOf(9.99));
             var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
 
-            vm.editAction.execute();
+            vm.editAction().execute();
 
             assertEquals("Super Widget", vm.descriptionProperty().get());
         }
@@ -95,7 +95,7 @@ class LineItemViewModelTest {
             var updated = new LineItem(PROD_1, "Widget", 5, BigDecimal.valueOf(9.99));
             var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
 
-            vm.editAction.execute();
+            vm.editAction().execute();
 
             assertEquals(5, vm.quantityProperty().get());
         }
@@ -106,7 +106,7 @@ class LineItemViewModelTest {
             var updated = new LineItem(PROD_1, "Widget", 2, BigDecimal.valueOf(19.99));
             var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
 
-            vm.editAction.execute();
+            vm.editAction().execute();
 
             assertEquals(BigDecimal.valueOf(19.99), vm.unitPriceProperty().get());
         }
@@ -117,7 +117,7 @@ class LineItemViewModelTest {
             var updated = new LineItem(PROD_1, "Widget", 5, BigDecimal.valueOf(9.99));
             var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
 
-            vm.editAction.execute();
+            vm.editAction().execute();
 
             assertEquals(updated.total(), vm.totalProperty().get());
         }
@@ -133,7 +133,7 @@ class LineItemViewModelTest {
             var deleted = new LineItemViewModel[]{null};
             var vm = new LineItemViewModel(WIDGET, req -> {}, List::of, v -> deleted[0] = v);
 
-            vm.deleteAction.execute();
+            vm.deleteAction().execute();
 
             assertSame(vm, deleted[0]);
         }

@@ -78,7 +78,7 @@ public class OrderHeaderView extends BorderPane {
     }
 
     private static Button selectCustomerButton(OrderHeaderViewModel viewModel) {
-        var btn = Buttons.button("Select…", viewModel.selectCustomerAction);
+        var btn = Buttons.button("Select…", viewModel.selectCustomerAction());
         Controls.focusOnShow(btn);
         return btn;
     }

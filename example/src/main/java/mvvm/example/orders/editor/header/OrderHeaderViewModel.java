@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 public class OrderHeaderViewModel {
 
-    public final Action selectCustomerAction;
+    private final Action selectCustomerAction;
 
     private final LocalDate createdDate;
     private final OrderStatus status;
@@ -48,6 +48,8 @@ public class OrderHeaderViewModel {
             new CustomerSelectorRequest(selectedCustomer.get(), selectedCustomer::set)
         ));
     }
+
+    public Action selectCustomerAction() { return selectCustomerAction; }
 
     public LocalDate createdDate() { return createdDate; }
     public OrderStatus status() { return status; }

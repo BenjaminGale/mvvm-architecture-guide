@@ -46,7 +46,7 @@ class OrderEditorViewModelTest {
         void canSaveIsFalseWhenNoCustomer() {
             var vm = vmFor(MockOrders.orderWithNoCustomer());
 
-            assertFalse(vm.saveAction.canExecute());
+            assertFalse(vm.saveAction().canExecute());
         }
 
         @Test
@@ -54,7 +54,7 @@ class OrderEditorViewModelTest {
         void canSaveIsFalseWhenNoLineItems() {
             var vm = vmFor(MockOrders.orderWithNoLineItems());
 
-            assertFalse(vm.saveAction.canExecute());
+            assertFalse(vm.saveAction().canExecute());
         }
 
         @Test
@@ -62,7 +62,7 @@ class OrderEditorViewModelTest {
         void canSaveIsTrueWhenValid() {
             var vm = vmFor(MockOrders.validOrderWithLineItems());
 
-            assertTrue(vm.saveAction.canExecute());
+            assertTrue(vm.saveAction().canExecute());
         }
     }
 
@@ -77,7 +77,7 @@ class OrderEditorViewModelTest {
 
             vm.header().selectedCustomerProperty().set(MockOrders.ACME_CUSTOMER);
 
-            assertTrue(vm.saveAction.canExecute());
+            assertTrue(vm.saveAction().canExecute());
         }
 
         @Test
@@ -85,9 +85,9 @@ class OrderEditorViewModelTest {
         void canSaveBecomesFalseWhenLastItemRemoved() {
             var vm = vmFor(MockOrders.validOrderWithLineItems());
 
-            vm.lineItems().getFirst().deleteAction.execute();
+            vm.lineItems().getFirst().deleteAction().execute();
 
-            assertFalse(vm.saveAction.canExecute());
+            assertFalse(vm.saveAction().canExecute());
         }
     }
 
@@ -108,7 +108,7 @@ class OrderEditorViewModelTest {
                 req -> {}
             );
 
-            vm.saveAction.executeAsync(Runnable::run).join();
+            vm.saveAction().executeAsync(Runnable::run).join();
 
             verify(service).save(eq(order.id()), eq(MockOrders.ACME_CUSTOMER_ID), any(), any(), anyList());
         }
@@ -131,7 +131,7 @@ class OrderEditorViewModelTest {
                 req -> {}
             );
 
-            vm.deleteOrderAction.execute();
+            vm.deleteOrderAction().execute();
 
             verify(service).delete(order.id());
         }
@@ -157,7 +157,7 @@ class OrderEditorViewModelTest {
                 req -> {}
             );
 
-            vm.copyAction.execute();
+            vm.copyAction().execute();
 
             verify(service).copy(order.id());
             verify(host).openOrder(OrderEditorRequest.of(copiedId));
@@ -181,7 +181,7 @@ class OrderEditorViewModelTest {
                 req -> {}
             );
 
-            assertFalse(vm.saveAction.canExecute());
+            assertFalse(vm.saveAction().canExecute());
         }
     }
 
@@ -202,7 +202,7 @@ class OrderEditorViewModelTest {
                 editHost
             );
 
-            vm.addLineItemAction.execute();
+            vm.addLineItemAction().execute();
 
             verify(editHost).accept(any());
         }
@@ -220,7 +220,7 @@ class OrderEditorViewModelTest {
                 req -> req.confirmChanges(newItem)
             );
 
-            vm.addLineItemAction.execute();
+            vm.addLineItemAction().execute();
 
             assertEquals(1, vm.lineItems().size());
             assertNotNull(vm.lineItems().getFirst().productId());
@@ -244,7 +244,7 @@ class OrderEditorViewModelTest {
                 req -> {}
             );
 
-            vm.header().selectCustomerAction.execute();
+            vm.header().selectCustomerAction().execute();
 
             verify(selectCustomerHost).accept(any());
         }

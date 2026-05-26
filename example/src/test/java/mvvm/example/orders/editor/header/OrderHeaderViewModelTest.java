@@ -170,7 +170,7 @@ class OrderHeaderViewModelTest {
             var order = MockOrders.validOrderWithLineItems();
             var vm = new OrderHeaderViewModel(order, MockOrders.ACME_CUSTOMER, request -> hostCalled[0] = true);
 
-            vm.selectCustomerAction.execute();
+            vm.selectCustomerAction().execute();
 
             assertTrue(hostCalled[0]);
         }
@@ -182,7 +182,7 @@ class OrderHeaderViewModelTest {
             var order = MockOrders.validOrderWithLineItems();
             var vm = new OrderHeaderViewModel(order, MockOrders.ACME_CUSTOMER, request -> capturedRequest[0] = request);
 
-            vm.selectCustomerAction.execute();
+            vm.selectCustomerAction().execute();
 
             assertEquals(MockOrders.ACME_CUSTOMER, capturedRequest[0].current());
         }

@@ -17,10 +17,10 @@ import static javafx.beans.binding.Bindings.isEmpty;
 
 public class OrderEditorViewModel {
 
-    public final AsyncAction saveAction;
-    public final Action copyAction;
-    public final Action deleteOrderAction;
-    public final Action addLineItemAction;
+    private final AsyncAction saveAction;
+    private final Action copyAction;
+    private final Action deleteOrderAction;
+    private final Action addLineItemAction;
 
     private final OrderEditorRequest request;
     private final OrderEditorService service;
@@ -89,6 +89,11 @@ public class OrderEditorViewModel {
         service.delete(request.orderId());
         host.returnToList();
     }
+
+    public AsyncAction saveAction() { return saveAction; }
+    public Action copyAction() { return copyAction; }
+    public Action deleteOrderAction() { return deleteOrderAction; }
+    public Action addLineItemAction() { return addLineItemAction; }
 
     public OrderHeaderViewModel header() { return header; }
     public ObservableList<LineItemViewModel> lineItems() { return lineItems; }

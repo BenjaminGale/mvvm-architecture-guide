@@ -25,10 +25,10 @@ public class OrderEditorView extends BorderPane {
 
     private static ToolBar toolbar(OrderEditorViewModel viewModel) {
         return new ToolBar(
-            Buttons.button("Save", viewModel.saveAction),
+            Buttons.button("Save", viewModel.saveAction()),
             Spacer.create(),
-            Buttons.button("Copy", viewModel.copyAction),
-            Buttons.button("Delete", viewModel.deleteOrderAction)
+            Buttons.button("Copy", viewModel.copyAction()),
+            Buttons.button("Delete", viewModel.deleteOrderAction())
         );
     }
 
@@ -49,7 +49,7 @@ public class OrderEditorView extends BorderPane {
     }
 
     private static ToolBar lineItemsToolbar(OrderEditorViewModel viewModel) {
-        return new ToolBar(new Label("Line Items"), Spacer.create(), Buttons.button("Add", viewModel.addLineItemAction));
+        return new ToolBar(new Label("Line Items"), Spacer.create(), Buttons.button("Add", viewModel.addLineItemAction()));
     }
 
     private static TableView<LineItemViewModel> lineItemsTable(OrderEditorViewModel viewModel) {

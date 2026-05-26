@@ -69,8 +69,8 @@ public class LineItemView {
                     deleteBtn.disableProperty().unbind();
                     bound = vm;
                     if (vm != null) {
-                        Buttons.bind(editBtn, vm.editAction);
-                        Buttons.bind(deleteBtn, vm.deleteAction);
+                        Buttons.bind(editBtn, vm.editAction());
+                        Buttons.bind(deleteBtn, vm.deleteAction());
                     }
                 }
                 setGraphic(vm != null ? box : null);
