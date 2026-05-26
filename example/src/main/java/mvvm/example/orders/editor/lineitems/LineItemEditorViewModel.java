@@ -1,13 +1,11 @@
 package mvvm.example.orders.editor.lineitems;
 
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.stock.domain.Product;
@@ -22,9 +20,9 @@ public class LineItemEditorViewModel {
     private final Action confirmAction;
     private final LineItemEditorRequest request;
     private UUID productId;
-    private final StringProperty description = new SimpleStringProperty();
+    private final ReadOnlyStringWrapper description = new ReadOnlyStringWrapper();
     private final IntegerProperty quantity = new SimpleIntegerProperty();
-    private final ObjectProperty<BigDecimal> unitPrice = new SimpleObjectProperty<>();
+    private final ReadOnlyObjectWrapper<BigDecimal> unitPrice = new ReadOnlyObjectWrapper<>();
 
     public LineItemEditorViewModel(LineItemEditorRequest request, Consumer<ProductSelectorRequest> selectProductHost) {
         this.request = request;
@@ -37,7 +35,7 @@ public class LineItemEditorViewModel {
             new ProductSelectorRequest(request.currentLineItems(), productId, this::onProductSelected)
         ));
 
-        confirmAction = new Action(this::confirm, description.isNotEmpty());
+        confirmAction = new Action(this::confirm, description.getReadOnlyProperty().isNotEmpty());
     }
 
     private void onProductSelected(Product product) {
@@ -53,7 +51,7 @@ public class LineItemEditorViewModel {
     public Action selectProductAction() { return selectProductAction; }
     public Action confirmAction() { return confirmAction; }
 
-    public ReadOnlyStringProperty descriptionProperty() { return description; }
+    public ReadOnlyStringProperty descriptionProperty() { return description.getReadOnlyProperty(); }
     public IntegerProperty quantityProperty() { return quantity; }
-    public ReadOnlyObjectProperty<BigDecimal> unitPriceProperty() { return unitPrice; }
+    public ReadOnlyObjectProperty<BigDecimal> unitPriceProperty() { return unitPrice.getReadOnlyProperty(); }
 }

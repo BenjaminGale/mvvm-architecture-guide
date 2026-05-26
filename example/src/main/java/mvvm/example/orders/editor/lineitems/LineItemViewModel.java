@@ -1,13 +1,11 @@
 package mvvm.example.orders.editor.lineitems;
 
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.orders.domain.LineItem;
 
@@ -23,10 +21,10 @@ public class LineItemViewModel {
     private final Action deleteAction;
 
     private UUID productId;
-    private final StringProperty description = new SimpleStringProperty();
+    private final ReadOnlyStringWrapper description = new ReadOnlyStringWrapper();
     private final IntegerProperty quantity = new SimpleIntegerProperty();
-    private final ObjectProperty<BigDecimal> unitPrice = new SimpleObjectProperty<>();
-    private final ObjectProperty<BigDecimal> total = new SimpleObjectProperty<>();
+    private final ReadOnlyObjectWrapper<BigDecimal> unitPrice = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<BigDecimal> total = new ReadOnlyObjectWrapper<>();
 
     public LineItemViewModel(
         LineItem lineItem,
@@ -62,8 +60,8 @@ public class LineItemViewModel {
     public Action deleteAction() { return deleteAction; }
 
     public UUID productId() { return productId; }
-    public ReadOnlyStringProperty descriptionProperty() { return description; }
+    public ReadOnlyStringProperty descriptionProperty() { return description.getReadOnlyProperty(); }
     public IntegerProperty quantityProperty() { return quantity; }
-    public ReadOnlyObjectProperty<BigDecimal> unitPriceProperty() { return unitPrice; }
-    public ReadOnlyObjectProperty<BigDecimal> totalProperty() { return total; }
+    public ReadOnlyObjectProperty<BigDecimal> unitPriceProperty() { return unitPrice.getReadOnlyProperty(); }
+    public ReadOnlyObjectProperty<BigDecimal> totalProperty() { return total.getReadOnlyProperty(); }
 }
