@@ -26,9 +26,8 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<OrderSummary> {
         this.host = host;
 
         items().addListener((ListChangeListener<OrderSummary>) _ -> {
-            var list = items().stream().toList();
-            ordersCount.set(list.size());
-            overdueOrdersCount.set((int) list.stream().filter(OrderSummary::isOverdue).count());
+            ordersCount.set(items().size());
+            overdueOrdersCount.set((int) items().stream().filter(OrderSummary::isOverdue).count());
         });
     }
 
