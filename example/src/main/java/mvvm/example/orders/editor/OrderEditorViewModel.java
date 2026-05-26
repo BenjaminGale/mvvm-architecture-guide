@@ -5,13 +5,11 @@ import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
 import mvvm.example.orders.domain.LineItem;
-import mvvm.example.orders.editor.header.CustomerSelectorRequest;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
 import mvvm.example.orders.editor.lineitems.LineItemViewModel;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import static javafx.beans.binding.Bindings.isEmpty;
 
@@ -27,22 +25,18 @@ public class OrderEditorViewModel {
     private final OrderEditorHost host;
     private final OrderHeaderViewModel header;
     private final ObservableList<LineItemViewModel> lineItems = FXCollections.observableArrayList();
-    private final Consumer<LineItemEditorRequest> editLineItemHost;
 
     public OrderEditorViewModel(
         OrderEditorRequest request,
         OrderEditorService service,
-        OrderEditorHost host,
-        Consumer<CustomerSelectorRequest> selectCustomerHost,
-        Consumer<LineItemEditorRequest> editLineItemHost
+        OrderEditorHost host
     ) {
         this.request = request;
         this.service = service;
         this.host = host;
-        this.editLineItemHost = editLineItemHost;
 
         var data = service.fetch(request);
-        this.header = new OrderHeaderViewModel(data.order(), data.customer(), selectCustomerHost);
+        this.header = new OrderHeaderViewModel(data.order(), data.customer(), host::selectCustomer);
 
         data.order().lineItems().forEach(item -> lineItems.add(createLineItemVm(item)));
 
@@ -55,7 +49,7 @@ public class OrderEditorViewModel {
     private LineItemViewModel createLineItemVm(LineItem item) {
         return new LineItemViewModel(
             item,
-            editLineItemHost,
+            host::editLineItem,
             () -> lineItems.stream().map(LineItemViewModel::toLineItem).toList(),
             lineItems::remove
         );
@@ -63,7 +57,7 @@ public class OrderEditorViewModel {
 
     private void onAddLineItem() {
         var currentItems = lineItems.stream().map(LineItemViewModel::toLineItem).toList();
-        editLineItemHost.accept(new LineItemEditorRequest(LineItem.draft(), currentItems, item ->
+        host.editLineItem(new LineItemEditorRequest(LineItem.draft(), currentItems, item ->
             lineItems.add(createLineItemVm(item))
         ));
     }

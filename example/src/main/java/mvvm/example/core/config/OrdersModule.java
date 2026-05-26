@@ -97,9 +97,9 @@ public class OrdersModule {
             new OrderEditorHost() {
                 @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
                 @Override public void openOrder(OrderEditorRequest req) { shell.show(() -> orderEditorViewModel(req)); }
-            },
-            req -> view.dialogManager().show(customerSelectorViewModel(req)),
-            req -> view.dialogManager().show(editLineItemViewModel(req))
+                @Override public void selectCustomer(CustomerSelectorRequest req) { view.dialogManager().show(customerSelectorViewModel(req)); }
+                @Override public void editLineItem(LineItemEditorRequest req) { view.dialogManager().show(editLineItemViewModel(req)); }
+            }
         );
     }
 

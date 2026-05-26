@@ -3,16 +3,12 @@ package mvvm.example.orders.editor;
 import mvvm.example.orders.MockOrders;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.Order;
-import mvvm.example.orders.editor.header.CustomerSelectorRequest;
-import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,9 +27,7 @@ class OrderEditorViewModelTest {
         return new OrderEditorViewModel(
             OrderEditorRequest.of(order.id()),
             serviceFor(order),
-            mock(OrderEditorHost.class),
-            req -> {},
-            req -> {}
+            mock(OrderEditorHost.class)
         );
     }
 
@@ -103,9 +97,7 @@ class OrderEditorViewModelTest {
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.of(order.id()),
                 service,
-                mock(OrderEditorHost.class),
-                req -> {},
-                req -> {}
+                mock(OrderEditorHost.class)
             );
 
             vm.saveAction().executeAsync(Runnable::run).join();
@@ -126,9 +118,7 @@ class OrderEditorViewModelTest {
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.of(order.id()),
                 service,
-                mock(OrderEditorHost.class),
-                req -> {},
-                req -> {}
+                mock(OrderEditorHost.class)
             );
 
             vm.deleteOrderAction().execute();
@@ -152,9 +142,7 @@ class OrderEditorViewModelTest {
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.of(order.id()),
                 service,
-                host,
-                req -> {},
-                req -> {}
+                host
             );
 
             vm.copyAction().execute();
@@ -176,9 +164,7 @@ class OrderEditorViewModelTest {
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.forNewOrder(),
                 service,
-                mock(OrderEditorHost.class),
-                req -> {},
-                req -> {}
+                mock(OrderEditorHost.class)
             );
 
             assertFalse(vm.saveAction().canExecute());
@@ -193,18 +179,16 @@ class OrderEditorViewModelTest {
         @DisplayName("addLineItemAction invokes the edit host")
         void addLineItemActionInvokesEditHost() {
             var order = MockOrders.orderWithNoLineItems();
-            Consumer<LineItemEditorRequest> editHost = mock();
+            var host = mock(OrderEditorHost.class);
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.of(order.id()),
                 serviceFor(order),
-                mock(OrderEditorHost.class),
-                req -> {},
-                editHost
+                host
             );
 
             vm.addLineItemAction().execute();
 
-            verify(editHost).accept(any());
+            verify(host).editLineItem(any());
         }
 
         @Test
@@ -212,12 +196,13 @@ class OrderEditorViewModelTest {
         void confirmedItemAppearsInList() {
             var order = MockOrders.orderWithNoLineItems();
             var newItem = new LineItem(UUID.randomUUID(), "Widget", 1, BigDecimal.TEN);
+            var host = mock(OrderEditorHost.class);
+            doAnswer(inv -> { inv.getArgument(0, mvvm.example.orders.editor.lineitems.LineItemEditorRequest.class).confirmChanges(newItem); return null; })
+                .when(host).editLineItem(any());
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.of(order.id()),
                 serviceFor(order),
-                mock(OrderEditorHost.class),
-                req -> {},
-                req -> req.confirmChanges(newItem)
+                host
             );
 
             vm.addLineItemAction().execute();
@@ -232,21 +217,19 @@ class OrderEditorViewModelTest {
     class WhenCustomerSelectorTriggered {
 
         @Test
-        @DisplayName("the select customer callback is invoked")
-        void selectCustomerCallbackInvoked() {
+        @DisplayName("the select customer host method is invoked")
+        void selectCustomerHostInvoked() {
             var order = MockOrders.validOrderWithLineItems();
-            Consumer<CustomerSelectorRequest> selectCustomerHost = mock();
+            var host = mock(OrderEditorHost.class);
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.of(order.id()),
                 serviceFor(order),
-                mock(OrderEditorHost.class),
-                selectCustomerHost,
-                req -> {}
+                host
             );
 
             vm.header().selectCustomerAction().execute();
 
-            verify(selectCustomerHost).accept(any());
+            verify(host).selectCustomer(any());
         }
     }
 }
