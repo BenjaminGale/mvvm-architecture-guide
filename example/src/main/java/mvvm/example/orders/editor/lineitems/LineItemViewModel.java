@@ -10,10 +10,7 @@ import mvvm.example.core.viewmodel.Action;
 import mvvm.example.orders.domain.LineItem;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class LineItemViewModel {
 
@@ -26,12 +23,7 @@ public class LineItemViewModel {
     private final ReadOnlyObjectWrapper<BigDecimal> unitPrice = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<BigDecimal> total = new ReadOnlyObjectWrapper<>();
 
-    public LineItemViewModel(
-        LineItem lineItem,
-        Consumer<LineItemEditorRequest> editHost,
-        Supplier<List<LineItem>> currentLineItemsSupplier,
-        Consumer<LineItemViewModel> deleteCallback
-    ) {
+    public LineItemViewModel(LineItem lineItem, LineItemHost host) {
         this.productId = lineItem.productId();
         description.set(lineItem.description());
         quantity.set(lineItem.quantity());
@@ -39,9 +31,9 @@ public class LineItemViewModel {
         total.set(lineItem.total());
 
         editAction = new Action(() ->
-            editHost.accept(new LineItemEditorRequest(toLineItem(), currentLineItemsSupplier.get(), this::onEdited))
+            host.editLineItem(new LineItemEditorRequest(toLineItem(), host.currentLineItems(), this::onEdited))
         );
-        deleteAction = new Action(() -> deleteCallback.accept(this));
+        deleteAction = new Action(() -> host.deleteLineItem(this));
     }
 
     private void onEdited(LineItem updated) {

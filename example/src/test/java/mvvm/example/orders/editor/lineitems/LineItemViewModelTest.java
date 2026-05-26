@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Orders.LineItemViewModel")
 class LineItemViewModelTest {
@@ -18,8 +19,16 @@ class LineItemViewModelTest {
     private static final UUID PROD_2 = UUID.randomUUID();
     private static final LineItem WIDGET = new LineItem(PROD_1, "Widget", 2, BigDecimal.valueOf(9.99));
 
+    private static LineItemHost noOpHost() {
+        return new LineItemHost() {
+            public void editLineItem(LineItemEditorRequest req) {}
+            public List<LineItem> currentLineItems() { return List.of(); }
+            public void deleteLineItem(LineItemViewModel vm) {}
+        };
+    }
+
     private static LineItemViewModel viewModelFor(LineItem item) {
-        return new LineItemViewModel(item, req -> {}, List::of, vm -> {});
+        return new LineItemViewModel(item, noOpHost());
     }
 
     @Nested
@@ -59,7 +68,11 @@ class LineItemViewModelTest {
         @DisplayName("the edit host receives the current item")
         void editHostReceivesCurrentItem() {
             var captured = new LineItemEditorRequest[]{null};
-            var vm = new LineItemViewModel(WIDGET, req -> captured[0] = req, List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, new LineItemHost() {
+                public void editLineItem(LineItemEditorRequest req) { captured[0] = req; }
+                public List<LineItem> currentLineItems() { return List.of(); }
+                public void deleteLineItem(LineItemViewModel vm) {}
+            });
 
             vm.editAction().execute();
 
@@ -67,11 +80,15 @@ class LineItemViewModelTest {
         }
 
         @Test
-        @DisplayName("the edit host receives the current line items from the supplier")
+        @DisplayName("the edit host receives the current line items")
         void editHostReceivesCurrentLineItems() {
             var other = new LineItem(PROD_2, "Gadget", 1, BigDecimal.TEN);
             var captured = new LineItemEditorRequest[]{null};
-            var vm = new LineItemViewModel(WIDGET, req -> captured[0] = req, () -> List.of(other), v -> {});
+            var vm = new LineItemViewModel(WIDGET, new LineItemHost() {
+                public void editLineItem(LineItemEditorRequest req) { captured[0] = req; }
+                public List<LineItem> currentLineItems() { return List.of(other); }
+                public void deleteLineItem(LineItemViewModel vm) {}
+            });
 
             vm.editAction().execute();
 
@@ -82,7 +99,11 @@ class LineItemViewModelTest {
         @DisplayName("description updates when the edit is confirmed")
         void descriptionUpdatesOnConfirm() {
             var updated = new LineItem(PROD_1, "Super Widget", 2, BigDecimal.valueOf(9.99));
-            var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, new LineItemHost() {
+                public void editLineItem(LineItemEditorRequest req) { req.confirmChanges(updated); }
+                public List<LineItem> currentLineItems() { return List.of(); }
+                public void deleteLineItem(LineItemViewModel vm) {}
+            });
 
             vm.editAction().execute();
 
@@ -93,7 +114,11 @@ class LineItemViewModelTest {
         @DisplayName("quantity updates when the edit is confirmed")
         void quantityUpdatesOnConfirm() {
             var updated = new LineItem(PROD_1, "Widget", 5, BigDecimal.valueOf(9.99));
-            var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, new LineItemHost() {
+                public void editLineItem(LineItemEditorRequest req) { req.confirmChanges(updated); }
+                public List<LineItem> currentLineItems() { return List.of(); }
+                public void deleteLineItem(LineItemViewModel vm) {}
+            });
 
             vm.editAction().execute();
 
@@ -104,7 +129,11 @@ class LineItemViewModelTest {
         @DisplayName("unit price updates when the edit is confirmed")
         void unitPriceUpdatesOnConfirm() {
             var updated = new LineItem(PROD_1, "Widget", 2, BigDecimal.valueOf(19.99));
-            var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, new LineItemHost() {
+                public void editLineItem(LineItemEditorRequest req) { req.confirmChanges(updated); }
+                public List<LineItem> currentLineItems() { return List.of(); }
+                public void deleteLineItem(LineItemViewModel vm) {}
+            });
 
             vm.editAction().execute();
 
@@ -115,7 +144,11 @@ class LineItemViewModelTest {
         @DisplayName("total updates when the edit is confirmed")
         void totalUpdatesOnConfirm() {
             var updated = new LineItem(PROD_1, "Widget", 5, BigDecimal.valueOf(9.99));
-            var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, new LineItemHost() {
+                public void editLineItem(LineItemEditorRequest req) { req.confirmChanges(updated); }
+                public List<LineItem> currentLineItems() { return List.of(); }
+                public void deleteLineItem(LineItemViewModel vm) {}
+            });
 
             vm.editAction().execute();
 
@@ -128,10 +161,14 @@ class LineItemViewModelTest {
     class WhenDeleteTriggered {
 
         @Test
-        @DisplayName("the delete callback is invoked with this view model")
-        void deleteCallbackInvokedWithSelf() {
+        @DisplayName("the delete host is invoked with this view model")
+        void deleteHostInvokedWithSelf() {
             var deleted = new LineItemViewModel[]{null};
-            var vm = new LineItemViewModel(WIDGET, req -> {}, List::of, v -> deleted[0] = v);
+            var vm = new LineItemViewModel(WIDGET, new LineItemHost() {
+                public void editLineItem(LineItemEditorRequest req) {}
+                public List<LineItem> currentLineItems() { return List.of(); }
+                public void deleteLineItem(LineItemViewModel v) { deleted[0] = v; }
+            });
 
             vm.deleteAction().execute();
 

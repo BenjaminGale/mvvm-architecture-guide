@@ -7,8 +7,10 @@ import mvvm.example.core.viewmodel.AsyncAction;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
 import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
+import mvvm.example.orders.editor.lineitems.LineItemHost;
 import mvvm.example.orders.editor.lineitems.LineItemViewModel;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static javafx.beans.binding.Bindings.isEmpty;
@@ -47,12 +49,11 @@ public class OrderEditorViewModel {
     }
 
     private LineItemViewModel createLineItemVm(LineItem item) {
-        return new LineItemViewModel(
-            item,
-            host::editLineItem,
-            () -> lineItems.stream().map(LineItemViewModel::toLineItem).toList(),
-            lineItems::remove
-        );
+        return new LineItemViewModel(item, new LineItemHost() {
+            public void editLineItem(LineItemEditorRequest request) { host.editLineItem(request); }
+            public List<LineItem> currentLineItems() { return lineItems.stream().map(LineItemViewModel::toLineItem).toList(); }
+            public void deleteLineItem(LineItemViewModel vm) { lineItems.remove(vm); }
+        });
     }
 
     private void onAddLineItem() {
