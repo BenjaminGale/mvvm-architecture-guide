@@ -1,11 +1,11 @@
 package mvvm.example.orders.editor.lineitems;
 
-import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleIntegerProperty;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.orders.domain.LineItem;
 
@@ -22,7 +22,7 @@ public class LineItemViewModel {
 
     private UUID productId;
     private final ReadOnlyStringWrapper description = new ReadOnlyStringWrapper();
-    private final IntegerProperty quantity = new SimpleIntegerProperty();
+    private final ReadOnlyIntegerWrapper quantity = new ReadOnlyIntegerWrapper();
     private final ReadOnlyObjectWrapper<BigDecimal> unitPrice = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<BigDecimal> total = new ReadOnlyObjectWrapper<>();
 
@@ -61,7 +61,7 @@ public class LineItemViewModel {
 
     public UUID productId() { return productId; }
     public ReadOnlyStringProperty descriptionProperty() { return description.getReadOnlyProperty(); }
-    public IntegerProperty quantityProperty() { return quantity; }
+    public ReadOnlyIntegerProperty quantityProperty() { return quantity.getReadOnlyProperty(); }
     public ReadOnlyObjectProperty<BigDecimal> unitPriceProperty() { return unitPrice.getReadOnlyProperty(); }
     public ReadOnlyObjectProperty<BigDecimal> totalProperty() { return total.getReadOnlyProperty(); }
 }
