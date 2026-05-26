@@ -731,14 +731,23 @@ As interactions become asynchronous, additional coordination is introduced:
 
 An Action centralises these concerns into a reusable interaction object.
 
-## 4.6.2 Action interfaces
+## 4.6.2 Action classes
 
-`Action` represents a synchronous executable interaction.
+`Action` represents a synchronous executable interaction. It is constructed with a `Listener` and an optional `ObservableValue<Boolean>` binding that controls availability.
 
 ```java
-public interface Action {
-    ReadOnlyBooleanProperty canExecuteProperty();
-    void execute();
+public class Action {
+
+    public Action(Listener listener) { ... }
+    public Action(Listener listener, ObservableValue<? extends Boolean> canExecuteBinding) { ... }
+
+    public ReadOnlyBooleanProperty canExecuteProperty() { ... }
+    public void execute() { ... }
+
+    @FunctionalInterface
+    public interface Listener {
+        void actionExecuted();
+    }
 }
 ```
 
@@ -747,14 +756,25 @@ Calling `execute()` when `canExecute()` is false throws `IllegalStateException`.
 `AsyncAction` extends the same model to asynchronous interactions.
 
 ```java
-public interface AsyncAction {
-    ReadOnlyBooleanProperty canExecuteProperty();
-    ReadOnlyBooleanProperty isExecutingProperty();
-    CompletableFuture<Void> executeAsync();
+public class AsyncAction {
+
+    public AsyncAction(Listener listener) { ... }
+    public AsyncAction(Listener listener, ObservableBooleanValue canExecuteBinding) { ... }
+
+    public ReadOnlyBooleanProperty canExecuteProperty() { ... }
+    public ReadOnlyBooleanProperty isExecutingProperty() { ... }
+    public CompletableFuture<Void> executeAsync(Executor viewExecutor) { ... }
+
+    @FunctionalInterface
+    public interface Listener {
+        CompletableFuture<Runnable> actionExecutedAsync();
+    }
 }
 ```
 
 The same contract applies: calling `executeAsync()` when `canExecute()` is false throws `IllegalStateException`. `canExecute()` is automatically false while execution is in progress, preventing double-submission.
+
+`executeAsync` requires an `Executor` that runs tasks on the UI thread. The `Listener` returns `CompletableFuture<Runnable>` — the background work completes with a `Runnable` that is then dispatched via the `viewExecutor` to apply any resulting state changes on the UI thread. Passing `null` from the listener is safe when no UI update is needed.
 
 A ViewModel exposes Actions via methods, consistent with how properties are exposed:
 
@@ -788,7 +808,7 @@ saveButton.disableProperty()
 progressIndicator.visibleProperty().bind(
     viewModel.saveAction().isExecutingProperty());
 
-saveButton.setOnAction(e -> viewModel.saveAction().executeAsync());
+saveButton.setOnAction(e -> viewModel.saveAction().executeAsync(Platform::runLater));
 ```
 
 This keeps views declarative while keeping execution state close to the interaction itself.
