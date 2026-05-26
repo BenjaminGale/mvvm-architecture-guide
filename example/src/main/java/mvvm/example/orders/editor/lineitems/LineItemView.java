@@ -20,7 +20,6 @@ public class LineItemView {
             quantityColumn(),
             unitPriceColumn(),
             totalColumn(),
-            allocatedColumn(),
             actionsColumn()
         );
     }
@@ -49,13 +48,6 @@ public class LineItemView {
         var col = new TableColumn<LineItemViewModel, BigDecimal>("Total");
         col.setCellValueFactory(cell -> cell.getValue().totalProperty());
         col.setCellFactory(_ -> centered(new CurrencyTableCell<>()));
-        return col;
-    }
-
-    private static TableColumn<LineItemViewModel, Number> allocatedColumn() {
-        var col = new TableColumn<LineItemViewModel, Number>("Allocated");
-        col.setCellValueFactory(cell -> cell.getValue().allocatedQuantityProperty());
-        col.setCellFactory(_ -> centered(new IntegerTableCell<>()));
         return col;
     }
 

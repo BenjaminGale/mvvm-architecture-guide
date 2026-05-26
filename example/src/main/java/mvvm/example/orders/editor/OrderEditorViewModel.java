@@ -44,9 +44,7 @@ public class OrderEditorViewModel {
         var data = service.fetch(request);
         this.header = new OrderHeaderViewModel(data.order(), data.customer(), selectCustomerHost);
 
-        data.order().lineItems().forEach(item ->
-            lineItems.add(createLineItemVm(item, data.allocations().getOrDefault(item.productId(), 0)))
-        );
+        data.order().lineItems().forEach(item -> lineItems.add(createLineItemVm(item)));
 
         this.saveAction = new AsyncAction(this::onSave, header.validProperty().and(isEmpty(lineItems).not()));
         this.copyAction = new Action(this::onCopy);
@@ -54,10 +52,9 @@ public class OrderEditorViewModel {
         this.addLineItemAction = new Action(this::onAddLineItem);
     }
 
-    private LineItemViewModel createLineItemVm(LineItem item, int allocatedQuantity) {
+    private LineItemViewModel createLineItemVm(LineItem item) {
         return new LineItemViewModel(
             item,
-            allocatedQuantity,
             editLineItemHost,
             () -> lineItems.stream().map(LineItemViewModel::toLineItem).toList(),
             lineItems::remove
@@ -67,7 +64,7 @@ public class OrderEditorViewModel {
     private void onAddLineItem() {
         var currentItems = lineItems.stream().map(LineItemViewModel::toLineItem).toList();
         editLineItemHost.accept(new LineItemEditorRequest(LineItem.draft(), currentItems, item ->
-            lineItems.add(createLineItemVm(item, 0))
+            lineItems.add(createLineItemVm(item))
         ));
     }
 

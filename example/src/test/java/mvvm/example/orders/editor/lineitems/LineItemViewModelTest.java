@@ -19,7 +19,7 @@ class LineItemViewModelTest {
     private static final LineItem WIDGET = new LineItem(PROD_1, "Widget", 2, BigDecimal.valueOf(9.99));
 
     private static LineItemViewModel viewModelFor(LineItem item) {
-        return new LineItemViewModel(item, 0, req -> {}, List::of, vm -> {});
+        return new LineItemViewModel(item, req -> {}, List::of, vm -> {});
     }
 
     @Nested
@@ -49,14 +49,6 @@ class LineItemViewModelTest {
         void totalPopulated() {
             assertEquals(WIDGET.total(), viewModelFor(WIDGET).totalProperty().get());
         }
-
-        @Test
-        @DisplayName("allocated quantity is populated from the constructor argument")
-        void allocatedQuantityPopulated() {
-            var vm = new LineItemViewModel(WIDGET, 3, req -> {}, List::of, v -> {});
-
-            assertEquals(3, vm.allocatedQuantityProperty().get());
-        }
     }
 
     @Nested
@@ -67,7 +59,7 @@ class LineItemViewModelTest {
         @DisplayName("the edit host receives the current item")
         void editHostReceivesCurrentItem() {
             var captured = new LineItemEditorRequest[]{null};
-            var vm = new LineItemViewModel(WIDGET, 0, req -> captured[0] = req, List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, req -> captured[0] = req, List::of, v -> {});
 
             vm.editAction.execute();
 
@@ -79,7 +71,7 @@ class LineItemViewModelTest {
         void editHostReceivesCurrentLineItems() {
             var other = new LineItem(PROD_2, "Gadget", 1, BigDecimal.TEN);
             var captured = new LineItemEditorRequest[]{null};
-            var vm = new LineItemViewModel(WIDGET, 0, req -> captured[0] = req, () -> List.of(other), v -> {});
+            var vm = new LineItemViewModel(WIDGET, req -> captured[0] = req, () -> List.of(other), v -> {});
 
             vm.editAction.execute();
 
@@ -90,7 +82,7 @@ class LineItemViewModelTest {
         @DisplayName("description updates when the edit is confirmed")
         void descriptionUpdatesOnConfirm() {
             var updated = new LineItem(PROD_1, "Super Widget", 2, BigDecimal.valueOf(9.99));
-            var vm = new LineItemViewModel(WIDGET, 0, req -> req.confirmChanges(updated), List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
 
             vm.editAction.execute();
 
@@ -101,7 +93,7 @@ class LineItemViewModelTest {
         @DisplayName("quantity updates when the edit is confirmed")
         void quantityUpdatesOnConfirm() {
             var updated = new LineItem(PROD_1, "Widget", 5, BigDecimal.valueOf(9.99));
-            var vm = new LineItemViewModel(WIDGET, 0, req -> req.confirmChanges(updated), List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
 
             vm.editAction.execute();
 
@@ -112,7 +104,7 @@ class LineItemViewModelTest {
         @DisplayName("unit price updates when the edit is confirmed")
         void unitPriceUpdatesOnConfirm() {
             var updated = new LineItem(PROD_1, "Widget", 2, BigDecimal.valueOf(19.99));
-            var vm = new LineItemViewModel(WIDGET, 0, req -> req.confirmChanges(updated), List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
 
             vm.editAction.execute();
 
@@ -123,7 +115,7 @@ class LineItemViewModelTest {
         @DisplayName("total updates when the edit is confirmed")
         void totalUpdatesOnConfirm() {
             var updated = new LineItem(PROD_1, "Widget", 5, BigDecimal.valueOf(9.99));
-            var vm = new LineItemViewModel(WIDGET, 0, req -> req.confirmChanges(updated), List::of, v -> {});
+            var vm = new LineItemViewModel(WIDGET, req -> req.confirmChanges(updated), List::of, v -> {});
 
             vm.editAction.execute();
 
@@ -139,7 +131,7 @@ class LineItemViewModelTest {
         @DisplayName("the delete callback is invoked with this view model")
         void deleteCallbackInvokedWithSelf() {
             var deleted = new LineItemViewModel[]{null};
-            var vm = new LineItemViewModel(WIDGET, 0, req -> {}, List::of, v -> deleted[0] = v);
+            var vm = new LineItemViewModel(WIDGET, req -> {}, List::of, v -> deleted[0] = v);
 
             vm.deleteAction.execute();
 

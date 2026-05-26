@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Map;
+
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -23,7 +23,7 @@ class OrderEditorViewModelTest {
     private static OrderEditorService serviceFor(Order order) {
         var service = mock(OrderEditorService.class);
         var customer = order.customerId() != null ? MockOrders.ACME_CUSTOMER : null;
-        when(service.fetch(any())).thenReturn(new OrderEditorData(order, customer, Map.of()));
+        when(service.fetch(any())).thenReturn(new OrderEditorData(order, customer));
         return service;
     }
 
@@ -172,7 +172,7 @@ class OrderEditorViewModelTest {
         @DisplayName("canSave is false when no fields have been filled")
         void canSaveIsFalseInitially() {
             var service = mock(OrderEditorService.class);
-            when(service.fetch(any())).thenReturn(new OrderEditorData(Order.draft(), null, Map.of()));
+            when(service.fetch(any())).thenReturn(new OrderEditorData(Order.draft(), null));
             var vm = new OrderEditorViewModel(
                 OrderEditorRequest.forNewOrder(),
                 service,

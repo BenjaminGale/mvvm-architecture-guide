@@ -26,7 +26,6 @@ import mvvm.example.orders.editor.lineitems.ProductSelectorViewModel;
 import mvvm.example.orders.domain.LineItem;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
-import mvvm.example.stock.domain.StockRepository;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
 import mvvm.example.shell.ShellContext;
@@ -43,16 +42,14 @@ public class OrdersModule {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
-    private final StockRepository stockRepository;
     private final ViewServices view;
     private final ShellContext shell;
     private final CopyOrderCommand copyOrderCommand;
 
-    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, StockRepository stockRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
+    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
-        this.stockRepository = stockRepository;
         this.view = view;
         this.shell = shell;
         this.copyOrderCommand = copyOrderCommand;
@@ -88,7 +85,7 @@ public class OrdersModule {
     }
 
     private OrderEditorViewModel orderEditorViewModel(OrderEditorRequest request) {
-        var query = new GetOrderEditorDataQuery(orderRepository, customerRepository, stockRepository);
+        var query = new GetOrderEditorDataQuery(orderRepository, customerRepository);
         return new OrderEditorViewModel(
             request,
             new OrderEditorService() {

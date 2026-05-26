@@ -2,8 +2,6 @@ package mvvm.example.orders.editor.lineitems;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -28,12 +26,10 @@ public class LineItemViewModel {
     private final StringProperty description = new SimpleStringProperty();
     private final IntegerProperty quantity = new SimpleIntegerProperty();
     private final ObjectProperty<BigDecimal> unitPrice = new SimpleObjectProperty<>();
-    private final ReadOnlyIntegerWrapper allocatedQuantity;
     private final ObjectProperty<BigDecimal> total = new SimpleObjectProperty<>();
 
     public LineItemViewModel(
         LineItem lineItem,
-        int allocatedQuantity,
         Consumer<LineItemEditorRequest> editHost,
         Supplier<List<LineItem>> currentLineItemsSupplier,
         Consumer<LineItemViewModel> deleteCallback
@@ -43,7 +39,6 @@ public class LineItemViewModel {
         quantity.set(lineItem.quantity());
         unitPrice.set(lineItem.unitPrice());
         total.set(lineItem.total());
-        this.allocatedQuantity = new ReadOnlyIntegerWrapper(allocatedQuantity);
 
         editAction = new Action(() ->
             editHost.accept(new LineItemEditorRequest(toLineItem(), currentLineItemsSupplier.get(), this::onEdited))
@@ -68,5 +63,4 @@ public class LineItemViewModel {
     public IntegerProperty quantityProperty() { return quantity; }
     public ReadOnlyObjectProperty<BigDecimal> unitPriceProperty() { return unitPrice; }
     public ReadOnlyObjectProperty<BigDecimal> totalProperty() { return total; }
-    public ReadOnlyIntegerProperty allocatedQuantityProperty() { return allocatedQuantity.getReadOnlyProperty(); }
 }
