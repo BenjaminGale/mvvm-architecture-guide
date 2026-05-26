@@ -315,6 +315,8 @@ This keeps ViewModels focused on:
 * user interaction,
 * and presentation-oriented coordination.
 
+> **Alternative: event and message buses.** An alternative to host interfaces is a shared event or message bus. A ViewModel publishes a typed event — such as `OpenOrderDetailsEvent` — and the shell subscribes and handles it. This achieves a similar decoupling: the ViewModel still has no dependency on routers or dialog systems. The tradeoff is traceability. With a host interface, the path from ViewModel method to shell handler is navigable directly. With a bus, that connection is implicit and discovered only at runtime. Host interfaces are generally preferred when interaction flow should remain explicit and auditable.
+
 ---
 
 # 4.3 Decomposing ViewModels
