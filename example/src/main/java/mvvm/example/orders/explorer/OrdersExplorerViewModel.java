@@ -1,6 +1,8 @@
 package mvvm.example.orders.explorer;
 
-import javafx.beans.property.*;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.ListChangeListener;
 import mvvm.example.core.viewmodel.ExplorerViewModel;
@@ -13,8 +15,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class OrdersExplorerViewModel extends ExplorerViewModel<OrderSummary> {
 
-    private final IntegerProperty ordersCount = new SimpleIntegerProperty(this, "ordersCount", 0);
-    private final IntegerProperty overdueOrdersCount = new SimpleIntegerProperty(this, "overdueOrdersCount", 0);
+    private final ReadOnlyIntegerWrapper ordersCount = new ReadOnlyIntegerWrapper(this, "ordersCount", 0);
+    private final ReadOnlyIntegerWrapper overdueOrdersCount = new ReadOnlyIntegerWrapper(this, "overdueOrdersCount", 0);
 
     private final OrdersExplorerService service;
     private final OrdersExplorerHost host;
@@ -31,11 +33,11 @@ public class OrdersExplorerViewModel extends ExplorerViewModel<OrderSummary> {
     }
 
     public ReadOnlyIntegerProperty ordersCountProperty() {
-        return ordersCount;
+        return ordersCount.getReadOnlyProperty();
     }
 
     public ReadOnlyIntegerProperty overdueOrdersCountProperty() {
-        return overdueOrdersCount;
+        return overdueOrdersCount.getReadOnlyProperty();
     }
 
     @Override
