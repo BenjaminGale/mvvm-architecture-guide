@@ -13,7 +13,7 @@ public class OrdersExplorerViewModelScenarios {
 
     private static final LocalDate RECENT = LocalDate.of(2026, 6, 10);
     private static final LocalDate OLDER  = LocalDate.of(2026, 6, 1);
-    private static final LocalDate OVERDUE = LocalDate.of(2026, 4, 1);
+    private static final LocalDate OVERDUE_DATE = LocalDate.of(2026, 4, 1);
 
     private static final UUID ID_1      = UUID.randomUUID();
     private static final UUID ID_2      = UUID.randomUUID();
@@ -33,23 +33,23 @@ public class OrdersExplorerViewModelScenarios {
             ),
             Arguments.of(
                 "single non-isOverdue order",
-                List.of(MockOrders.summaryOf(ID_1, RECENT)),
+                List.of(MockOrders.summaryOf(ID_1, RECENT, false)),
                 1, 0
             ),
             Arguments.of(
                 "mixed isOverdue and non-isOverdue orders",
                 List.of(
-                    MockOrders.summaryOf(ID_1, RECENT),
-                    MockOrders.summaryOf(ID_2, OVERDUE)
+                    MockOrders.summaryOf(ID_1, RECENT, false),
+                    MockOrders.summaryOf(ID_2, OVERDUE_DATE, true)
                 ),
                 2, 1
             ),
             Arguments.of(
                 "all orders isOverdue",
                 List.of(
-                    MockOrders.summaryOf(ID_1, OVERDUE),
-                    MockOrders.summaryOf(ID_2, OVERDUE),
-                    MockOrders.summaryOf(ID_3, OVERDUE)
+                    MockOrders.summaryOf(ID_1, OVERDUE_DATE, true),
+                    MockOrders.summaryOf(ID_2, OVERDUE_DATE, true),
+                    MockOrders.summaryOf(ID_3, OVERDUE_DATE, true)
                 ),
                 3, 3
             )

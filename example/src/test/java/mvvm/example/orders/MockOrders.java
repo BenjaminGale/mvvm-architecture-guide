@@ -41,7 +41,10 @@ public class MockOrders {
     }
 
     public static OrderSummary summaryOf(UUID id, LocalDate date) {
-        boolean overdue = date.isBefore(LocalDate.now());
+        return summaryOf(id, date, false);
+    }
+
+    public static OrderSummary summaryOf(UUID id, LocalDate date, boolean overdue) {
         return new OrderSummary(id, "REF-" + id, "Acme Ltd", date, date, "In Progress", BigDecimal.ZERO, overdue);
     }
 }
