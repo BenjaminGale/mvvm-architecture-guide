@@ -17,8 +17,6 @@ import mvvm.example.shell.main.statusbar.StatusItemView;
 import mvvm.example.shell.main.MainViewModel;
 import mvvm.example.shell.main.sidebar.SidebarViewModel;
 
-import java.util.Arrays;
-
 public class ShellModule {
 
     private final CustomerRepository customerRepository;
@@ -60,11 +58,6 @@ public class ShellModule {
 
     public Parent mainView(SidebarItemViewModel... items) {
         shell.navigationItems().addAll(items);
-
-        // TODO: Move to MainViewModel
-        Arrays.stream(items)
-            .findFirst()
-            .ifPresent(item -> item.openWorkspaceAction().execute());
 
         return view.viewLocator().locate(mainViewModel());
     }

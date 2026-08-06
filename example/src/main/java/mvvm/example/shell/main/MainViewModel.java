@@ -18,6 +18,10 @@ public class MainViewModel {
         this.sidebar = sidebar;
         this.statusBar = statusBar;
         this.currentWorkspace = currentWorkspace;
+
+        sidebar.navigationItems().stream()
+            .findFirst()
+            .ifPresent(item -> item.openWorkspaceAction().execute());
     }
 
     public SidebarViewModel sidebar() {

@@ -2,6 +2,7 @@ package mvvm.example.shell.main;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
 import mvvm.example.shell.main.sidebar.SidebarViewModel;
 import mvvm.example.shell.main.statusbar.StatusBarViewModel;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,6 +52,23 @@ class MainViewModelTest {
             var vm = new MainViewModel(SIDEBAR, STATUS_BAR, workspace.getReadOnlyProperty());
 
             assertEquals("initial", vm.currentWorkspaceProperty().get());
+        }
+
+        @Test
+        @DisplayName("it opens the first sidebar item's workspace")
+        void opensFirstSidebarItemWorkspace() {
+            var firstOpened = new AtomicBoolean(false);
+            var secondOpened = new AtomicBoolean(false);
+            var sidebar = new SidebarViewModel(FXCollections.observableArrayList(
+                new SidebarItemViewModel("First", () -> firstOpened.set(true)),
+                new SidebarItemViewModel("Second", () -> secondOpened.set(true))
+            ));
+            var workspace = new ReadOnlyObjectWrapper<>();
+
+            new MainViewModel(sidebar, STATUS_BAR, workspace.getReadOnlyProperty());
+
+            assertTrue(firstOpened.get());
+            assertFalse(secondOpened.get());
         }
     }
 
