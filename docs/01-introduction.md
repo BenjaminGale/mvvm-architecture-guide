@@ -6,6 +6,10 @@ The examples use Java (with JavaFX as the view technology), however the architec
 
 The focus of this document is not simply how to structure Views and ViewModels, but how to build applications that remain maintainable as they grow. Particular attention is given to dependency management, navigation, composition, testability, and keeping responsibilities clearly separated between layers.
 
+This document reflects my own understanding of MVVM, worked through against a realistic application. Where it lays down a hard constraint for this guide's own architecture, that's deliberate and treated as an invariant, as below. Where it compares alternative approaches, that reflects preference rather than a claim that one is objectively correct.
+
+Most discussions of MVVM stop at the basics — binding, commands, a single screen — and don't show how the pattern holds up once an application has multiple features that need to interoperate. That gap is what this guide is for. Some choices here, like wiring dependencies manually rather than through a DI framework, exist to make the underlying pattern and integration points visible rather than to prescribe a specific tool. They're not a claim that this is how a production application should handle that concern.
+
 The approach presented here is intentionally strict. The architectural constraints are designed to prevent common forms of coupling that tend to emerge gradually in large MVVM applications. These constraints are treated as invariants rather than guidelines so the overall structure remains consistent as new screens and workflows are added.
 
 ## Contents

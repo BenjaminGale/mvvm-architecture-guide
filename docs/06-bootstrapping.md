@@ -136,6 +136,8 @@ public class OrdersModule {
 
 The constructor does three things: creates the module's own infrastructure, registers its views, and stores any dependencies needed by the factory methods. Public factory methods are the entry points exposed to `App`; private ones handle internal navigation within the domain.
 
+> `InMemoryOrderRepository` stands in for a real persistence mechanism — a database, a remote API — so the examples stay self-contained and runnable. Swapping it for a real implementation doesn't change anything above the repository interface.
+
 The sample application is split into four modules:
 
 - **`ShellModule`** — navigation infrastructure (`ViewServices`, `WorkspaceContext`), the main window layout, and the sidebar. This is created first and passes its shared objects to the domain modules.

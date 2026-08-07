@@ -154,7 +154,7 @@ public class StubOrderService implements OrderService {
 }
 ```
 
-Stubs are preferable to mocks because test setup describes what the service _does_ rather than which methods must be called. They are also resilient to refactoring: a mock asserting `orderService.save()` was called breaks if the method is renamed; a stub recording the saved entity does not.
+This guide favours stubs over mocks: test setup describes what the service _does_ rather than which methods must be called, and stubs tend to be more resilient to refactoring — a mock asserting `orderService.save()` was called breaks if the method is renamed, whereas a stub recording the saved entity does not.
 
 ### 8.4 Testing Action and ViewLocator directly
 
