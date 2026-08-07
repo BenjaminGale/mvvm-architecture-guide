@@ -4,6 +4,10 @@ import javafx.beans.property.ReadOnlyIntegerWrapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,22 +18,24 @@ class StatusItemViewModelTest {
     @DisplayName("when created")
     class WhenCreated {
 
-        @Test
+        @ParameterizedTest(name = "with label {0}")
+        @EnumSource(LabelType.class)
         @DisplayName("it has the expected label")
-        void hasExpectedLabel() {
+        void hasExpectedLabel(LabelType label) {
             var count = new ReadOnlyIntegerWrapper(0);
-            var vm = new StatusItemViewModel(count.getReadOnlyProperty(), LabelType.All_ORDERS);
+            var vm = new StatusItemViewModel(count.getReadOnlyProperty(), label);
 
-            assertEquals(LabelType.All_ORDERS, vm.label());
+            assertEquals(label, vm.label());
         }
 
-        @Test
+        @ParameterizedTest(name = "with count {0}")
+        @ValueSource(ints = {0, 5, 42})
         @DisplayName("it shows the current count")
-        void showsCurrentCount() {
-            var count = new ReadOnlyIntegerWrapper(5);
+        void showsCurrentCount(int initialCount) {
+            var count = new ReadOnlyIntegerWrapper(initialCount);
             var vm = new StatusItemViewModel(count.getReadOnlyProperty(), LabelType.All_ORDERS);
 
-            assertEquals(5, vm.countProperty().get());
+            assertEquals(initialCount, vm.countProperty().get());
         }
     }
 
@@ -37,15 +43,16 @@ class StatusItemViewModelTest {
     @DisplayName("when the count changes")
     class WhenCountChanges {
 
-        @Test
+        @ParameterizedTest(name = "from {0} to {1}")
+        @CsvSource({"0, 7", "5, 42", "10, 1"})
         @DisplayName("it shows the updated count")
-        void showsUpdatedCount() {
-            var count = new ReadOnlyIntegerWrapper(0);
+        void showsUpdatedCount(int initialCount, int updatedCount) {
+            var count = new ReadOnlyIntegerWrapper(initialCount);
             var vm = new StatusItemViewModel(count.getReadOnlyProperty(), LabelType.All_ORDERS);
 
-            count.set(7);
+            count.set(updatedCount);
 
-            assertEquals(7, vm.countProperty().get());
+            assertEquals(updatedCount, vm.countProperty().get());
         }
     }
 }
