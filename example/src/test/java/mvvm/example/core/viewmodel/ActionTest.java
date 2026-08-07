@@ -80,4 +80,34 @@ class ActionTest {
             assertTrue(action.canExecute());
         }
     }
+
+    @Nested
+    @DisplayName("when constructed with a null listener")
+    class WithNullListener {
+
+        @Test
+        @DisplayName("throws when no binding is provided")
+        void throwsWithNoGuard() {
+            assertThrows(NullPointerException.class, () -> new Action(null));
+        }
+
+        @Test
+        @DisplayName("throws when a binding is provided")
+        void throwsWithBinding() {
+            var canExecute = new SimpleBooleanProperty(true);
+
+            assertThrows(NullPointerException.class, () -> new Action(null, canExecute));
+        }
+    }
+
+    @Nested
+    @DisplayName("when constructed with a null binding")
+    class WithNullBinding {
+
+        @Test
+        @DisplayName("throws")
+        void throwsWhenConstructed() {
+            assertThrows(NullPointerException.class, () -> new Action(() -> {}, null));
+        }
+    }
 }
