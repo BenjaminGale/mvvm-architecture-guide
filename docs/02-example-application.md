@@ -43,22 +43,38 @@ A customer represents a person or organisation that places orders.
 
 ### Product
 
-A product is a stocked item that can be added to an order. It holds a snapshot of the current price and tracks stock levels.
+A product is a stocked item that can be added to an order. It holds a snapshot of the current selling price; stock itself is tracked separately, in batches (see [StockBatch](#stockbatch-planned)).
 
 | Property | Type | Description |
 |---|---|---|
 | `id` | UUID | Unique identifier |
 | `name` | String | Display name |
 | `unitPrice` | BigDecimal | Current selling price per unit |
-| `quantityInStock` | int | Total units held in inventory |
+| `quantityInStock` | int | Total units physically on hand |
 
-`quantityAvailable` **[planned]** is a derived property, not a stored field: `quantityInStock` minus the sum of `quantityAllocated` across all line items referencing this product on open orders. It is not yet tracked — there is no allocation concept in the domain yet.
+`quantityInStock`, `quantityAvailable` **[planned]**, and `inventoryValue` **[planned]** are all derived properties, summed across the product's stock batches, rather than stored fields: `quantityInStock` is the sum of each batch's `quantityRemaining`, `quantityAvailable` is the sum of each batch's `quantityAvailable`, and `inventoryValue` is the sum of each batch's `value`. Until batching is implemented, `quantityInStock` remains a plain stored field with no batch-level detail, and `quantityAvailable`/`inventoryValue` are not tracked at all.
 
-**Domain operations on Product**
+---
+
+### StockBatch **[planned]**
+
+A stock batch records a quantity of a product booked into inventory at a point in time, together with the cost paid to acquire it. Stock is allocated to order line items from specific batches, via Allocation (see [LineItem](#lineitem)): a batch of 10 can supply 5 units to one order and 3 to another, leaving 2 available, and a single line item can likewise draw from more than one batch of the same product to satisfy its full quantity.
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | UUID | Unique identifier |
+| `productId` | UUID | The product this batch is stock for |
+| `receivedDate` | LocalDate | The date the batch was booked in |
+| `quantityReceived` | int | Units originally booked into this batch |
+| `unitCost` | BigDecimal | Cost paid per unit, snapshotted at receipt so later changes to the product's selling price don't affect it |
+
+`quantityRemaining` is derived, not stored: `quantityReceived` minus the sum of allocated quantities against this batch belonging to `SHIPPED` orders — only shipping physically depletes a batch. `quantityAvailable` is derived further: `quantityRemaining` minus the sum of allocated quantities belonging to `IN_PROGRESS` orders — stock held for a pending order is on hand but not free to allocate elsewhere. `value` is derived as `quantityRemaining × unitCost`.
+
+**Domain operations on StockBatch**
 
 | Operation | Type | Guard | Description |
 |---|---|---|---|
-| `RestockProduct` **[planned]** | Command | Quantity must be positive | Adds units to `quantityInStock` |
+| `ReceiveStockBatch` **[planned]** | Command | Quantity must be positive; cost must not be negative | Creates a new `StockBatch` for a product with today's `receivedDate` |
 
 ---
 
@@ -77,7 +93,7 @@ An order represents a purchase placed by a customer, consisting of one or more l
 | `status` | `OrderStatus` | The current lifecycle state of the order |
 | `lineItems` | `List<LineItem>` | The items on the order |
 
-An order is **valid** when it has a non-empty reference, an associated customer, and at least one line item. Its **total** is the sum of all line item totals.
+An order is **valid** when it has a non-empty reference, an associated customer, and at least one line item. Its **total** is the sum of all line item totals, and its **margin** **[planned]** is the sum of all line item margins.
 
 **OrderStatus**
 
@@ -100,10 +116,10 @@ An order is considered **overdue** when its `plannedShipDate` is in the past and
 | Operation | Type | Guard | Description |
 |---|---|---|---|
 | `CopyOrder` | Command | Order must exist | Creates a new `IN_PROGRESS` order copied from an existing one, with a new ID, today's `createdDate`, no `plannedShipDate`, and a `COPY-` prefix on the reference |
-| `AllocateStock` **[planned]** | Command | Order is `IN_PROGRESS`; line item is not fully allocated; product has sufficient available stock | Increases `LineItem.quantityAllocated`. `Product.quantityAvailable` decreases as a side effect of being derived from it. |
-| `ReturnStock` **[planned]** | Command | Order is `IN_PROGRESS`; line item has allocated stock | Decreases `LineItem.quantityAllocated`. `Product.quantityAvailable` increases as a side effect of being derived from it. |
-| `ShipOrder` **[planned]** | Command | Order is `IN_PROGRESS`<br>Has at least one line item<br>Every line item is fully allocated (`quantityAllocated == quantity`) | Transitions the order to `SHIPPED`; reduces `Product.quantityInStock` by each line item's allocated amount; sets `completionDate` to today |
-| `CancelOrder` **[planned]** | Command | Order is `IN_PROGRESS` | Returns all allocated stock to inventory (zeroes `quantityAllocated` on each line item); transitions the order to `CANCELLED`; sets `completionDate` to today |
+| `AllocateStock` **[planned]** | Command | Order is `IN_PROGRESS`; line item is not fully allocated; product has sufficient available stock across its batches | Creates one or more `Allocation` records against the line item, drawing from the product's `StockBatch`es until the requested quantity is satisfied. Which batch(es) are drawn from is an allocation strategy decision that isn't settled yet (e.g. FIFO), and may end up user-configurable. |
+| `ReturnStock` **[planned]** | Command | Order is `IN_PROGRESS`; line item has allocated stock | Removes or reduces the line item's `Allocation` record(s), returning quantity to the originating batch(es) |
+| `ShipOrder` **[planned]** | Command | Order is `IN_PROGRESS`<br>Has at least one line item<br>Every line item is fully allocated (sum of its allocation quantities equals `quantity`) | Transitions the order to `SHIPPED`; sets `completionDate` to today. No change to `Allocation` records is needed — each batch's `quantityRemaining` is derived from allocations belonging to `SHIPPED` orders, so it depletes automatically once the order's status changes. |
+| `CancelOrder` **[planned]** | Command | Order is `IN_PROGRESS` | Deletes all of the order's `Allocation` records, returning quantity to the originating batches; transitions the order to `CANCELLED`; sets `completionDate` to today |
 
 ---
 
@@ -116,10 +132,19 @@ A line item records a product added to an order. The product name and unit price
 | `productId` | UUID | Reference to the product |
 | `description` | String | Product name at the time of order entry |
 | `quantity` | int | How many units ordered |
-| `quantityAllocated` **[planned]** | int | How many units of stock have been allocated |
 | `unitPrice` | BigDecimal | Price per unit at the time of order entry |
 
-Its **total** is `quantity × unitPrice`. A line item is **fully allocated** when `quantityAllocated == quantity`.
+Its **total** is `quantity × unitPrice`. `quantityAllocated` **[planned]**, `costOfGoodsSold` **[planned]**, and `margin` **[planned]** are all derived, not stored. `quantityAllocated` is the sum of the line item's Allocation quantities, and the line item is **fully allocated** when `quantityAllocated == quantity`. `costOfGoodsSold` is the sum of `allocation.quantity × batch.unitCost` across those same allocations — the actual cost of the specific batches consumed, not an average. `margin` is `total − costOfGoodsSold`.
+
+**Allocation** **[planned]**
+
+An allocation records that some quantity of a line item's ordered units has been drawn from a specific stock batch. A line item can have several allocations — including more than one against the same batch, or against different batches of the same product — if that's what it takes to satisfy its quantity.
+
+| Property | Type | Description |
+|---|---|---|
+| `lineItemId` | UUID | The line item this allocation is for |
+| `batchId` | UUID | The batch this allocation draws from |
+| `quantity` | int | Units allocated from this batch to this line item |
 
 ---
 
@@ -178,7 +203,7 @@ The order editor opens when a user selects an existing order or creates a new on
 The customers explorer lists all active customers.
 
 - Display active customers in a table, sorted by name
-- Columns: Name, Email, Status, Order count **[planned]**, Total spend **[planned]**
+- Columns: Name, Email, Status, Order count **[planned]**, Total spend **[planned]**, Total margin **[planned]**
 - Open a customer in the editor by selecting it
 - Add a new customer
 
@@ -208,7 +233,7 @@ The stock explorer lists all products and their current inventory levels. It is 
 
 - Display all products in a table, sorted by name
 - Columns: Product name, Unit price, In stock
-- Allocated, Available columns **[planned]** — depend on the allocation concept described under [Product](#product)
+- Allocated, Available, Inventory value columns **[planned]** — depend on the batch/allocation model described under [Product](#product) and [StockBatch](#stockbatch-planned)
 - Open a product in the editor by selecting it **[planned]**
 - Add a new product **[planned]**
 
@@ -220,4 +245,6 @@ The product editor opens as a dialog when adding or editing a product.
 
 - Edit the product name and unit price
 - Save changes or cancel without saving
-- Add stock by entering a quantity to restock
+- View the product's stock batches in a table, sorted by received date descending
+  - Columns: Received, Quantity received, Remaining, Unit cost, Value
+- Receive stock by entering a quantity and unit cost, creating a new stock batch (`ReceiveStockBatch`)
