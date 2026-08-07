@@ -37,7 +37,7 @@ A customer represents a person or organisation that places orders.
 | Operation | Type | Guard | Description |
 |---|---|---|---|
 | `DeleteCustomer` **[planned]** | Command | Customer has no orders | Permanently removes the customer |
-| `DeactivateCustomer` **[planned]** | Command | Customer has orders | Marks the customer as `INACTIVE`; any `PENDING` orders are cancelled; any `FULFILLED` orders are cancelled and their allocated stock is returned to inventory. The user is asked to confirm before the operation proceeds. `SHIPPED` orders are retained for historical record. |
+| `DeactivateCustomer` **[planned]** | Command | Customer has orders | Marks the customer as `INACTIVE`; any `IN_PROGRESS` orders are cancelled, and any stock allocated to their line items is returned to inventory. The user is asked to confirm before the operation proceeds. `SHIPPED` orders are retained for historical record. |
 
 ---
 
@@ -52,7 +52,7 @@ A product is a stocked item that can be added to an order. It holds a snapshot o
 | `unitPrice` | BigDecimal | Current selling price per unit |
 | `quantityInStock` | int | Total units held in inventory |
 
-`quantityAvailable` **[planned]**, derived as `quantityInStock` minus the sum of `quantityAllocated` across all line items referencing this product on open orders, is not yet tracked — there is no allocation concept in the domain yet.
+`quantityAvailable` **[planned]** is a derived property, not a stored field: `quantityInStock` minus the sum of `quantityAllocated` across all line items referencing this product on open orders. It is not yet tracked — there is no allocation concept in the domain yet.
 
 **Domain operations on Product**
 
@@ -81,8 +81,6 @@ An order is **valid** when it has a non-empty reference, an associated customer,
 
 **OrderStatus**
 
-The current implementation has a simpler lifecycle than originally intended for the example. There is no stock-allocation concept yet, so there is no `PENDING`/`FULFILLED` distinction — orders are `IN_PROGRESS` until shipped or cancelled.
-
 ```
 IN_PROGRESS → SHIPPED
  ↘
@@ -95,14 +93,6 @@ IN_PROGRESS → SHIPPED
 | `SHIPPED` | Order has been dispatched **[planned]** — no command currently transitions an order to this state |
 | `CANCELLED` | Order was cancelled **[planned]** — no command currently transitions an order to this state |
 
-The richer lifecycle below (`PENDING`/`FULFILLED` driven by stock allocation) is the intended future scope and is not yet implemented **[planned]**:
-
-```
-PENDING ⇌ FULFILLED → SHIPPED
- ↘            ↘
-       CANCELLED
-```
-
 An order is considered **overdue** when its `plannedShipDate` is in the past and its status is `IN_PROGRESS`.
 
 **Domain operations on Order**
@@ -110,10 +100,10 @@ An order is considered **overdue** when its `plannedShipDate` is in the past and
 | Operation | Type | Guard | Description |
 |---|---|---|---|
 | `CopyOrder` | Command | Order must exist | Creates a new `IN_PROGRESS` order copied from an existing one, with a new ID, today's `createdDate`, no `plannedShipDate`, and a `COPY-` prefix on the reference |
-| `AllocateStock` **[planned]** | Command | Order is `PENDING` or `FULFILLED`; line item is not fully allocated; product has sufficient available stock | Increases `LineItem.quantityAllocated`; decreases `Product.quantityAvailable`; transitions the order to `FULFILLED` if all line items are now fully allocated |
-| `ReturnStock` **[planned]** | Command | Order is `PENDING` or `FULFILLED`; line item has allocated stock | Decreases `LineItem.quantityAllocated`; increases `Product.quantityAvailable`; transitions the order back to `PENDING` if it was `FULFILLED` |
-| `ShipOrder` **[planned]** | Command | Order is `IN_PROGRESS` (or `FULFILLED`, once that state exists) | Transitions the order to `SHIPPED`; reduces `Product.quantityInStock` by the allocated amounts; sets `completionDate` to today |
-| `CancelOrder` **[planned]** | Command | Order is `IN_PROGRESS` (or `FULFILLED`, once that state exists) | Returns all allocated stock to inventory; transitions the order to `CANCELLED`; sets `completionDate` to today |
+| `AllocateStock` **[planned]** | Command | Order is `IN_PROGRESS`; line item is not fully allocated; product has sufficient available stock | Increases `LineItem.quantityAllocated`. `Product.quantityAvailable` decreases as a side effect of being derived from it. |
+| `ReturnStock` **[planned]** | Command | Order is `IN_PROGRESS`; line item has allocated stock | Decreases `LineItem.quantityAllocated`. `Product.quantityAvailable` increases as a side effect of being derived from it. |
+| `ShipOrder` **[planned]** | Command | Order is `IN_PROGRESS`<br>Has at least one line item<br>Every line item is fully allocated (`quantityAllocated == quantity`) | Transitions the order to `SHIPPED`; reduces `Product.quantityInStock` by each line item's allocated amount; sets `completionDate` to today |
+| `CancelOrder` **[planned]** | Command | Order is `IN_PROGRESS` | Returns all allocated stock to inventory (zeroes `quantityAllocated` on each line item); transitions the order to `CANCELLED`; sets `completionDate` to today |
 
 ---
 
@@ -176,8 +166,8 @@ The order editor opens when a user selects an existing order or creates a new on
 | Action | Guard | Description |
 |---|---|---|
 | Save | Order is valid | Persists the current state of the order |
-| Ship **[planned]** | Order is `IN_PROGRESS` | Marks the order as shipped; stock is finalised |
-| Cancel **[planned]** | Order is `IN_PROGRESS` | Cancels the order |
+| Ship **[planned]** | See `ShipOrder` guard under [Order](#order) | Marks the order as shipped; stock is finalised |
+| Cancel **[planned]** | See `CancelOrder` guard under [Order](#order) | Cancels the order |
 | Copy | — | Creates a new `IN_PROGRESS` order copied from this one |
 | Delete | — | Permanently removes the order |
 
@@ -207,8 +197,8 @@ The customer editor opens as a dialog when adding or editing a customer.
 
 | Action | Guard | Description |
 |---|---|---|
-| Delete | Customer has no orders | Permanently removes the customer |
-| Deactivate | Customer has orders | Cancels open orders (returning stock for `FULFILLED` ones), marks customer as `INACTIVE`; prompts the user to confirm before proceeding |
+| Delete | See `DeleteCustomer` guard under [Customer](#customer) | Permanently removes the customer |
+| Deactivate | See `DeactivateCustomer` guard under [Customer](#customer) | Marks the customer as `INACTIVE` |
 
 ---
 
