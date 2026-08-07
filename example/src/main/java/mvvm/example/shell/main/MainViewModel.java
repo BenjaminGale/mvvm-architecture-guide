@@ -21,7 +21,7 @@ public class MainViewModel {
 
         sidebar.navigationItems().stream()
             .findFirst()
-            .ifPresent(item -> item.openWorkspaceAction().execute());
+            .ifPresent(item -> item.action().execute());
     }
 
     public SidebarViewModel sidebar() {

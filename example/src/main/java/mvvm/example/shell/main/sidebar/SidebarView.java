@@ -47,7 +47,7 @@ public class SidebarView extends BorderPane {
     }
 
     private static Button navigationButton(SidebarItemViewModel viewModel) {
-        var button = Buttons.button(viewModel.titleProperty(), viewModel.openWorkspaceAction());
+        var button = Buttons.button(viewModel.titleProperty(), viewModel.action());
         button.setMaxWidth(Double.MAX_VALUE);
         button.setAlignment(Pos.CENTER_LEFT);
         return button;

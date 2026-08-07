@@ -7,15 +7,15 @@ import mvvm.example.core.viewmodel.Action;
 public class SidebarItemViewModel {
 
     private final ReadOnlyStringWrapper title = new ReadOnlyStringWrapper(this, "title");
-    private final Action openWorkspaceAction;
+    private final Action action;
 
-    public SidebarItemViewModel(String title, Action.Listener openWorkspace) {
+    public SidebarItemViewModel(String title, Action.Listener listener) {
         this.title.set(title);
-        this.openWorkspaceAction = new Action(openWorkspace);
+        this.action = new Action(listener);
     }
 
-    public Action openWorkspaceAction() {
-        return openWorkspaceAction;
+    public Action action() {
+        return action;
     }
 
     public ReadOnlyStringProperty titleProperty() {

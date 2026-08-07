@@ -3,6 +3,8 @@ package mvvm.example.shell.main.sidebar;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,34 +15,35 @@ class SidebarItemViewModelTest {
     @DisplayName("when created")
     class WhenCreated {
 
-        @Test
+        @ParameterizedTest(name = "with title \"{0}\"")
+        @ValueSource(strings = {"Orders", "Stock", "Customers"})
         @DisplayName("it has the expected title")
-        void showsTitle() {
-            var vm = new SidebarItemViewModel("Orders", () -> {});
+        void showsTitle(String title) {
+            var vm = new SidebarItemViewModel(title, () -> {});
 
-            assertEquals("Orders", vm.titleProperty().get());
+            assertEquals(title, vm.titleProperty().get());
         }
 
         @Test
-        @DisplayName("it can open its workspace when clicked")
+        @DisplayName("its action is enabled")
         void actionIsExecutable() {
             var vm = new SidebarItemViewModel("Orders", () -> {});
 
-            assertTrue(vm.openWorkspaceAction().canExecute());
+            assertTrue(vm.action().canExecute());
         }
     }
 
     @Nested
-    @DisplayName("when the navigation item is clicked")
-    class WhenWorkspaceIsOpened {
+    @DisplayName("when the action is executed")
+    class WhenExecuted {
 
         @Test
-        @DisplayName("it workspace is opened")
-        void invokesCallback() {
+        @DisplayName("its configured behaviour runs")
+        void invokesListener() {
             var invoked = new boolean[]{false};
             var vm = new SidebarItemViewModel("Orders", () -> invoked[0] = true);
 
-            vm.openWorkspaceAction().execute();
+            vm.action().execute();
 
             assertTrue(invoked[0]);
         }
