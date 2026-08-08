@@ -1,8 +1,6 @@
 package mvvm.example.shell;
 
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import mvvm.example.core.viewmodel.Action;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,14 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Shell.ShellViewModel")
 class ShellViewModelTest {
 
-    private static WorkspaceTab tab(String title) {
-        return new WorkspaceTab() {
-            private final ReadOnlyStringWrapper title_ = new ReadOnlyStringWrapper(title);
-
-            @Override public ReadOnlyStringProperty titleProperty() { return title_.getReadOnlyProperty(); }
-            @Override public Action closeAction() { return Action.disabled(); }
-            @Override public void onClose(Action.Listener listener) {}
-        };
+    private static WorkspaceTabViewModel tab(String title) {
+        return WorkspaceTabViewModel.pinned(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new Object());
     }
 
     @Nested

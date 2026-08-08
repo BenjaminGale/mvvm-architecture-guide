@@ -1,6 +1,5 @@
 package mvvm.example.shell;
 
-import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import mvvm.example.core.viewmodel.Action;
 import org.junit.jupiter.api.DisplayName;
@@ -13,26 +12,12 @@ import static org.mockito.Mockito.*;
 @DisplayName("Shell.WorkspaceViewModel")
 class WorkspaceViewModelTest {
 
-    private static WorkspaceTab tab(String title, boolean closable) {
-        return new WorkspaceTab() {
-            private final ReadOnlyStringWrapper title_ = new ReadOnlyStringWrapper(title);
-            private Action.Listener onClose = () -> {};
-            private final Action closeAction = closable
-                ? new Action(() -> onClose.actionExecuted())
-                : Action.disabled();
-
-            @Override public ReadOnlyStringProperty titleProperty() { return title_.getReadOnlyProperty(); }
-            @Override public Action closeAction() { return closeAction; }
-            @Override public void onClose(Action.Listener listener) { this.onClose = listener; }
-        };
+    private static WorkspaceTabViewModel closableTab(String title) {
+        return WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new Object());
     }
 
-    private static WorkspaceTab closableTab(String title) {
-        return tab(title, true);
-    }
-
-    private static WorkspaceTab pinnedTab(String title) {
-        return tab(title, false);
+    private static WorkspaceTabViewModel pinnedTab(String title) {
+        return WorkspaceTabViewModel.pinned(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new Object());
     }
 
     @Nested

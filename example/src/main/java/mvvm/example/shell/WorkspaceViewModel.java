@@ -11,12 +11,12 @@ import mvvm.example.core.viewmodel.Action;
 public class WorkspaceViewModel {
 
     private final ReadOnlyStringWrapper title = new ReadOnlyStringWrapper(this, "title");
-    private final ObservableList<WorkspaceTab> tabs = FXCollections.observableArrayList();
-    private final ObjectProperty<WorkspaceTab> selectedTab = new SimpleObjectProperty<>(this, "selectedTab");
+    private final ObservableList<WorkspaceTabViewModel> tabs = FXCollections.observableArrayList();
+    private final ObjectProperty<WorkspaceTabViewModel> selectedTab = new SimpleObjectProperty<>(this, "selectedTab");
     private Action.Listener onOpen = () -> {};
     private final Action openAction = new Action(() -> onOpen.actionExecuted());
 
-    public WorkspaceViewModel(String title, WorkspaceTab explorerTab) {
+    public WorkspaceViewModel(String title, WorkspaceTabViewModel explorerTab) {
         this.title.set(title);
         this.tabs.add(explorerTab);
         this.selectedTab.set(explorerTab);
@@ -26,11 +26,11 @@ public class WorkspaceViewModel {
         return title.getReadOnlyProperty();
     }
 
-    public ObservableList<WorkspaceTab> tabs() {
+    public ObservableList<WorkspaceTabViewModel> tabs() {
         return tabs;
     }
 
-    public ObjectProperty<WorkspaceTab> selectedTabProperty() {
+    public ObjectProperty<WorkspaceTabViewModel> selectedTabProperty() {
         return selectedTab;
     }
 
@@ -42,7 +42,7 @@ public class WorkspaceViewModel {
         this.onOpen = listener;
     }
 
-    public void openTab(WorkspaceTab tab) {
+    public void openTab(WorkspaceTabViewModel tab) {
         if (!tabs.contains(tab)) {
             tabs.add(tab);
             tab.onClose(() -> removeTab(tab));
@@ -50,7 +50,7 @@ public class WorkspaceViewModel {
         selectedTab.set(tab);
     }
 
-    private void removeTab(WorkspaceTab tab) {
+    private void removeTab(WorkspaceTabViewModel tab) {
         int index = tabs.indexOf(tab);
         if (index < 0) {
             throw new IllegalStateException("Tab is not open in this workspace");

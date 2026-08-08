@@ -19,7 +19,7 @@ public class ShellViewModel {
         return currentWorkspace;
     }
 
-    public void registerWorkspace(String title, WorkspaceTab explorerTab) {
+    public void registerWorkspace(String title, WorkspaceTabViewModel explorerTab) {
         var workspace = new WorkspaceViewModel(title, explorerTab);
         workspace.onOpen(() -> select(workspace));
 
