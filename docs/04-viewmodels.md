@@ -472,7 +472,7 @@ public class OrdersExplorerViewModel {
 Another ViewModel exposes a compatible property:
 
 ```java
-public class SidebarViewModel {
+public class SummaryViewModel {
 
     private final IntegerProperty pendingOrderCount =
         new SimpleIntegerProperty();
@@ -486,7 +486,7 @@ public class SidebarViewModel {
 The relationship is established during composition:
 
 ```java
-sidebarVm.pendingOrderCountProperty().bind(
+summaryVm.pendingOrderCountProperty().bind(
     explorerVm.pendingOrderCountProperty()
 );
 ```
@@ -576,6 +576,8 @@ A useful guideline is:
 
 * if the object primarily coordinates UI behaviour, it is likely a ViewModel,
 * if the object primarily exists to share observable state, it is likely a context.
+
+This isn't just a static classification — an object can cross this line as an application grows. The example application's own navigation started as exactly the kind of Context shown in 4.4.2, then grew real coordination behaviour (supporting several simultaneously open workspaces, each with its own open tabs) and became a set of ViewModels instead. See `docs/05-views.md` §5.4.2 for that evolution. The guideline above still applies at every stage — it's just re-evaluated as responsibilities grow.
 
 ---
 
