@@ -1,35 +1,42 @@
 package mvvm.example.core.config;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
 import mvvm.example.core.view.ViewServices;
-import mvvm.example.shell.ShellContext;
-import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
+import mvvm.example.shell.TabContentViewModel;
+import mvvm.example.shell.WorkspaceTabViewModel;
+import mvvm.example.shell.WorkspaceViewModel;
 import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.stock.explorer.StockExplorerView;
 import mvvm.example.stock.explorer.StockExplorerViewModel;
 
 public class StockModule {
 
+    private static final Object EXPLORER_KEY = new Object();
+
     private final ProductRepository productRepository;
     private final ViewServices view;
-    private final ShellContext shell;
+    private final WorkspaceViewModel workspace;
 
-    public StockModule(ProductRepository productRepository, ViewServices view, ShellContext shell) {
+    public StockModule(ProductRepository productRepository, ViewServices view) {
         this.productRepository = productRepository;
         this.view = view;
-        this.shell = shell;
 
         view.viewLocator().register(StockExplorerViewModel.class, StockExplorerView::new);
+
+        this.workspace = new WorkspaceViewModel("Stock");
+        workspace.openTab(EXPLORER_KEY, this::stockExplorerTab);
     }
 
-    public SidebarItemViewModel sidebarItem() {
-        return new SidebarItemViewModel("Stock", this::showExplorer);
+    public WorkspaceViewModel workspace() {
+        return workspace;
     }
 
-    public void showExplorer() {
-        shell.show(this::stockExplorerViewModel);
-    }
+    private WorkspaceTabViewModel stockExplorerTab() {
+        var vm = new StockExplorerViewModel(productRepository::findAll);
 
-    private StockExplorerViewModel stockExplorerViewModel() {
-        return new StockExplorerViewModel(productRepository::findAll);
+        return WorkspaceTabViewModel.unclosable(
+            new ReadOnlyStringWrapper("Stock").getReadOnlyProperty(),
+            new TabContentViewModel(vm)
+        );
     }
 }

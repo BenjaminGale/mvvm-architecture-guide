@@ -6,7 +6,6 @@ import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.commands.CopyOrderCommand;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
-import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.ShellView;
 import mvvm.example.shell.ShellViewModel;
 import mvvm.example.shell.WorkspaceViewModel;
@@ -21,14 +20,12 @@ public class ShellModule {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ViewServices view;
-    private final ShellContext shell;
 
-    public ShellModule(CustomerRepository customerRepository, OrderRepository orderRepository, ProductRepository productRepository, ViewServices view, ShellContext shell) {
+    public ShellModule(CustomerRepository customerRepository, OrderRepository orderRepository, ProductRepository productRepository, ViewServices view) {
         this.customerRepository = customerRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.view = view;
-        this.shell = shell;
 
         view.viewLocator().register(ShellViewModel.class, vm -> new ShellView(vm, view.viewLocator()));
         view.viewLocator().register(StatusItemViewModel.class, StatusItemView::new);
@@ -44,11 +41,11 @@ public class ShellModule {
     }
 
     public CustomersModule createCustomersModule() {
-        return new CustomersModule(customerRepository, view, shell);
+        return new CustomersModule(customerRepository, view);
     }
 
     public StockModule createStockModule() {
-        return new StockModule(productRepository, view, shell);
+        return new StockModule(productRepository, view);
     }
 
     public Parent mainView(WorkspaceViewModel... workspaces) {

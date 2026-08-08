@@ -22,7 +22,9 @@ public class App extends Application {
         var shell = app.createShellModule(stage);
 
         var orders = shell.createOrdersModule();
+        var customers = shell.createCustomersModule();
+        var stock = shell.createStockModule();
 
-        return shell.mainView(orders.workspace());
+        return shell.mainView(orders.workspace(), customers.workspace(), stock.workspace());
     }
 }
