@@ -10,6 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Shell.WorkspaceTabViewModel")
 class WorkspaceTabViewModelTest {
 
+    private static TabContentViewModel content() {
+        return new TabContentViewModel(new Object());
+    }
+
     @Nested
     @DisplayName("when created")
     class WhenCreated {
@@ -18,7 +22,7 @@ class WorkspaceTabViewModelTest {
         @DisplayName("it exposes the given title")
         void exposesTitle() {
             var title = new ReadOnlyStringWrapper("Order 1");
-            var tab = WorkspaceTabViewModel.closable(title.getReadOnlyProperty(), new Object());
+            var tab = WorkspaceTabViewModel.closable(title.getReadOnlyProperty(), content());
 
             assertEquals("Order 1", tab.titleProperty().get());
         }
@@ -26,7 +30,7 @@ class WorkspaceTabViewModelTest {
         @Test
         @DisplayName("it exposes the given content")
         void exposesContent() {
-            var content = new Object();
+            var content = content();
             var tab = WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), content);
 
             assertEquals(content, tab.content());
@@ -36,7 +40,7 @@ class WorkspaceTabViewModelTest {
         @DisplayName("its title tracks the given observable")
         void titleTracksObservable() {
             var title = new ReadOnlyStringWrapper("New Order");
-            var tab = WorkspaceTabViewModel.closable(title.getReadOnlyProperty(), new Object());
+            var tab = WorkspaceTabViewModel.closable(title.getReadOnlyProperty(), content());
 
             title.set("Order 1234");
 
@@ -51,7 +55,7 @@ class WorkspaceTabViewModelTest {
         @Test
         @DisplayName("its close action cannot execute")
         void closeActionCannotExecute() {
-            var tab = WorkspaceTabViewModel.unclosable(new ReadOnlyStringWrapper("Orders").getReadOnlyProperty(), new Object());
+            var tab = WorkspaceTabViewModel.unclosable(new ReadOnlyStringWrapper("Orders").getReadOnlyProperty(), content());
 
             assertFalse(tab.closeAction().canExecute());
         }
@@ -64,7 +68,7 @@ class WorkspaceTabViewModelTest {
         @Test
         @DisplayName("its close action can execute")
         void closeActionCanExecute() {
-            var tab = WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), new Object());
+            var tab = WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), content());
 
             assertTrue(tab.closeAction().canExecute());
         }
@@ -73,7 +77,7 @@ class WorkspaceTabViewModelTest {
         @DisplayName("executing the close action notifies the subscribed listener")
         void notifiesListener() {
             var closed = new boolean[1];
-            var tab = WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), new Object());
+            var tab = WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), content());
             tab.onClose(() -> closed[0] = true);
 
             tab.closeAction().execute();
@@ -91,7 +95,7 @@ class WorkspaceTabViewModelTest {
         void doesNotNotifyListener() {
             var closed = new boolean[1];
             var tab = WorkspaceTabViewModel.closable(
-                new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), new Object(), () -> false);
+                new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), content(), () -> false);
             tab.onClose(() -> closed[0] = true);
 
             tab.closeAction().execute();

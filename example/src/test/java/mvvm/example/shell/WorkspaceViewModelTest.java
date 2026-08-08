@@ -13,11 +13,11 @@ import static org.mockito.Mockito.*;
 class WorkspaceViewModelTest {
 
     private static WorkspaceTabViewModel closableTab(String title) {
-        return WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new Object());
+        return WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new TabContentViewModel(new Object()));
     }
 
     private static WorkspaceTabViewModel unclosableTab(String title) {
-        return WorkspaceTabViewModel.unclosable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new Object());
+        return WorkspaceTabViewModel.unclosable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new TabContentViewModel(new Object()));
     }
 
     @Nested

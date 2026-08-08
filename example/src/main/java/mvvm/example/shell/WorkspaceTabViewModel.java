@@ -7,30 +7,30 @@ import java.util.function.BooleanSupplier;
 
 public class WorkspaceTabViewModel {
 
-    public static WorkspaceTabViewModel unclosable(ReadOnlyStringProperty title, Object content) {
+    public static WorkspaceTabViewModel unclosable(ReadOnlyStringProperty title, TabContentViewModel content) {
         return new WorkspaceTabViewModel(title, content, Action.disabled());
     }
 
-    public static WorkspaceTabViewModel closable(ReadOnlyStringProperty title, Object content) {
+    public static WorkspaceTabViewModel closable(ReadOnlyStringProperty title, TabContentViewModel content) {
         return closable(title, content, () -> true);
     }
 
-    public static WorkspaceTabViewModel closable(ReadOnlyStringProperty title, Object content, BooleanSupplier canClose) {
+    public static WorkspaceTabViewModel closable(ReadOnlyStringProperty title, TabContentViewModel content, BooleanSupplier canClose) {
         return new WorkspaceTabViewModel(title, content, canClose);
     }
 
     private final ReadOnlyStringProperty title;
-    private final Object content;
+    private final TabContentViewModel content;
     private Action.Listener onClose = () -> {};
     private final Action closeAction;
 
-    private WorkspaceTabViewModel(ReadOnlyStringProperty title, Object content, Action closeAction) {
+    private WorkspaceTabViewModel(ReadOnlyStringProperty title, TabContentViewModel content, Action closeAction) {
         this.title = title;
         this.content = content;
         this.closeAction = closeAction;
     }
 
-    private WorkspaceTabViewModel(ReadOnlyStringProperty title, Object content, BooleanSupplier canClose) {
+    private WorkspaceTabViewModel(ReadOnlyStringProperty title, TabContentViewModel content, BooleanSupplier canClose) {
         this.title = title;
         this.content = content;
         this.closeAction = new Action(() -> {
@@ -42,7 +42,7 @@ public class WorkspaceTabViewModel {
         return title;
     }
 
-    public Object content() {
+    public TabContentViewModel content() {
         return content;
     }
 
