@@ -6,18 +6,19 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import mvvm.example.core.viewmodel.Action;
+import mvvm.example.core.viewmodel.ObservableLists;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.function.Supplier;
 
 public class WorkspaceViewModel {
 
     private final ReadOnlyStringWrapper title = new ReadOnlyStringWrapper(this, "title");
-    private final ObservableList<WorkspaceTabViewModel> tabs = FXCollections.observableArrayList();
+    private final ObservableMap<Object, WorkspaceTabViewModel> tabsByKey = FXCollections.observableMap(new LinkedHashMap<>());
+    private final ObservableList<WorkspaceTabViewModel> tabs = ObservableLists.valuesOf(tabsByKey);
     private final ObjectProperty<WorkspaceTabViewModel> selectedTab = new SimpleObjectProperty<>(this, "selectedTab");
-    private final Map<Object, WorkspaceTabViewModel> tabsByKey = new HashMap<>();
     private Action.Listener onOpen = () -> {};
     private final Action openAction = new Action(() -> onOpen.actionExecuted());
 
@@ -54,19 +55,17 @@ public class WorkspaceViewModel {
 
         var tab = tabFactory.get();
         tabsByKey.put(key, tab);
-        tabs.add(tab);
         tab.onClose(() -> removeTab(key, tab));
         selectedTab.set(tab);
     }
 
     private void removeTab(Object key, WorkspaceTabViewModel tab) {
-        int index = tabs.indexOf(tab);
-        if (index < 0) {
+        if (!tabsByKey.containsKey(key)) {
             throw new IllegalStateException("Tab is not open in this workspace");
         }
 
+        int index = tabs.indexOf(tab);
         tabsByKey.remove(key);
-        tabs.remove(index);
 
         if (selectedTab.get() == tab) {
             selectedTab.set(tabs.isEmpty() ? null : tabs.get(Math.min(index, tabs.size() - 1)));
