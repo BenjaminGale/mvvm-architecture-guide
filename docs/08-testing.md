@@ -70,7 +70,7 @@ void validity_updatesWhenFieldChanges() {
 
 #### 8.1.4 Composed validity (canSave)
 
-The parent ViewModel's `canSave` property is derived from its sub-ViewModels. No-op use cases are injected — they are not under test here:
+The parent ViewModel's `canSave` property is derived from its sub-ViewModels. No-op use cases are injected; they are not under test here:
 
 ```java
 SaveOrderUseCase noOpSave = () -> CompletableFuture.completedFuture(() -> {});
@@ -154,7 +154,7 @@ public class StubOrderService implements OrderService {
 }
 ```
 
-This guide favours stubs over mocks: test setup describes what the service _does_ rather than which methods must be called, and stubs tend to be more resilient to refactoring — a mock asserting `orderService.save()` was called breaks if the method is renamed, whereas a stub recording the saved entity does not.
+This guide favours stubs over mocks: test setup describes what the service _does_ rather than which methods must be called, and stubs tend to be more resilient to refactoring. A mock asserting `orderService.save()` was called breaks if the method is renamed, whereas a stub recording the saved entity does not.
 
 ### 8.4 Testing Action and ViewLocator directly
 

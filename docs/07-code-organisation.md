@@ -23,8 +23,8 @@ com.example/
 ```
 
 - **Feature packages** (`orders`, `customers`, `stock`) contain everything needed to implement that feature, organised into sub-packages.
-- **`shell`** — The application shell: the main window, sidebar, and status bar. Treated as a feature like any other.
-- **`core`** — Reusable infrastructure types shared across all features, organised by layer.
+- **`shell`**: The application shell: the main window, sidebar, and status bar. Treated as a feature like any other.
+- **`core`**: Reusable infrastructure types shared across all features, organised by layer.
 
 `App.java` sits at the root as the single composition root.
 
@@ -116,7 +116,7 @@ customers/
     └── CustomerEditorView.java
 ```
 
-The shell has no natural per-screen split — unlike a feature area, it doesn't decompose into independently navigable screens. It decomposes into cohesive *concerns* instead: navigating between workspaces, rendering the tabs within one, rendering the toolbar for whichever is active, reporting status. Each concern gets its own sub-package; only genuine top-level orchestration (`ShellView`, `ShellViewModel` — the two types that assemble the concerns together) stays flat at the root:
+The shell has no natural per-screen split. Unlike a feature area, it doesn't decompose into independently navigable screens. It decomposes into cohesive *concerns* instead: navigating between workspaces, rendering the tabs within one, rendering the toolbar for whichever is active, reporting status. Each concern gets its own sub-package; only genuine top-level orchestration (`ShellView`, `ShellViewModel`, the two types that assemble the concerns together) stays flat at the root:
 
 ```
 shell/
@@ -169,4 +169,4 @@ core/
     └── ExplorerViewModel.java
 ```
 
-Module classes (`OrdersModule`, `CustomersModule`, etc.) live in `core/config/` rather than in each feature package. This keeps all composition in one place and prevents feature packages from depending on concrete infrastructure. In-memory repository implementations follow into `core/config/adapters/` for the same reason — they are infrastructure concerns, not feature concerns.
+Module classes (`OrdersModule`, `CustomersModule`, etc.) live in `core/config/` rather than in each feature package. This keeps all composition in one place and prevents feature packages from depending on concrete infrastructure. In-memory repository implementations follow into `core/config/adapters/` for the same reason: they are infrastructure concerns, not feature concerns.

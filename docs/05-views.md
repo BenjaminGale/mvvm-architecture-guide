@@ -1,6 +1,6 @@
 ## 5. Views
 
-This section covers the view layer, describing how views are constructed and connected to their ViewModels. It introduces the `ViewLocator` and `DialogManager` infrastructure that support ViewModel resolution and dialog presentation, shows techniques for encapsulating shared view code, and explains how presentation decisions — including navigation and formatting — are made without coupling ViewModels to specific UI concepts.
+This section covers the view layer, describing how views are constructed and connected to their ViewModels. It introduces the `ViewLocator` and `DialogManager` infrastructure that support ViewModel resolution and dialog presentation, shows techniques for encapsulating shared view code, and explains how presentation decisions (including navigation and formatting) are made without coupling ViewModels to specific UI concepts.
 
 ## Contents
 
@@ -22,9 +22,9 @@ A view is what the user sees and interacts with. Views display data provided by 
 
 This architecture distinguishes between two kinds of view class.
 
-**View** — A class bound to a single ViewModel. It binds its controls to the ViewModel's observable properties and delegates user interactions back to it. All views follow the construction conventions in section 5.2.
+**View**: A class bound to a single ViewModel. It binds its controls to the ViewModel's observable properties and delegates user interactions back to it. All views follow the construction conventions in section 5.2.
 
-**Component** — A reusable chunk of UI that contains no application logic and is never registered with the `ViewLocator`. Components typically accept individual observable properties or plain values rather than a ViewModel, though a parent may pass a ViewModel directly if the component is tightly scoped to it. A status badge, a loading indicator, or a formatted label are typical examples.
+**Component**: A reusable chunk of UI that contains no application logic and is never registered with the `ViewLocator`. Components typically accept individual observable properties or plain values rather than a ViewModel, though a parent may pass a ViewModel directly if the component is tightly scoped to it. A status badge, a loading indicator, or a formatted label are typical examples.
 
 ```java
 // Accepts individual observable properties
@@ -44,7 +44,7 @@ public class SectionHeader extends Label {
 }
 ```
 
-Components should expose the least derived return type — typically `Region` or `Node` — so callers receive only enough handle to place the component in the layout. A static factory method is a natural fit for this:
+Components should expose the least derived return type, typically `Region` or `Node`, so callers receive only enough handle to place the component in the layout. A static factory method is a natural fit for this:
 
 ```java
 public class StatusBadge extends HBox {
@@ -85,7 +85,7 @@ public class StatusItemView extends Label {
 }
 ```
 
-`StatusItemViewModel` would need no changes if the phrasing changed tomorrow, or if a second view wanted to render the same count differently — the ViewModel exposes data, not text.
+`StatusItemViewModel` would need no changes if the phrasing changed tomorrow, or if a second view wanted to render the same count differently: the ViewModel exposes data, not text.
 
 #### 5.1.1 Construction patterns for Views
 
@@ -111,7 +111,7 @@ If the ViewModel has no external dependencies and the view always renders inside
 
 View classes follow these conventions:
 
-- The constructor accepts a single typed ViewModel and fully initialises the view — building the component tree and binding controls to ViewModel properties.
+- The constructor accepts a single typed ViewModel and fully initialises the view: building the component tree and binding controls to ViewModel properties.
 - The constructor may accept other view-layer dependencies such as the `ViewLocator`.
 - Controls are bound to ViewModel properties in the constructor, delegating user interactions back to the ViewModel.
 
@@ -165,7 +165,7 @@ public abstract class ExplorerView<T> extends BorderPane {
 }
 ```
 
-Each concrete screen supplies only what's genuinely specific to it — its columns:
+Each concrete screen supplies only what's genuinely specific to it, its columns:
 
 ```java
 public class OrdersExplorerView extends ExplorerView<OrderSummary> {
@@ -186,7 +186,7 @@ public class OrdersExplorerView extends ExplorerView<OrderSummary> {
 }
 ```
 
-This is the same test as any shared base class: `ExplorerView` carries no ViewModel-specific logic and no application/domain decisions — only layout and wiring that would otherwise be duplicated verbatim. The moment a base class needs to know something about a particular screen's domain, that's a sign the abstraction is wrong and the shared part should shrink or move to composition instead.
+This is the same test as any shared base class: `ExplorerView` carries no ViewModel-specific logic and no application/domain decisions, only layout and wiring that would otherwise be duplicated verbatim. The moment a base class needs to know something about a particular screen's domain, that's a sign the abstraction is wrong and the shared part should shrink or move to composition instead.
 
 ### 5.3 The ViewLocator
 
@@ -215,7 +215,7 @@ viewLocator.register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, v
 
 ### 5.4 Navigation
 
-Navigation is often glossed over in MVVM discussions, which tend to focus on binding and validation. In practice it's one of the trickier parts to get right, and there is no single correct technique for it. What matters is narrower than it looks: **ViewModels declare navigation intent through host interfaces and remain completely unaware of how that intent gets fulfilled.** How it's fulfilled is a view-layer decision, and several approaches satisfy that requirement equally well — the right one depends on how much coordination the app actually needs, not on this architecture.
+Navigation is often glossed over in MVVM discussions, which tend to focus on binding and validation. In practice it's one of the trickier parts to get right, and there is no single correct technique for it. What matters is narrower than it looks: **ViewModels declare navigation intent through host interfaces and remain completely unaware of how that intent gets fulfilled.** How it's fulfilled is a view-layer decision, and several approaches satisfy that requirement equally well. The right one depends on how much coordination the app actually needs, not on this architecture.
 
 #### 5.4.1 Host interfaces
 
@@ -266,17 +266,17 @@ public class WorkspaceContext {
 
 The shell view listens to `currentWorkspaceProperty()` and resolves the view via the `ViewLocator`. This is a Context, not a ViewModel, precisely because it does nothing but hold and publish state (section 4.4.3).
 
-**Direct callbacks** suit narrow, tightly-scoped relationships — a dialog's host is often nothing more than a lambda supplied by the module at construction time, which is how this app wires every dialog (see 5.4.3).
+**Direct callbacks** suit narrow, tightly-scoped relationships. A dialog's host is often nothing more than a lambda supplied by the module at construction time, which is how this app wires every dialog (see 5.4.3).
 
-**A coordinator ViewModel** is the honest answer once navigation needs real behaviour — sequencing, several pieces of state that must stay in sync, rules about what's allowed to happen when. At that point it has crossed the line drawn in section 4.4.3: that's coordination behaviour, not "little or no behaviour," so it should be a ViewModel — named, constructed, and tested as one — rather than a Context wearing a Context's name. This is exactly what happened to the example application's own navigation as its requirements grew: supporting several simultaneously open workspaces, each with its own set of open tabs, is real coordination logic, and it now lives in ViewModels of its own (see `mvvm.example.shell`) rather than a single shared Context. The mechanics aren't reproduced here — what matters for this guide is that the ViewModel-side contract didn't change at all when the fulfilling side grew more elaborate. Host interfaces still declare intent; the domain ViewModels that use them are unaffected by how the other side is implemented.
+**A coordinator ViewModel** is the honest answer once navigation needs real behaviour: sequencing, several pieces of state that must stay in sync, rules about what's allowed to happen when. At that point it has crossed the line drawn in section 4.4.3. That's coordination behaviour, not "little or no behaviour," so it should be a ViewModel, named, constructed, and tested as one, rather than a Context wearing a Context's name. This is exactly what happened to the example application's own navigation as its requirements grew: supporting several simultaneously open workspaces, each with its own set of open tabs, is real coordination logic, and it now lives in ViewModels of its own (see `mvvm.example.shell`) rather than a single shared Context. The mechanics aren't reproduced here. What matters for this guide is that the ViewModel-side contract didn't change at all when the fulfilling side grew more elaborate. Host interfaces still declare intent; the domain ViewModels that use them are unaffected by how the other side is implemented.
 
-**An event bus** decouples further still — publishers and subscribers never reference each other at all — at the cost of losing the ability to read the navigation wiring top-to-bottom from the composition root. Worth it for large or plugin-style systems; usually not for an app the size of this example.
+**An event bus** decouples further still: publishers and subscribers never reference each other at all, at the cost of losing the ability to read the navigation wiring top-to-bottom from the composition root. Worth it for large or plugin-style systems; usually not for an app the size of this example.
 
-None of these is "the" answer this architecture prescribes. Pick based on how much coordination the app has today, and let it grow into a coordinator ViewModel if and when that coordination behaviour actually arrives — not before.
+None of these is "the" answer this architecture prescribes. Pick based on how much coordination the app has today, and let it grow into a coordinator ViewModel if and when that coordination behaviour actually arrives, not before.
 
 #### 5.4.3 DialogManager
 
-`DialogManager` handles modal dialog presentation. It wraps its own `ViewLocator<Dialog<Runnable>>` and manages dialog lifecycle — owner, modality, and showing.
+`DialogManager` handles modal dialog presentation. It wraps its own `ViewLocator<Dialog<Runnable>>` and manages dialog lifecycle: owner, modality, and showing.
 
 ```java
 public class DialogManager {
@@ -291,7 +291,7 @@ Dialogs are registered in the module alongside workspace views (see 5.4.4 for `V
 view.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
 ```
 
-Navigating to a dialog follows the same host interface pattern — a direct callback, in this case, is all the fulfilling side needs. The host method name expresses domain intent; the module decides that it maps to a dialog:
+Navigating to a dialog follows the same host interface pattern. A direct callback, in this case, is all the fulfilling side needs. The host method name expresses domain intent; the module decides that it maps to a dialog:
 
 ```java
 public interface OrderEditorHost {
@@ -307,7 +307,7 @@ public interface OrderEditorHost {
 
 #### 5.4.4 ViewServices
 
-`ViewServices` is a record that groups the shared view-layer infrastructure available to all modules — the workspace `ViewLocator` and the `DialogManager` — so modules do not receive them as separate constructor arguments.
+`ViewServices` is a record that groups the shared view-layer infrastructure available to all modules (the workspace `ViewLocator` and the `DialogManager`), so modules do not receive them as separate constructor arguments.
 
 ```java
 public record ViewServices(
@@ -318,23 +318,23 @@ public record ViewServices(
 
 ### 5.5 Presentation decisions belong to the View
 
-Neither the originating ViewModel nor the host interface specifies how a ViewModel should be presented. The host method names express domain intent — `showOrderDetails`, `showItemEditor` — not presentation mechanism. The module decides what that intent maps to: workspace navigation or a modal dialog.
+Neither the originating ViewModel nor the host interface specifies how a ViewModel should be presented. The host method names express domain intent (`showOrderDetails`, `showItemEditor`), not presentation mechanism. The module decides what that intent maps to: workspace navigation or a modal dialog.
 
-> It might seem natural to name host methods with explicit presentation intent — `openInDialog`, `showInPanel`. This is a mistake. The moment a host interface carries presentation concepts, the ViewModel layer is coupled to specific UI contexts. A ViewModel that calls `host.openAsDialog` is making a presentation decision, which is not its responsibility. Host methods should name what happens in the domain; the module chooses how.
+> It might seem natural to name host methods with explicit presentation intent, like `openInDialog` or `showInPanel`. This is a mistake. The moment a host interface carries presentation concepts, the ViewModel layer is coupled to specific UI contexts. A ViewModel that calls `host.openAsDialog` is making a presentation decision, which is not its responsibility. Host methods should name what happens in the domain; the module chooses how.
 
 Whichever mechanism fulfils navigation intent (5.4.2) and `DialogManager` each own their presentation logic. ViewModels and host interfaces remain ignorant of both.
 
-Introducing a new presentation style — a slide-in panel, a notification tray, a second workspace region — requires writing a new view component that observes the appropriate state and handles the relevant ViewModel types. No existing code is modified; ViewModels are unchanged.
+Introducing a new presentation style, a slide-in panel, a notification tray, a second workspace region, requires writing a new view component that observes the appropriate state and handles the relevant ViewModel types. No existing code is modified; ViewModels are unchanged.
 
 ### 5.6 Adding a new screen
 
 The architecture is designed so that adding a new screen is a mechanical, low-risk operation that touches only new files and the module. If any step requires modifying existing classes other than the module, something has drifted from the invariants.
 
-- **Write the ViewModel** — it takes the services and host interface it directly uses.
-- **Write the host interface** — declare one method per navigation action the ViewModel can trigger, named for domain intent.
-- **Write the View** — extend the appropriate UI component, accept the ViewModel as the sole constructor argument, and bind controls to ViewModel properties in the constructor.
-- **Register the view** — call `view.viewLocator().register(MyViewModel.class, MyView::new)` in the module constructor.
-- **Implement the host** — in the module factory method, supply a host implementation that fulfils each method using whichever mechanism the app uses for that kind of navigation (5.4.2), or `view.dialogManager().show(...)` for a dialog.
-- **Wire navigation in** — in whichever host triggers navigation to the new screen, call through to that mechanism with `myNewScreenViewModel(...)`.
+- **Write the ViewModel**: it takes the services and host interface it directly uses.
+- **Write the host interface**: declare one method per navigation action the ViewModel can trigger, named for domain intent.
+- **Write the View**: extend the appropriate UI component, accept the ViewModel as the sole constructor argument, and bind controls to ViewModel properties in the constructor.
+- **Register the view**: call `view.viewLocator().register(MyViewModel.class, MyView::new)` in the module constructor.
+- **Implement the host**: in the module factory method, supply a host implementation that fulfils each method using whichever mechanism the app uses for that kind of navigation (5.4.2), or `view.dialogManager().show(...)` for a dialog.
+- **Wire navigation in**: in whichever host triggers navigation to the new screen, call through to that mechanism with `myNewScreenViewModel(...)`.
 
 Nothing else changes. The `ViewLocator` stays mechanical. ViewModels remain ignorant of how they are presented. Each piece retains its single responsibility, and the architecture remains flat and uniform regardless of how many screens are added.

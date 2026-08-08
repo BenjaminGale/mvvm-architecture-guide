@@ -17,12 +17,12 @@ The Model and Service layers sit below the ViewModel layer. They are completely 
 
 ## 3.1 Model objects
 
-Models represent the application’s core domain concepts — such as Order, Customer, or LineItem. They encapsulate state and, where appropriate, domain behaviour. They are never aware of the UI and do not expose observable properties or framework-specific constructs.
+Models represent the application's core domain concepts: Order, Customer, LineItem, and so on. They encapsulate state and, where appropriate, domain behaviour. They are never aware of the UI and don't expose observable properties or framework-specific constructs.
 
 Models are used across layers:
 - Repositories persist and retrieve them
 - Services operate on them
-- ViewModel expose them to the presentation layer
+- ViewModels expose them to the presentation layer
 
 ### 3.1.1 Data carriers
 
@@ -88,9 +88,7 @@ A model must never expose observable state or UI-driven behaviour. The ViewModel
 
 ## 3.2 Repositories
 
-Repositories define the persistence boundary of the application. They abstract all data access concerns such as database queries, remote APIs, and file storage. They operate exclusively on models and contain no business logic.
-
-Repositories are purely infrastructural and define how data is stored and retrieved, not how it is used.
+Repositories define the persistence boundary of the application. They abstract all data access concerns, such as database queries, remote APIs, and file storage. They operate exclusively on models, contain no business logic, and define how data is stored and retrieved, not how it is used.
 
 ```java
 public interface OrderRepository {
@@ -105,9 +103,7 @@ public interface OrderRepository {
 }
 ```
 
-Repository implementations may vary, but the interface remains stable and is not exposed to the ViewModel layer.
-
-Repositories are consumed exclusively by Services.
+Repository implementations may vary, but the interface stays stable and is not exposed to the ViewModel layer. Repositories are consumed exclusively by Services.
 
 ---
 
@@ -119,13 +115,13 @@ Each domain operation class does one thing and is named after that operation. Th
 
 Domain operations are split into two kinds:
 
-**Commands** perform a state-changing operation — creating, updating, deleting, or transforming domain objects. They are named with a verb-noun pattern suffixed with `Command`.
+**Commands** perform a state-changing operation: creating, updating, deleting, or transforming domain objects. They are named with a verb-noun pattern suffixed with `Command`.
 
 **Queries** derive or compute a result from domain state without modifying it. They are named with a verb-noun pattern suffixed with `Query`.
 
 ### 3.3.1 Rules for domain operations
 
-- each class does one thing — either a single command or a single query
+- each class does one thing: either a single command or a single query
 - commands are suffixed with `Command`; queries are suffixed with `Query`
 - depend only on repository interfaces and domain models
 - contain no presentation logic and have no knowledge of ViewModels

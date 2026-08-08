@@ -1,6 +1,6 @@
 # 2. Example Application
 
-This repository contains a sample order management application that demonstrates the patterns described in the guide. It spans three feature areas — orders, customers, and stock — touching every architectural layer described in this guide.
+This repository contains a sample order management application that demonstrates the patterns described in the guide. It spans three feature areas (orders, customers, and stock), touching every architectural layer described in this guide.
 
 > Items marked **[planned]** are not yet implemented but are included here to describe the intended scope of the example application.
 
@@ -31,20 +31,20 @@ The application window is built from chrome shared across every feature: a **sid
 └────────────────────────────────────────────────────────┘
 ```
 
-**Sidebar** — A fixed navigation panel on the left with one entry per workspace: Orders, Customers, Stock. Selecting an entry switches the active workspace; exactly one is selected at a time.
+**Sidebar**: A fixed navigation panel on the left with one entry per workspace: Orders, Customers, Stock. Selecting an entry switches the active workspace; exactly one is selected at a time.
 
-**Workspaces** — A workspace is one of the app's top-level domain areas. Each owns its own tabs independently of the others, so switching away and back leaves everything exactly as it was. A workspace opens with its explorer tab already showing; further tabs are opened by drilling into individual records.
+**Workspaces**: A workspace is one of the app's top-level domain areas. Each owns its own tabs independently of the others, so switching away and back leaves everything exactly as it was. A workspace opens with its explorer tab already showing; further tabs are opened by drilling into individual records.
 
-**Tabs** — Each workspace has its own tabbed content area.
-- *Explorer tabs* are unclosable and open automatically as soon as the workspace exists — one per workspace.
+**Tabs**: Each workspace has its own tabbed content area.
+- *Explorer tabs* are unclosable and open automatically as soon as the workspace exists, one per workspace.
 - *Editor tabs* are closable and open on demand, when a record is created or selected from its explorer.
 - Opening a record that's already open re-selects its existing tab instead of opening a duplicate.
 
-**Toolbar** — A single toolbar above the tab content, rebuilt for whichever tab is currently selected. It combines actions scoped to the whole workspace (e.g. "Add" on an explorer) with actions scoped to the selected tab (e.g. "Save", "Copy", "Delete" on an order editor), so what appears depends on both which workspace and which tab is active.
+**Toolbar**: A single toolbar above the tab content, rebuilt for whichever tab is currently selected. It combines actions scoped to the whole workspace (e.g. "Add" on an explorer) with actions scoped to the selected tab (e.g. "Save", "Copy", "Delete" on an order editor), so what appears depends on both which workspace and which tab is active.
 
-**Status bar** — A row along the bottom of the window showing information contextual to the selected tab — for example, total and overdue order counts on the Orders Explorer. It updates as the selected tab changes, and is empty for tabs that don't publish anything.
+**Status bar**: A row along the bottom of the window showing information contextual to the selected tab, for example total and overdue order counts on the Orders Explorer. It updates as the selected tab changes, and is empty for tabs that don't publish anything.
 
-**Explorers and editors** — Every workspace follows the same pattern:
+**Explorers and editors**: Every workspace follows the same pattern:
 - An **explorer** is the entry point: a table listing all records of that type, opened as the workspace's initial, unclosable tab.
 - An **editor** opens when a record is created or selected. Orders open their editor as a closable tab within the workspace; Customers and Stock open theirs as a dialog.
 
@@ -108,7 +108,7 @@ A stock batch records a quantity of a product booked into inventory at a point i
 | `quantityReceived` | int | Units originally booked into this batch |
 | `unitCost` | BigDecimal | Cost paid per unit, snapshotted at receipt so later changes to the product's selling price don't affect it |
 
-`quantityRemaining` is derived, not stored: `quantityReceived` minus the sum of allocated quantities against this batch belonging to `SHIPPED` orders — only shipping physically depletes a batch. `quantityAvailable` is derived further: `quantityRemaining` minus the sum of allocated quantities belonging to `IN_PROGRESS` orders — stock held for a pending order is on hand but not free to allocate elsewhere. `value` is derived as `quantityRemaining × unitCost`.
+`quantityRemaining` is derived, not stored: `quantityReceived` minus the sum of allocated quantities against this batch belonging to `SHIPPED` orders (only shipping physically depletes a batch). `quantityAvailable` is derived further: `quantityRemaining` minus the sum of allocated quantities belonging to `IN_PROGRESS` orders, since stock held for a pending order is on hand but not free to allocate elsewhere. `value` is derived as `quantityRemaining × unitCost`.
 
 **Domain operations on StockBatch**
 
@@ -129,7 +129,7 @@ An order represents a purchase placed by a customer, consisting of one or more l
 | `reference` | String | A short human-readable identifier |
 | `createdDate` | LocalDate | The date the order was created; set automatically and read-only |
 | `plannedShipDate` | LocalDate | The date the order is expected to ship; set by the user |
-| `completionDate` | LocalDate | The date the order was shipped or cancelled; absent while the order is open. The field exists but nothing currently sets it — `ShipOrder`/`CancelOrder` are not yet implemented **[planned]** |
+| `completionDate` | LocalDate | The date the order was shipped or cancelled; absent while the order is open. The field exists but nothing currently sets it: `ShipOrder`/`CancelOrder` are not yet implemented **[planned]** |
 | `status` | `OrderStatus` | The current lifecycle state of the order |
 | `lineItems` | `List<LineItem>` | The items on the order |
 
@@ -146,8 +146,8 @@ IN_PROGRESS → SHIPPED
 | Value | Description |
 |---|---|
 | `IN_PROGRESS` | Order is open; not yet shipped or cancelled |
-| `SHIPPED` | Order has been dispatched **[planned]** — no command currently transitions an order to this state |
-| `CANCELLED` | Order was cancelled **[planned]** — no command currently transitions an order to this state |
+| `SHIPPED` | Order has been dispatched **[planned]**; no command currently transitions an order to this state |
+| `CANCELLED` | Order was cancelled **[planned]**; no command currently transitions an order to this state |
 
 An order is considered **overdue** when its `plannedShipDate` is in the past and its status is `IN_PROGRESS`.
 
@@ -158,7 +158,7 @@ An order is considered **overdue** when its `plannedShipDate` is in the past and
 | `CopyOrder` | Command | Order must exist | Creates a new `IN_PROGRESS` order copied from an existing one, with a new ID, today's `createdDate`, no `plannedShipDate`, and a `COPY-` prefix on the reference |
 | `AllocateStock` **[planned]** | Command | Order is `IN_PROGRESS`; line item is not fully allocated; product has sufficient available stock across its batches | Creates one or more `Allocation` records against the line item, drawing from the product's `StockBatch`es until the requested quantity is satisfied. Which batch(es) are drawn from is an allocation strategy decision that isn't settled yet (e.g. FIFO), and may end up user-configurable. |
 | `ReturnStock` **[planned]** | Command | Order is `IN_PROGRESS`; line item has allocated stock | Removes or reduces the line item's `Allocation` record(s), returning quantity to the originating batch(es) |
-| `ShipOrder` **[planned]** | Command | Order is `IN_PROGRESS`<br>Has at least one line item<br>Every line item is fully allocated (sum of its allocation quantities equals `quantity`) | Transitions the order to `SHIPPED`; sets `completionDate` to today. No change to `Allocation` records is needed — each batch's `quantityRemaining` is derived from allocations belonging to `SHIPPED` orders, so it depletes automatically once the order's status changes. |
+| `ShipOrder` **[planned]** | Command | Order is `IN_PROGRESS`<br>Has at least one line item<br>Every line item is fully allocated (sum of its allocation quantities equals `quantity`) | Transitions the order to `SHIPPED`; sets `completionDate` to today. No change to `Allocation` records is needed: each batch's `quantityRemaining` is derived from allocations belonging to `SHIPPED` orders, so it depletes automatically once the order's status changes. |
 | `CancelOrder` **[planned]** | Command | Order is `IN_PROGRESS` | Deletes all of the order's `Allocation` records, returning quantity to the originating batches; transitions the order to `CANCELLED`; sets `completionDate` to today |
 
 ---
@@ -174,11 +174,11 @@ A line item records a product added to an order. The product name and unit price
 | `quantity` | int | How many units ordered |
 | `unitPrice` | BigDecimal | Price per unit at the time of order entry |
 
-Its **total** is `quantity × unitPrice`. `quantityAllocated` **[planned]**, `costOfGoodsSold` **[planned]**, and `margin` **[planned]** are all derived, not stored. `quantityAllocated` is the sum of the line item's Allocation quantities, and the line item is **fully allocated** when `quantityAllocated == quantity`. `costOfGoodsSold` is the sum of `allocation.quantity × batch.unitCost` across those same allocations — the actual cost of the specific batches consumed, not an average. `margin` is `total − costOfGoodsSold`.
+Its **total** is `quantity × unitPrice`. `quantityAllocated` **[planned]**, `costOfGoodsSold` **[planned]**, and `margin` **[planned]** are all derived, not stored. `quantityAllocated` is the sum of the line item's Allocation quantities, and the line item is **fully allocated** when `quantityAllocated == quantity`. `costOfGoodsSold` is the sum of `allocation.quantity × batch.unitCost` across those same allocations: the actual cost of the specific batches consumed, not an average. `margin` is `total − costOfGoodsSold`.
 
 **Allocation** **[planned]**
 
-An allocation records that some quantity of a line item's ordered units has been drawn from a specific stock batch. A line item can have several allocations — including more than one against the same batch, or against different batches of the same product — if that's what it takes to satisfy its quantity.
+An allocation records that some quantity of a line item's ordered units has been drawn from a specific stock batch. A line item can have several allocations, including more than one against the same batch, or against different batches of the same product, if that's what it takes to satisfy its quantity.
 
 | Property | Type | Description |
 |---|---|---|
@@ -192,7 +192,7 @@ An allocation records that some quantity of a line item's ordered units has been
 
 ### Shell
 
-The chrome shared across every workspace — see [Application Shell](#application-shell) above for how the pieces fit together.
+The chrome shared across every workspace. See [Application Shell](#application-shell) above for how the pieces fit together.
 
 - Navigate between workspaces (Orders, Customers, Stock) via the sidebar
 - Switch tabs within the active workspace; open tabs persist when switching away to another workspace and back
@@ -200,7 +200,7 @@ The chrome shared across every workspace — see [Application Shell](#applicatio
 - Reuse an already-open editor tab instead of opening a duplicate when the same record is selected again
 - Run the toolbar action for the selected tab
 - View the status bar content for the selected tab
-- Confirm before closing a tab with unsaved changes **[planned]** — `TabViewModel.closable` already accepts a `canClose` veto hook, but no editor supplies one yet, so closing a tab with unsaved changes still discards them silently
+- Confirm before closing a tab with unsaved changes **[planned]**: `TabViewModel.closable` already accepts a `canClose` veto hook, but no editor supplies one yet, so closing a tab with unsaved changes still discards them silently
 - Open a tab in one workspace from another (e.g. an order editor opening a customer detail tab) **[planned]**
 - Visual indication of how many editable tabs are open in a workspace **[planned]**
 - Visual indication that a workspace has unsaved edits **[planned]**
@@ -250,8 +250,8 @@ The order editor opens when a user selects an existing order or creates a new on
 | Save | Order is valid | Persists the current state of the order |
 | Ship **[planned]** | See `ShipOrder` guard under [Order](#order) | Marks the order as shipped; stock is finalised |
 | Cancel **[planned]** | See `CancelOrder` guard under [Order](#order) | Cancels the order |
-| Copy | — | Creates a new `IN_PROGRESS` order copied from this one |
-| Delete | — | Permanently removes the order |
+| Copy | None | Creates a new `IN_PROGRESS` order copied from this one |
+| Delete | None | Permanently removes the order |
 
 ---
 
@@ -290,7 +290,7 @@ The stock explorer lists all products and their current inventory levels. It is 
 
 - Display all products in a table, sorted by name
 - Columns: Product name, Unit price, In stock
-- Allocated, Available, Inventory value columns **[planned]** — depend on the batch/allocation model described under [Product](#product) and [StockBatch](#stockbatch-planned)
+- Allocated, Available, Inventory value columns **[planned]**: depend on the batch/allocation model described under [Product](#product) and [StockBatch](#stockbatch-planned)
 - Open a product in the editor by selecting it **[planned]**
 - Add a new product **[planned]**
 

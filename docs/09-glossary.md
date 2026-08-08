@@ -28,7 +28,7 @@ Quick-reference tables covering the layers, types, and roles introduced througho
 | **ViewModel** | ViewModel | Observable state and behaviour for one screen or area. Holds use cases and navigation callbacks. No UI framework types, no knowledge of Views. |
 | **View** | Component | Reusable chunk of UI that contains no application logic and is never registered with the ViewLocator. Typically accepts individual observable properties or plain values, though a parent may pass a ViewModel directly if the component is tightly scoped to it. |
 | **View** | View      | UI class bound to exactly one ViewModel. Constructs the component tree and binds controls to ViewModel properties in the constructor. |
-| **View infrastructure** | DialogManager | Handles modal dialog presentation. Wraps its own ViewLocator and manages dialog lifecycle — owner, modality, and showing. |
+| **View infrastructure** | DialogManager | Handles modal dialog presentation. Wraps its own ViewLocator and manages dialog lifecycle: owner, modality, and showing. |
 | **View infrastructure** | ViewLocator | Type-keyed registry mapping ViewModel classes to view factory functions. Resolves the correct View given a ViewModel instance. |
 | **infrastructure** | Composition root (`App`) | The single place where all dependencies are constructed and wired across layer boundaries. Every screen and navigation transition is defined here. |
 | **infrastructure** | Module    | Groups factory methods, services, and ViewLocator registrations for one feature area. Owns its own infrastructure and exposes nothing the rest of the application does not need. |

@@ -8,12 +8,12 @@ A ViewModel does not construct views, own navigation infrastructure, or decide h
 
 This chapter introduces several supporting patterns for use with ViewModels:
 
-* **ViewModels** — screen or section coordination objects.
-* **Hosts** — application-facing interfaces used to request interactions.
-* **Requests** — short-lived interaction contracts.
-* **Contexts** — shared observable state objects.
-* **Actions** — executable interaction objects with observable execution state.
-* **ViewModel service interfaces** — adapter contracts defining the operations a ViewModel needs from the domain and data layers.
+* **ViewModels**: screen or section coordination objects.
+* **Hosts**: application-facing interfaces used to request interactions.
+* **Requests**: short-lived interaction contracts.
+* **Contexts**: shared observable state objects.
+* **Actions**: executable interaction objects with observable execution state.
+* **ViewModel service interfaces**: adapter contracts defining the operations a ViewModel needs from the domain and data layers.
 
 Together these form the reactive coordination boundary between the view layer and the rest of the application.
 
@@ -62,19 +62,9 @@ Together these form the reactive coordination boundary between the view layer an
 
 A ViewModel is an observable coordination object that adapts application behaviour into UI-bindable state.
 
-Its responsibilities are deliberately narrow:
+Its responsibilities are narrow: expose observable state for the view, coordinate interactions between the view and application services, derive presentation-oriented state, and maintain UI-specific state such as selection, validation, and loading.
 
-* expose observable state for the view,
-* coordinate interactions between the view and application services,
-* derive presentation-oriented state,
-* and maintain UI-specific state such as selection, validation and loading state.
-
-A ViewModel is not responsible for:
-
-* constructing views,
-* rendering UI,
-* owning application infrastructure,
-* or deciding how presentation is hosted.
+A ViewModel is not responsible for constructing views, rendering UI, owning application infrastructure, or deciding how presentation is hosted.
 
 The view binds to the ViewModel reactively. User interactions are forwarded through method calls or Actions, and observable state changes automatically propagate back to the view.
 
@@ -109,24 +99,11 @@ public class OrdersExplorerViewModel {
 }
 ```
 
-The ViewModel adapts application data into a form suitable for presentation:
-
-* exposing observable collections,
-* deriving summary state,
-* and maintaining presentation-facing state.
-
-These concerns belong in the ViewModel rather than the view itself.
+The ViewModel adapts application data into a form suitable for presentation: exposing observable collections, deriving summary state, and maintaining presentation-facing state. These concerns belong in the ViewModel rather than the view itself.
 
 ## 4.1.2 Coordinating application interactions
 
-A ViewModel frequently needs to interact with the surrounding application:
-
-* opening another screen,
-* showing a dialog,
-* requesting a file,
-* or activating a workspace.
-
-These interactions are expressed through injected host interfaces.
+A ViewModel frequently needs to interact with the surrounding application: opening another screen, showing a dialog, requesting a file, or activating a workspace. These interactions are expressed through injected host interfaces.
 
 ```java
 public interface OrdersExplorerHost {
@@ -170,12 +147,7 @@ The ViewModel communicates what should happen rather than how the application pe
 
 A ViewModel coordinates presentation state but does not own presentation itself.
 
-In particular, a ViewModel should not:
-
-* construct views,
-* construct hosted ViewModels,
-* depend on routers or dialog systems,
-* or decide where presentation appears.
+In particular, a ViewModel should not construct views, construct hosted ViewModels, depend on routers or dialog systems, or decide where presentation appears.
 
 Hosted ViewModels often require application-level dependencies and presentation decisions that belong to the hosting application rather than to another ViewModel.
 
@@ -185,43 +157,23 @@ Instead, the ViewModel communicates intent through its host:
 host.showOrderDetails(order);
 ```
 
-The hosting application then decides:
-
-* how the next ViewModel is constructed,
-* which dependencies it receives,
-* and how the resulting view is presented.
+The hosting application then decides how the next ViewModel is constructed, which dependencies it receives, and how the resulting view is presented.
 
 ---
 
 # 4.2 ViewModel construction boundaries
 
-Not all ViewModels are constructed in the same way.
+Not all ViewModels are constructed the same way.
 
 Some ViewModels are local implementation details of another ViewModel and can be constructed directly. Others participate in the wider application shell and require application-level dependencies and presentation coordination.
 
-This chapter refers to these two categories as:
-
-* local composition ViewModels,
-* and hosted ViewModels.
+This chapter refers to these two categories as local composition ViewModels and hosted ViewModels.
 
 ## 4.2.1 Local composition ViewModels
 
-A local composition ViewModel represents a subsection of another ViewModel's presentation state.
+A local composition ViewModel represents a subsection of another ViewModel's presentation state: a form section, an editable table, an inspector, a filter panel, a reusable UI fragment.
 
-Typical examples include:
-
-* form sections,
-* editable tables,
-* inspectors,
-* filter panels,
-* and reusable UI fragments.
-
-A local composition ViewModel:
-
-* is constructed directly by its parent,
-* uses state already owned by the parent,
-* introduces no new application dependencies,
-* and exists entirely within the parent's presentation scope.
+A local composition ViewModel is constructed directly by its parent, uses state already owned by the parent, introduces no new application dependencies, and exists entirely within the parent's presentation scope.
 
 ```java
 public class OrderEditorViewModel {
@@ -240,23 +192,9 @@ This construction is safe because no application-level hosting or infrastructure
 
 ## 4.2.2 Hosted ViewModels
 
-A hosted ViewModel participates in the wider application environment.
+A hosted ViewModel participates in the wider application environment: a screen, a dialog, a workspace, a tab, an overlay, a docked panel.
 
-Examples include:
-
-* screens,
-* dialogs,
-* workspaces,
-* tabs,
-* overlays,
-* and docked panels.
-
-Hosted ViewModels frequently require:
-
-* services,
-* hosts,
-* shared contexts,
-* and application-scoped state.
+Hosted ViewModels frequently require services, hosts, shared contexts, and application-scoped state.
 
 Unlike local composition ViewModels, hosted ViewModels are not constructed directly by another ViewModel.
 
@@ -273,13 +211,7 @@ public class OrdersExplorerViewModel {
 }
 ```
 
-The current ViewModel communicates intent through its host but does not construct the next ViewModel itself.
-
-This keeps the ViewModel independent from:
-
-* presentation infrastructure,
-* hosted ViewModel dependencies,
-* and hosting decisions.
+The current ViewModel communicates intent through its host but does not construct the next ViewModel itself. This keeps the ViewModel independent from presentation infrastructure, hosted ViewModel dependencies, and hosting decisions.
 
 ## 4.2.3 Hosts as the application boundary
 
@@ -302,32 +234,17 @@ public void openOrder(Order order) {
 }
 ```
 
-The host implementation — typically wired in the application shell or composition root — performs the actual work:
+The host implementation, typically wired in the application shell or composition root, performs the actual work: constructing hosted ViewModels, resolving dependencies, choosing presentation behaviour, and coordinating the surrounding application.
 
-* constructing hosted ViewModels,
-* resolving dependencies,
-* choosing presentation behaviour,
-* and coordinating the surrounding application.
+This keeps ViewModels focused on observable state, user interaction, and presentation-oriented coordination.
 
-This keeps ViewModels focused on:
-
-* observable state,
-* user interaction,
-* and presentation-oriented coordination.
-
-> **Alternative: event and message buses.** An alternative to host interfaces is a shared event or message bus. A ViewModel publishes a typed event — such as `OpenOrderDetailsEvent` — and the shell subscribes and handles it. This achieves a similar decoupling: the ViewModel still has no dependency on routers or dialog systems. The tradeoff is traceability. With a host interface, the path from ViewModel method to shell handler is navigable directly. With a bus, that connection is implicit and discovered only at runtime. This guide favours host interfaces for that reason, but a bus can be a reasonable choice if that tradeoff is acceptable for the interaction in question.
+> **Alternative: event and message buses.** An alternative to host interfaces is a shared event or message bus. A ViewModel publishes a typed event, such as `OpenOrderDetailsEvent`, and the shell subscribes and handles it. This achieves similar decoupling: the ViewModel still has no dependency on routers or dialog systems. The tradeoff is traceability. With a host interface, the path from ViewModel method to shell handler is navigable directly. With a bus, that connection is implicit and discovered only at runtime. This guide favours host interfaces for that reason, but a bus can be a reasonable choice if that tradeoff is acceptable for the interaction in question.
 
 ---
 
 # 4.3 Decomposing ViewModels
 
-As screens grow in complexity, ViewModels accumulate:
-
-* validation rules,
-* editable state,
-* selection state,
-* filtering,
-* and interaction logic.
+As screens grow in complexity, ViewModels accumulate validation rules, editable state, selection state, filtering, and interaction logic.
 
 ViewModel decomposition separates distinct areas of presentation behaviour into smaller compositional ViewModels.
 
@@ -335,21 +252,9 @@ The goal is not arbitrary fragmentation. A ViewModel should generally represent 
 
 ## 4.3.1 Sub-ViewModels
 
-A sub-ViewModel encapsulates the state and behaviour of a distinct subsection of a larger screen.
+A sub-ViewModel encapsulates the state and behaviour of a distinct subsection of a larger screen: a form section, an editable table, an inspector, a side panel, a reusable composite control.
 
-Typical candidates include:
-
-* form sections,
-* editable tables,
-* inspectors,
-* side panels,
-* and reusable composite controls.
-
-Each sub-ViewModel owns:
-
-* its own observable state,
-* its own validation rules,
-* and its own derived properties.
+Each sub-ViewModel owns its own observable state, its own validation rules, and its own derived properties.
 
 ```java
 public class OrderHeaderViewModel {
@@ -400,41 +305,17 @@ public class OrderEditorViewModel {
 }
 ```
 
-The parent ViewModel does not know how each subsection validates itself. It coordinates the resulting observable state.
-
-This structure remains highly compositional:
-
-* child ViewModels own local rules,
-* the parent composes larger behaviour from them.
+The parent ViewModel does not know how each subsection validates itself. It coordinates the resulting observable state. This structure stays highly compositional: child ViewModels own local rules, and the parent composes larger behaviour from them.
 
 ## 4.3.3 Local decomposition versus navigation
 
 Sub-ViewModels are local composition objects rather than navigated application features.
 
-A sub-ViewModel:
+A sub-ViewModel exists entirely within the parent's presentation scope, uses state already owned by the parent, and introduces no new application dependencies. For this reason it's safe for the parent ViewModel to construct sub-ViewModels directly.
 
-* exists entirely within the parent's presentation scope,
-* uses state already owned by the parent,
-* and introduces no new application dependencies.
+Hosted ViewModels are different. They may require services, hosts, application contexts, requests, or presentation coordination, and are constructed by the hosting application rather than by another ViewModel directly.
 
-For this reason it is safe for the parent ViewModel to construct sub-ViewModels directly.
-
-Hosted ViewModels are different.
-
-Hosted ViewModels may require:
-
-* services,
-* hosts,
-* application contexts,
-* requests,
-* or presentation coordination.
-
-Those ViewModels are constructed by the hosting application rather than by another ViewModel directly.
-
-A useful rule is:
-
-* if the ViewModel exists only within the parent's layout, local composition is appropriate,
-* if the ViewModel participates in application hosting or navigation, construction belongs to the hosting application.
+A useful rule: if the ViewModel exists only within the parent's layout, local composition is appropriate. If the ViewModel participates in application hosting or navigation, construction belongs to the hosting application.
 
 ---
 
@@ -442,12 +323,7 @@ A useful rule is:
 
 Not all ViewModel communication requires direct interaction.
 
-In many cases one ViewModel exposes observable state while another consumes or binds to it.
-
-These relationships are reactive rather than imperative:
-
-* one ViewModel publishes observable state,
-* another observes or binds to it.
+In many cases one ViewModel exposes observable state while another consumes or binds to it. These relationships are reactive rather than imperative: one ViewModel publishes observable state, another observes or binds to it.
 
 Several mechanisms can be used depending on the ownership and lifetime of the shared state.
 
@@ -493,21 +369,11 @@ summaryVm.pendingOrderCountProperty().bind(
 
 Neither ViewModel knows the other exists.
 
-This approach works well when:
-
-* ownership of the state is clear,
-* the relationship is localised,
-* and the state naturally belongs to one ViewModel.
+This approach works well when ownership of the state is clear, the relationship is localised, and the state naturally belongs to one ViewModel.
 
 ## 4.4.2 Context objects
 
-Sometimes shared state does not belong naturally to a single ViewModel.
-
-For example:
-
-* multiple workspaces may share the same selection,
-* application-wide notifications may need global observation,
-* or the state may outlive any single ViewModel.
+Sometimes shared state does not belong naturally to a single ViewModel. For example, multiple workspaces may share the same selection, application-wide notifications may need global observation, or the state may outlive any single ViewModel.
 
 In these situations a dedicated context object can act as a shared observable state container.
 
@@ -523,16 +389,9 @@ public class WorkspaceContext {
 }
 ```
 
-The context contains observable state but generally little or no behaviour.
+The context contains observable state but generally little or no behaviour. Unlike direct ViewModel references, relationships remain indirect and ViewModels remain decoupled.
 
-Unlike direct ViewModel references:
-
-* relationships remain indirect,
-* and ViewModels remain decoupled.
-
-Contexts can exist at different scopes.
-
-A local context coordinates state shared within a feature area:
+Contexts can exist at different scopes. A local context coordinates state shared within a feature area:
 
 ```java
 OrderEditorContext
@@ -546,9 +405,7 @@ UserSessionContext
 MessageBoxContext
 ```
 
-Contexts should remain focused around a coherent area of shared state.
-
-Large global state containers such as:
+Contexts should stay focused around a coherent area of shared state. Large global state containers such as:
 
 ```java
 ApplicationState
@@ -560,51 +417,27 @@ typically become god objects over time and should generally be avoided.
 
 Contexts and ViewModels both expose observable state, but their responsibilities differ.
 
-A ViewModel:
+A ViewModel coordinates UI behaviour, derives presentation state, and represents a specific screen or UI area.
 
-* coordinates UI behaviour,
-* derives presentation state,
-* and represents a specific screen or UI area.
+A context represents shared observable state, has no presentation responsibility, and exists independently from any particular view.
 
-A context:
+A useful guideline: if the object primarily coordinates UI behaviour, it's likely a ViewModel. If it primarily exists to share observable state, it's likely a context.
 
-* represents shared observable state,
-* has no presentation responsibility,
-* and exists independently from any particular view.
-
-A useful guideline is:
-
-* if the object primarily coordinates UI behaviour, it is likely a ViewModel,
-* if the object primarily exists to share observable state, it is likely a context.
-
-This isn't just a static classification — an object can cross this line as an application grows. The example application's own navigation started as exactly the kind of Context shown in 4.4.2, then grew real coordination behaviour (supporting several simultaneously open workspaces, each with its own open tabs) and became a set of ViewModels instead. See `docs/05-views.md` §5.4.2 for that evolution. The guideline above still applies at every stage — it's just re-evaluated as responsibilities grow.
+An object can cross this line as an application grows. The example application's own navigation started as exactly the kind of Context shown in 4.4.2, then grew real coordination behaviour (supporting several simultaneously open workspaces, each with its own open tabs) and became a set of ViewModels instead. See `docs/05-views.md` §5.4.2 for that evolution. The guideline above still applies at every stage; it's just re-evaluated as responsibilities grow.
 
 ---
 
 # 4.5 Request objects
 
-Some hosted interactions require more than a simple notification that something should happen.
-
-For example:
-
-* a dialog may need initial state,
-* a picker may require configuration,
-* or a hosted interaction may need to return a result.
+Some hosted interactions require more than a simple notification that something should happen. For example, a dialog may need initial state, a picker may require configuration, or a hosted interaction may need to return a result.
 
 In these situations a request object acts as an interaction contract between the initiating ViewModel and the hosted interaction.
 
-A request is:
-
-* short-lived,
-* interaction-scoped,
-* and typically created immediately before the interaction is hosted.
+A request is short-lived, interaction-scoped, and typically created immediately before the interaction is hosted.
 
 ## 4.5.1 Request objects as interaction contracts
 
-A request packages together:
-
-* the input required by the hosted interaction,
-* and the communication mechanism used to return information.
+A request packages together the input required by the hosted interaction and the communication mechanism used to return information.
 
 ```java
 public interface EditLineItemRequest {
@@ -643,14 +476,7 @@ This keeps the interaction loosely coupled while still supporting bidirectional 
 
 ## 4.5.2 Observable request state
 
-Some interactions require ongoing communication rather than a single completion callback.
-
-For example:
-
-* live previews,
-* progress reporting,
-* incremental validation,
-* or selection synchronisation.
+Some interactions require ongoing communication rather than a single completion callback: a live preview, progress reporting, incremental validation, selection synchronisation.
 
 In these cases a request may expose observable state directly:
 
@@ -685,22 +511,11 @@ request.selectedColourProperty().set(currentSelection);
 
 Requests and contexts both facilitate communication between ViewModels, but they solve different problems.
 
-A context:
+A context represents long-lived shared observable state, typically exists independently of any single interaction, and may be shared by many ViewModels simultaneously.
 
-* represents long-lived shared observable state,
-* typically exists independently of any single interaction,
-* and may be shared by many ViewModels simultaneously.
+A request represents a single interaction contract, is created at the point of invocation, and is typically discarded when the interaction completes.
 
-A request:
-
-* represents a single interaction contract,
-* is created at the point of invocation,
-* and is typically discarded when the interaction completes.
-
-A useful distinction is:
-
-* contexts model shared application state,
-* requests model temporary interaction state.
+In short: contexts model shared application state, requests model temporary interaction state.
 
 ---
 
@@ -708,12 +523,7 @@ A useful distinction is:
 
 Actions are optional utility objects that encapsulate executable UI behaviour together with observable execution state.
 
-Without Actions, views typically coordinate multiple concerns separately:
-
-* whether a control is enabled,
-* what happens when it is activated,
-* whether an operation is already executing,
-* and whether loading or progress indicators should appear.
+Without Actions, views typically coordinate several concerns separately: whether a control is enabled, what happens when it's activated, whether an operation is already executing, and whether loading or progress indicators should appear.
 
 Action classes consolidate this behaviour into a single executable object.
 
@@ -726,12 +536,7 @@ saveButton.disableProperty().bind(viewModel.canSaveProperty().not());
 saveButton.setOnAction(e -> viewModel.save());
 ```
 
-As interactions become asynchronous, additional coordination is introduced:
-
-* loading indicators,
-* double-submit prevention,
-* progress state,
-* and execution guards.
+As interactions become asynchronous, more coordination is needed: loading indicators, double-submit prevention, progress state, execution guards.
 
 An Action centralises these concerns into a reusable interaction object.
 
@@ -755,7 +560,7 @@ public class Action {
 }
 ```
 
-Calling `execute()` when `canExecute()` is false throws `IllegalStateException`. Views must ensure actions are only invoked when enabled — typically by binding the control's disable state to `canExecuteProperty()`.
+Calling `execute()` when `canExecute()` is false throws `IllegalStateException`. Views must ensure actions are only invoked when enabled, typically by binding the control's disable state to `canExecuteProperty()`.
 
 `AsyncAction` extends the same model to asynchronous interactions.
 
@@ -778,7 +583,7 @@ public class AsyncAction {
 
 The same contract applies: calling `executeAsync()` when `canExecute()` is false throws `IllegalStateException`. `canExecute()` is automatically false while execution is in progress, preventing double-submission.
 
-`executeAsync` requires an `Executor` that runs tasks on the UI thread. The `Listener` returns `CompletableFuture<Runnable>` — the background work completes with a `Runnable` that is then dispatched via the `viewExecutor` to apply any resulting state changes on the UI thread. Passing `null` from the listener is safe when no UI update is needed.
+`executeAsync` requires an `Executor` that runs tasks on the UI thread. The `Listener` returns `CompletableFuture<Runnable>`: the background work completes with a `Runnable` that is then dispatched via the `viewExecutor` to apply any resulting state changes on the UI thread. Passing `null` from the listener is safe when no UI update is needed.
 
 A ViewModel exposes Actions via methods, consistent with how properties are exposed:
 
@@ -793,11 +598,7 @@ public class OrderEditorViewModel {
 }
 ```
 
-Actions centralise:
-
-* execution semantics,
-* availability state,
-* and execution coordination.
+Actions centralise execution semantics, availability state, and execution coordination.
 
 ## 4.6.3 Binding Actions in views
 
@@ -823,7 +624,7 @@ Actions are optional utilities rather than a required part of MVVM itself. Their
 
 # 4.7 ViewModel service interfaces
 
-A ViewModel service interface defines the operations a specific ViewModel needs from the outside world. It is an adapter contract — implemented in the module layer — that decouples the ViewModel from the infrastructure beneath it.
+A ViewModel service interface defines the operations a specific ViewModel needs from the outside world. It's an adapter contract, implemented in the module layer, that decouples the ViewModel from the infrastructure beneath it.
 
 The interface is shaped by what the ViewModel needs, not by what the domain provides. It may aggregate operations from multiple repositories or domain operations behind a single dependency, hiding that detail from the ViewModel entirely.
 
@@ -883,19 +684,10 @@ The ViewModel layer presented in this chapter is centred around a small set of a
 * Complex screens are decomposed into smaller compositional ViewModels.
 * Hosted ViewModels are constructed by the hosting application rather than by other ViewModels.
 
-These principles preserve separation between:
-
-* presentation coordination,
-* application infrastructure,
-* and rendering concerns.
+These principles keep presentation coordination, application infrastructure, and rendering concerns separate.
 
 A ViewModel does not construct views or own navigation infrastructure. Instead, it communicates intent declaratively through observable state and capability-oriented interfaces.
 
-The resulting architecture keeps:
+The resulting architecture keeps ViewModels testable, dependencies localised, presentation structure compositional, and application coordination reactive rather than tightly coupled.
 
-* ViewModels testable,
-* dependencies localised,
-* presentation structure compositional,
-* and application coordination reactive rather than tightly coupled.
-
-The supporting patterns introduced throughout this chapter — hosts, requests, contexts, Actions, and ViewModel service interfaces — are compositional techniques used to maintain these boundaries consistently as applications grow in complexity.
+The supporting patterns introduced throughout this chapter, hosts, requests, contexts, Actions, and ViewModel service interfaces, are compositional techniques used to maintain these boundaries consistently as applications grow in complexity.
