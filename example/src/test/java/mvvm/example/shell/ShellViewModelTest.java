@@ -1,53 +1,48 @@
 package mvvm.example.shell;
 
-import javafx.beans.property.ReadOnlyStringWrapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Shell.ShellViewModel")
 class ShellViewModelTest {
 
-    private static WorkspaceTabViewModel tab(String title) {
-        return WorkspaceTabViewModel.pinned(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new Object());
-    }
-
     @Nested
-    @DisplayName("when a workspace is registered")
-    class WhenWorkspaceRegistered {
+    @DisplayName("when created")
+    class WhenCreated {
 
         @Test
-        @DisplayName("it is added to the workspaces list")
-        void addsToWorkspaces() {
-            var shell = new ShellViewModel();
+        @DisplayName("it exposes the given workspaces")
+        void exposesWorkspaces() {
+            var orders = new WorkspaceViewModel("Orders");
+            var customers = new WorkspaceViewModel("Customers");
 
-            shell.registerWorkspace("Orders", tab("Orders"));
+            var shell = new ShellViewModel(List.of(orders, customers));
 
-            assertEquals(1, shell.workspaces().size());
-            assertEquals("Orders", shell.workspaces().getFirst().titleProperty().get());
+            assertEquals(List.of(orders, customers), shell.workspaces());
         }
 
         @Test
-        @DisplayName("the first registered workspace becomes the current workspace")
+        @DisplayName("the first workspace becomes the current workspace")
         void firstWorkspaceIsCurrent() {
-            var shell = new ShellViewModel();
+            var orders = new WorkspaceViewModel("Orders");
+            var customers = new WorkspaceViewModel("Customers");
 
-            shell.registerWorkspace("Orders", tab("Orders"));
+            var shell = new ShellViewModel(List.of(orders, customers));
 
-            assertEquals(shell.workspaces().getFirst(), shell.currentWorkspaceProperty().get());
+            assertEquals(orders, shell.currentWorkspaceProperty().get());
         }
 
         @Test
-        @DisplayName("subsequently registered workspaces do not become current")
-        void laterWorkspacesAreNotCurrent() {
-            var shell = new ShellViewModel();
+        @DisplayName("no workspace is current when the list is empty")
+        void noCurrentWorkspaceWhenEmpty() {
+            var shell = new ShellViewModel(List.of());
 
-            shell.registerWorkspace("Orders", tab("Orders"));
-            shell.registerWorkspace("Customers", tab("Customers"));
-
-            assertEquals(shell.workspaces().getFirst(), shell.currentWorkspaceProperty().get());
+            assertNull(shell.currentWorkspaceProperty().get());
         }
     }
 
@@ -58,10 +53,9 @@ class ShellViewModelTest {
         @Test
         @DisplayName("it becomes the current workspace")
         void becomesCurrentWorkspace() {
-            var shell = new ShellViewModel();
-            shell.registerWorkspace("Orders", tab("Orders"));
-            shell.registerWorkspace("Customers", tab("Customers"));
-            var customers = shell.workspaces().get(1);
+            var orders = new WorkspaceViewModel("Orders");
+            var customers = new WorkspaceViewModel("Customers");
+            var shell = new ShellViewModel(List.of(orders, customers));
 
             customers.openAction().execute();
 

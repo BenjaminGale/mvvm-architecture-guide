@@ -25,28 +25,17 @@ class WorkspaceViewModelTest {
     class WhenCreated {
 
         @Test
-        @DisplayName("it has the explorer tab as its only tab")
-        void hasExplorerTabOnly() {
-            var explorer = pinnedTab("Orders");
-            var vm = new WorkspaceViewModel("Orders", explorer);
+        @DisplayName("it has no tabs")
+        void hasNoTabs() {
+            var vm = new WorkspaceViewModel("Orders");
 
-            assertEquals(1, vm.tabs().size());
-            assertEquals(explorer, vm.tabs().getFirst());
-        }
-
-        @Test
-        @DisplayName("the explorer tab is selected")
-        void selectsExplorerTab() {
-            var explorer = pinnedTab("Orders");
-            var vm = new WorkspaceViewModel("Orders", explorer);
-
-            assertEquals(explorer, vm.selectedTabProperty().get());
+            assertEquals(0, vm.tabs().size());
         }
 
         @Test
         @DisplayName("it exposes the given title")
         void exposesTitle() {
-            var vm = new WorkspaceViewModel("Orders", pinnedTab("Orders"));
+            var vm = new WorkspaceViewModel("Orders");
 
             assertEquals("Orders", vm.titleProperty().get());
         }
@@ -60,7 +49,7 @@ class WorkspaceViewModelTest {
         @DisplayName("it invokes the subscribed listener")
         void invokesListener() {
             Action.Listener onOpen = mock();
-            var vm = new WorkspaceViewModel("Orders", pinnedTab("Orders"));
+            var vm = new WorkspaceViewModel("Orders");
             vm.onOpen(onOpen);
 
             vm.openAction().execute();
@@ -70,42 +59,70 @@ class WorkspaceViewModelTest {
     }
 
     @Nested
-    @DisplayName("when opening a tab")
-    class WhenOpeningATab {
+    @DisplayName("when opening a tab for a new key")
+    class WhenOpeningATabForANewKey {
 
         @Test
-        @DisplayName("it adds the tab after the existing tabs")
+        @DisplayName("it builds the tab via the factory and adds it")
         void addsTab() {
-            var vm = new WorkspaceViewModel("Orders", pinnedTab("Orders"));
+            var vm = new WorkspaceViewModel("Orders");
             var editor = closableTab("Order 1");
 
-            vm.openTab(editor);
+            vm.openTab("order-1", () -> editor);
 
-            assertEquals(2, vm.tabs().size());
-            assertEquals(editor, vm.tabs().get(1));
+            assertEquals(1, vm.tabs().size());
+            assertEquals(editor, vm.tabs().getFirst());
         }
 
         @Test
         @DisplayName("it selects the opened tab")
         void selectsTab() {
-            var vm = new WorkspaceViewModel("Orders", pinnedTab("Orders"));
+            var vm = new WorkspaceViewModel("Orders");
             var editor = closableTab("Order 1");
 
-            vm.openTab(editor);
+            vm.openTab("order-1", () -> editor);
 
             assertEquals(editor, vm.selectedTabProperty().get());
         }
+    }
+
+    @Nested
+    @DisplayName("when opening a tab for a key that is already open")
+    class WhenOpeningATabForAnExistingKey {
 
         @Test
-        @DisplayName("reopening an already-open tab does not duplicate it")
-        void reopeningDoesNotDuplicate() {
-            var vm = new WorkspaceViewModel("Orders", pinnedTab("Orders"));
-            var editor = closableTab("Order 1");
-            vm.openTab(editor);
+        @DisplayName("it does not invoke the factory")
+        void doesNotInvokeFactory() {
+            var vm = new WorkspaceViewModel("Orders");
+            vm.openTab("order-1", () -> closableTab("Order 1"));
 
-            vm.openTab(editor);
+            vm.openTab("order-1", () -> {
+                throw new AssertionError("factory should not be invoked for an already-open key");
+            });
+        }
 
-            assertEquals(2, vm.tabs().size());
+        @Test
+        @DisplayName("it does not duplicate the tab")
+        void doesNotDuplicate() {
+            var vm = new WorkspaceViewModel("Orders");
+            vm.openTab("order-1", () -> closableTab("Order 1"));
+
+            vm.openTab("order-1", () -> closableTab("Order 1"));
+
+            assertEquals(1, vm.tabs().size());
+        }
+
+        @Test
+        @DisplayName("it selects the existing tab")
+        void selectsExistingTab() {
+            var vm = new WorkspaceViewModel("Orders");
+            vm.openTab("order-1", () -> closableTab("Order 1"));
+            var other = closableTab("Order 2");
+            vm.openTab("order-2", () -> other);
+
+            vm.openTab("order-1", () -> closableTab("Order 1"));
+
+            assertEquals("Order 1", vm.selectedTabProperty().get().titleProperty().get());
         }
     }
 
@@ -116,21 +133,36 @@ class WorkspaceViewModelTest {
         @Test
         @DisplayName("it removes the tab")
         void removesTab() {
-            var vm = new WorkspaceViewModel("Orders", pinnedTab("Orders"));
+            var vm = new WorkspaceViewModel("Orders");
             var editor = closableTab("Order 1");
-            vm.openTab(editor);
+            vm.openTab("order-1", () -> editor);
 
             editor.closeAction().execute();
 
+            assertEquals(0, vm.tabs().size());
+        }
+
+        @Test
+        @DisplayName("reopening the same key afterwards invokes the factory again")
+        void reopeningAfterCloseInvokesFactory() {
+            var vm = new WorkspaceViewModel("Orders");
+            var first = closableTab("Order 1");
+            vm.openTab("order-1", () -> first);
+            first.closeAction().execute();
+
+            var second = closableTab("Order 1");
+            vm.openTab("order-1", () -> second);
+
             assertEquals(1, vm.tabs().size());
+            assertEquals(second, vm.tabs().getFirst());
         }
 
         @Test
         @DisplayName("it throws when executed a second time")
         void throwsOnSecondExecution() {
-            var vm = new WorkspaceViewModel("Orders", pinnedTab("Orders"));
+            var vm = new WorkspaceViewModel("Orders");
             var editor = closableTab("Order 1");
-            vm.openTab(editor);
+            vm.openTab("order-1", () -> editor);
             editor.closeAction().execute();
 
             assertThrows(IllegalStateException.class, () -> editor.closeAction().execute());
@@ -139,12 +171,11 @@ class WorkspaceViewModelTest {
         @Test
         @DisplayName("it selects the previous tab")
         void selectsPreviousTab() {
-            var explorer = pinnedTab("Orders");
-            var vm = new WorkspaceViewModel("Orders", explorer);
+            var vm = new WorkspaceViewModel("Orders");
             var first = closableTab("Order 1");
             var second = closableTab("Order 2");
-            vm.openTab(first);
-            vm.openTab(second);
+            vm.openTab("order-1", () -> first);
+            vm.openTab("order-2", () -> second);
 
             second.closeAction().execute();
 
@@ -152,10 +183,23 @@ class WorkspaceViewModelTest {
         }
 
         @Test
-        @DisplayName("the explorer tab's close action cannot execute")
-        void explorerTabNotClosable() {
+        @DisplayName("closing the last tab leaves no tab selected")
+        void closingLastTabClearsSelection() {
+            var vm = new WorkspaceViewModel("Orders");
+            var only = closableTab("Order 1");
+            vm.openTab("order-1", () -> only);
+
+            only.closeAction().execute();
+
+            assertNull(vm.selectedTabProperty().get());
+        }
+
+        @Test
+        @DisplayName("a pinned tab's close action cannot execute")
+        void pinnedTabNotClosable() {
+            var vm = new WorkspaceViewModel("Orders");
             var explorer = pinnedTab("Orders");
-            new WorkspaceViewModel("Orders", explorer);
+            vm.openTab("explorer", () -> explorer);
 
             assertThrows(IllegalStateException.class, () -> explorer.closeAction().execute());
         }

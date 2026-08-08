@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Shell.WorkspaceTabViewModel")
-class WorkspaceTabTest {
+class WorkspaceTabViewModelTest {
 
     @Nested
     @DisplayName("when created")
@@ -45,19 +45,6 @@ class WorkspaceTabTest {
     }
 
     @Nested
-    @DisplayName("when created as closable")
-    class WhenClosable {
-
-        @Test
-        @DisplayName("its close action can execute")
-        void closeActionCanExecute() {
-            var tab = WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), new Object());
-
-            assertTrue(tab.closeAction().canExecute());
-        }
-    }
-
-    @Nested
     @DisplayName("when created as pinned")
     class WhenPinned {
 
@@ -67,6 +54,49 @@ class WorkspaceTabTest {
             var tab = WorkspaceTabViewModel.pinned(new ReadOnlyStringWrapper("Orders").getReadOnlyProperty(), new Object());
 
             assertFalse(tab.closeAction().canExecute());
+        }
+    }
+
+    @Nested
+    @DisplayName("when created as closable with no veto")
+    class WhenClosableWithNoVeto {
+
+        @Test
+        @DisplayName("its close action can execute")
+        void closeActionCanExecute() {
+            var tab = WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), new Object());
+
+            assertTrue(tab.closeAction().canExecute());
+        }
+
+        @Test
+        @DisplayName("executing the close action notifies the subscribed listener")
+        void notifiesListener() {
+            var closed = new boolean[1];
+            var tab = WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), new Object());
+            tab.onClose(() -> closed[0] = true);
+
+            tab.closeAction().execute();
+
+            assertTrue(closed[0]);
+        }
+    }
+
+    @Nested
+    @DisplayName("when created as closable with a veto that returns false")
+    class WhenClosableAndVetoed {
+
+        @Test
+        @DisplayName("executing the close action does not notify the subscribed listener")
+        void doesNotNotifyListener() {
+            var closed = new boolean[1];
+            var tab = WorkspaceTabViewModel.closable(
+                new ReadOnlyStringWrapper("Order 1").getReadOnlyProperty(), new Object(), () -> false);
+            tab.onClose(() -> closed[0] = true);
+
+            tab.closeAction().execute();
+
+            assertFalse(closed[0]);
         }
     }
 }

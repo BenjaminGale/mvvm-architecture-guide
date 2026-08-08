@@ -8,18 +8,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.Action;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 public class WorkspaceViewModel {
 
     private final ReadOnlyStringWrapper title = new ReadOnlyStringWrapper(this, "title");
     private final ObservableList<WorkspaceTabViewModel> tabs = FXCollections.observableArrayList();
     private final ObjectProperty<WorkspaceTabViewModel> selectedTab = new SimpleObjectProperty<>(this, "selectedTab");
+    private final Map<Object, WorkspaceTabViewModel> tabsByKey = new HashMap<>();
     private Action.Listener onOpen = () -> {};
     private final Action openAction = new Action(() -> onOpen.actionExecuted());
 
-    public WorkspaceViewModel(String title, WorkspaceTabViewModel explorerTab) {
+    public WorkspaceViewModel(String title) {
         this.title.set(title);
-        this.tabs.add(explorerTab);
-        this.selectedTab.set(explorerTab);
     }
 
     public ReadOnlyStringProperty titleProperty() {
@@ -42,24 +45,31 @@ public class WorkspaceViewModel {
         this.onOpen = listener;
     }
 
-    public void openTab(WorkspaceTabViewModel tab) {
-        if (!tabs.contains(tab)) {
-            tabs.add(tab);
-            tab.onClose(() -> removeTab(tab));
+    public void openTab(Object key, Supplier<WorkspaceTabViewModel> tabFactory) {
+        var existing = tabsByKey.get(key);
+        if (existing != null) {
+            selectedTab.set(existing);
+            return;
         }
+
+        var tab = tabFactory.get();
+        tabsByKey.put(key, tab);
+        tabs.add(tab);
+        tab.onClose(() -> removeTab(key, tab));
         selectedTab.set(tab);
     }
 
-    private void removeTab(WorkspaceTabViewModel tab) {
+    private void removeTab(Object key, WorkspaceTabViewModel tab) {
         int index = tabs.indexOf(tab);
         if (index < 0) {
             throw new IllegalStateException("Tab is not open in this workspace");
         }
 
+        tabsByKey.remove(key);
         tabs.remove(index);
 
         if (selectedTab.get() == tab) {
-            selectedTab.set(tabs.get(Math.min(index, tabs.size() - 1)));
+            selectedTab.set(tabs.isEmpty() ? null : tabs.get(Math.min(index, tabs.size() - 1)));
         }
     }
 }
