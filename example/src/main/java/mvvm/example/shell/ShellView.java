@@ -13,5 +13,6 @@ public class ShellView extends BorderPane {
 
         setLeft(new WorkspaceSidebarView(viewModel));
         setCenter(content);
+        setBottom(new StatusBarView(viewModel, viewLocator));
     }
 }

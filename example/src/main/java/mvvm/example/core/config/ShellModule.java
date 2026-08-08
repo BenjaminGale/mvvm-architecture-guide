@@ -10,6 +10,8 @@ import mvvm.example.shell.ShellContext;
 import mvvm.example.shell.ShellView;
 import mvvm.example.shell.ShellViewModel;
 import mvvm.example.shell.WorkspaceViewModel;
+import mvvm.example.shell.main.statusbar.StatusItemView;
+import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class ShellModule {
         this.shell = shell;
 
         view.viewLocator().register(ShellViewModel.class, vm -> new ShellView(vm, view.viewLocator()));
+        view.viewLocator().register(StatusItemViewModel.class, StatusItemView::new);
     }
 
     public OrdersModule createOrdersModule() {

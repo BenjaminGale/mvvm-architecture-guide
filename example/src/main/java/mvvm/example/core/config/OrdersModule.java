@@ -36,6 +36,8 @@ import mvvm.example.shell.TabContentViewModel;
 import mvvm.example.shell.ToolbarItem;
 import mvvm.example.shell.WorkspaceTabViewModel;
 import mvvm.example.shell.WorkspaceViewModel;
+import mvvm.example.shell.main.statusbar.LabelType;
+import mvvm.example.shell.main.statusbar.StatusItemViewModel;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -85,7 +87,10 @@ public class OrdersModule {
 
         return WorkspaceTabViewModel.unclosable(
             new ReadOnlyStringWrapper("Orders").getReadOnlyProperty(),
-            new TabContentViewModel(explorerViewModel)
+            new TabContentViewModel(explorerViewModel).withStatusItems(List.of(
+                new StatusItemViewModel(explorerViewModel.ordersCountProperty(), LabelType.All_ORDERS),
+                new StatusItemViewModel(explorerViewModel.overdueOrdersCountProperty(), LabelType.OVERDUE_ORDERS)
+            ))
         );
     }
 
