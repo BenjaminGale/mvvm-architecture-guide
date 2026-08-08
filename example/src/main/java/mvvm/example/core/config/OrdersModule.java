@@ -1,5 +1,9 @@
 package mvvm.example.core.config;
 
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.commands.CopyOrderCommand;
@@ -17,7 +21,6 @@ import mvvm.example.orders.editor.OrderEditorView;
 import mvvm.example.orders.editor.OrderEditorViewModel;
 import mvvm.example.orders.editor.header.OrderHeaderView;
 import mvvm.example.orders.editor.header.OrderHeaderViewModel;
-import mvvm.example.orders.editor.lineitems.LineItemEditorHost;
 import mvvm.example.orders.editor.lineitems.LineItemEditorRequest;
 import mvvm.example.orders.editor.lineitems.LineItemEditorDialog;
 import mvvm.example.orders.editor.lineitems.LineItemEditorViewModel;
@@ -29,10 +32,10 @@ import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
-import mvvm.example.shell.ShellContext;
-import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
-import mvvm.example.shell.main.statusbar.LabelType;
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
+import mvvm.example.shell.TabContentViewModel;
+import mvvm.example.shell.ToolbarItem;
+import mvvm.example.shell.WorkspaceTabViewModel;
+import mvvm.example.shell.WorkspaceViewModel;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -40,19 +43,21 @@ import java.util.UUID;
 
 public class OrdersModule {
 
+    private static final Object EXPLORER_KEY = new Object();
+
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
     private final ViewServices view;
-    private final ShellContext shell;
     private final CopyOrderCommand copyOrderCommand;
+    private final WorkspaceViewModel workspace;
+    private OrdersExplorerViewModel explorerViewModel;
 
-    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, ViewServices view, ShellContext shell, CopyOrderCommand copyOrderCommand) {
+    public OrdersModule(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, ViewServices view, CopyOrderCommand copyOrderCommand) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.view = view;
-        this.shell = shell;
         this.copyOrderCommand = copyOrderCommand;
 
         view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
@@ -61,31 +66,69 @@ public class OrdersModule {
         view.dialogManager().register(LineItemEditorViewModel.class, LineItemEditorDialog::dialog);
         view.dialogManager().register(CustomerSelectorViewModel.class, CustomerSelectorDialog::dialog);
         view.dialogManager().register(ProductSelectorViewModel.class, ProductSelectorDialog::dialog);
+
+        this.workspace = new WorkspaceViewModel("Orders");
+        workspace.openTab(EXPLORER_KEY, this::ordersExplorerTab);
     }
 
-    public SidebarItemViewModel sidebarItem() {
-        return new SidebarItemViewModel("Orders", this::showExplorer);
+    public WorkspaceViewModel workspace() {
+        return workspace;
     }
 
-    public void showExplorer() {
-        shell.show(this::ordersExplorerViewModel);
-    }
-
-    public OrdersExplorerViewModel ordersExplorerViewModel() {
-        var vm = new OrdersExplorerViewModel(
+    private WorkspaceTabViewModel ordersExplorerTab() {
+        explorerViewModel = new OrdersExplorerViewModel(
             new GetOrderSummariesQuery(orderRepository, customerRepository)::execute,
-            request -> shell.show(() -> orderEditorViewModel(request))
+            this::showOrderDetails
         );
 
-        shell.statusItems().addAll(
-            ordersCountStatusItem(vm),
-            overdueOrdersStatusItem(vm)
-        );
+        workspace.withToolbarActions(List.of(new ToolbarItem.Sync("Add", explorerViewModel.addItemAction())));
 
-        return vm;
+        return WorkspaceTabViewModel.unclosable(
+            new ReadOnlyStringWrapper("Orders").getReadOnlyProperty(),
+            new TabContentViewModel(explorerViewModel)
+        );
     }
 
-    private OrderEditorViewModel orderEditorViewModel(OrderEditorRequest request) {
+    private void showOrderDetails(OrderEditorRequest request) {
+        workspace.openTab(tabKey(request), () -> orderEditorTab(request));
+    }
+
+    private static Object tabKey(OrderEditorRequest request) {
+        return request.orderId() != null ? request.orderId() : new Object();
+    }
+
+    private WorkspaceTabViewModel orderEditorTab(OrderEditorRequest request) {
+        var closeRequested = new Runnable[] { () -> {} };
+        var editor = orderEditorViewModel(request, () -> {
+            refreshExplorer();
+            closeRequested[0].run();
+        });
+
+        var tab = WorkspaceTabViewModel.closable(
+            tabTitle(editor),
+            new TabContentViewModel(editor).withToolbarActions(List.of(
+                new ToolbarItem.Sync("Copy", editor.copyAction()),
+                new ToolbarItem.Sync("Delete", editor.deleteOrderAction()),
+                new ToolbarItem.Async("Save", editor.saveAction())
+            ))
+        );
+
+        closeRequested[0] = () -> tab.closeAction().execute();
+        return tab;
+    }
+
+    private void refreshExplorer() {
+        explorerViewModel.fetchItemsAction().executeAsync(Platform::runLater);
+    }
+
+    private static ReadOnlyStringProperty tabTitle(OrderEditorViewModel editor) {
+        var reference = editor.header().referenceProperty();
+        var title = new ReadOnlyStringWrapper();
+        title.bind(Bindings.when(reference.isEmpty()).then("New Order").otherwise(reference));
+        return title.getReadOnlyProperty();
+    }
+
+    private OrderEditorViewModel orderEditorViewModel(OrderEditorRequest request, Runnable onReturnToList) {
         var query = new GetOrderEditorDataQuery(orderRepository, customerRepository);
         return new OrderEditorViewModel(
             request,
@@ -96,8 +139,8 @@ public class OrdersModule {
                 @Override public void delete(UUID orderId) { orderRepository.delete(orderId); }
             },
             new OrderEditorHost() {
-                @Override public void returnToList() { shell.show(OrdersModule.this::ordersExplorerViewModel); }
-                @Override public void openOrder(OrderEditorRequest req) { shell.show(() -> orderEditorViewModel(req)); }
+                @Override public void returnToList() { onReturnToList.run(); }
+                @Override public void openOrder(OrderEditorRequest req) { showOrderDetails(req); }
                 @Override public void selectCustomer(CustomerSelectorRequest req) { view.dialogManager().show(customerSelectorViewModel(req)); }
                 @Override public void editLineItem(LineItemEditorRequest req) { view.dialogManager().show(editLineItemViewModel(req)); }
             }
@@ -114,13 +157,5 @@ public class OrdersModule {
 
     private ProductSelectorViewModel productSelectorViewModel(ProductSelectorRequest request) {
         return new ProductSelectorViewModel(request, productRepository.findAll());
-    }
-
-    private StatusItemViewModel ordersCountStatusItem(OrdersExplorerViewModel vm) {
-        return new StatusItemViewModel(vm.ordersCountProperty(), LabelType.All_ORDERS);
-    }
-
-    private StatusItemViewModel overdueOrdersStatusItem(OrdersExplorerViewModel vm) {
-        return new StatusItemViewModel(vm.overdueOrdersCountProperty(), LabelType.OVERDUE_ORDERS);
     }
 }

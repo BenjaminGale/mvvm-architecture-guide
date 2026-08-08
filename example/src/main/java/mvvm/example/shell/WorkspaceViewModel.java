@@ -11,6 +11,7 @@ import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.ObservableLists;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class WorkspaceViewModel {
@@ -21,6 +22,7 @@ public class WorkspaceViewModel {
     private final ObjectProperty<WorkspaceTabViewModel> selectedTab = new SimpleObjectProperty<>(this, "selectedTab");
     private Action.Listener onOpen = () -> {};
     private final Action openAction = new Action(() -> onOpen.actionExecuted());
+    private List<ToolbarItem> toolbarActions = List.of();
 
     public WorkspaceViewModel(String title) {
         this.title.set(title);
@@ -28,6 +30,15 @@ public class WorkspaceViewModel {
 
     public ReadOnlyStringProperty titleProperty() {
         return title.getReadOnlyProperty();
+    }
+
+    public WorkspaceViewModel withToolbarActions(List<ToolbarItem> toolbarActions) {
+        this.toolbarActions = toolbarActions;
+        return this;
+    }
+
+    public List<ToolbarItem> toolbarActions() {
+        return toolbarActions;
     }
 
     public ObservableList<WorkspaceTabViewModel> tabs() {

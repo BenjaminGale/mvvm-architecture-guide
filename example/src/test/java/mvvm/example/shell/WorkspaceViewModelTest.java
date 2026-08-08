@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -38,6 +40,29 @@ class WorkspaceViewModelTest {
             var vm = new WorkspaceViewModel("Orders");
 
             assertEquals("Orders", vm.titleProperty().get());
+        }
+
+        @Test
+        @DisplayName("it has no toolbar actions")
+        void hasNoToolbarActions() {
+            var vm = new WorkspaceViewModel("Orders");
+
+            assertEquals(List.of(), vm.toolbarActions());
+        }
+    }
+
+    @Nested
+    @DisplayName("when configured with toolbar actions")
+    class WhenConfiguredWithToolbarActions {
+
+        @Test
+        @DisplayName("it exposes them")
+        void exposesToolbarActions() {
+            var toolbarActions = List.<ToolbarItem>of(new ToolbarItem.Sync("Add", new Action(() -> {})));
+
+            var vm = new WorkspaceViewModel("Orders").withToolbarActions(toolbarActions);
+
+            assertEquals(toolbarActions, vm.toolbarActions());
         }
     }
 
