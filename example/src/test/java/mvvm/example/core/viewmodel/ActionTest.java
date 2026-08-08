@@ -110,4 +110,25 @@ class ActionTest {
             assertThrows(NullPointerException.class, () -> new Action(() -> {}, null));
         }
     }
+
+    @Nested
+    @DisplayName("when a disabled action is created")
+    class WithDisabledFactory {
+
+        @Test
+        @DisplayName("canExecute() returns false")
+        void canExecuteIsFalse() {
+            var action = Action.disabled();
+
+            assertFalse(action.canExecute());
+        }
+
+        @Test
+        @DisplayName("throws when execute() is called")
+        void throwsWhenExecuted() {
+            var action = Action.disabled();
+
+            assertThrows(IllegalStateException.class, action::execute);
+        }
+    }
 }

@@ -6,16 +6,13 @@ import mvvm.example.customers.domain.CustomerRepository;
 import mvvm.example.orders.domain.commands.CopyOrderCommand;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
-import mvvm.example.shell.ShellContext;
-import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
-import mvvm.example.shell.main.sidebar.SidebarView;
-import mvvm.example.shell.main.statusbar.StatusBarView;
-import mvvm.example.shell.main.statusbar.StatusBarViewModel;
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
-import mvvm.example.shell.main.MainView;
+import mvvm.example.shell.ShellView;
+import mvvm.example.shell.ShellViewModel;
+import mvvm.example.shell.WorkspaceViewModel;
 import mvvm.example.shell.main.statusbar.StatusItemView;
-import mvvm.example.shell.main.MainViewModel;
-import mvvm.example.shell.main.sidebar.SidebarViewModel;
+import mvvm.example.shell.main.statusbar.StatusItemViewModel;
+
+import java.util.List;
 
 public class ShellModule {
 
@@ -23,19 +20,15 @@ public class ShellModule {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ViewServices view;
-    private final ShellContext shell;
 
-    public ShellModule(CustomerRepository customerRepository, OrderRepository orderRepository, ProductRepository productRepository, ViewServices view, ShellContext shell) {
+    public ShellModule(CustomerRepository customerRepository, OrderRepository orderRepository, ProductRepository productRepository, ViewServices view) {
         this.customerRepository = customerRepository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.view = view;
-        this.shell = shell;
 
-        view.viewLocator().register(MainViewModel.class, vm -> new MainView(vm, view.viewLocator()));
-        view.viewLocator().register(StatusBarViewModel.class, vm -> new StatusBarView(vm, view.viewLocator()));
+        view.viewLocator().register(ShellViewModel.class, vm -> new ShellView(vm, view.viewLocator()));
         view.viewLocator().register(StatusItemViewModel.class, StatusItemView::new);
-        view.viewLocator().register(SidebarViewModel.class, SidebarView::new);
     }
 
     public OrdersModule createOrdersModule() {
@@ -44,29 +37,18 @@ public class ShellModule {
             customerRepository,
             productRepository,
             view,
-            shell,
             new CopyOrderCommand(orderRepository));
     }
 
     public CustomersModule createCustomersModule() {
-        return new CustomersModule(customerRepository, view, shell);
+        return new CustomersModule(customerRepository, view);
     }
 
     public StockModule createStockModule() {
-        return new StockModule(productRepository, view, shell);
+        return new StockModule(productRepository, view);
     }
 
-    public Parent mainView(SidebarItemViewModel... items) {
-        shell.navigationItems().addAll(items);
-
-        return view.viewLocator().locate(mainViewModel());
-    }
-
-    private MainViewModel mainViewModel() {
-        return new MainViewModel(
-            new SidebarViewModel(shell.navigationItems()),
-            new StatusBarViewModel(shell.statusItems()),
-            shell.currentWorkspaceProperty()
-        );
+    public Parent mainView(WorkspaceViewModel... workspaces) {
+        return view.viewLocator().locate(new ShellViewModel(List.of(workspaces)));
     }
 }

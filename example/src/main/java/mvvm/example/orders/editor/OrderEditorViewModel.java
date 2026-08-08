@@ -1,5 +1,6 @@
 package mvvm.example.orders.editor;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mvvm.example.core.viewmodel.Action;
@@ -42,9 +43,11 @@ public class OrderEditorViewModel {
 
         data.order().lineItems().forEach(item -> lineItems.add(createLineItemVm(item)));
 
+        var existingOrder = new SimpleBooleanProperty(!request.isNew());
+
         this.saveAction = new AsyncAction(this::onSave, header.validProperty().and(isEmpty(lineItems).not()));
-        this.copyAction = new Action(this::onCopy);
-        this.deleteOrderAction = new Action(this::onDeleteOrder);
+        this.copyAction = new Action(this::onCopy, existingOrder);
+        this.deleteOrderAction = new Action(this::onDeleteOrder, existingOrder);
         this.addLineItemAction = new Action(this::onAddLineItem);
     }
 

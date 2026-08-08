@@ -58,6 +58,22 @@ class OrderEditorViewModelTest {
 
             assertTrue(vm.saveAction().canExecute());
         }
+
+        @Test
+        @DisplayName("canCopy is true for an existing order")
+        void canCopyIsTrueForExistingOrder() {
+            var vm = vmFor(MockOrders.validOrderWithLineItems());
+
+            assertTrue(vm.copyAction().canExecute());
+        }
+
+        @Test
+        @DisplayName("canDelete is true for an existing order")
+        void canDeleteIsTrueForExistingOrder() {
+            var vm = vmFor(MockOrders.validOrderWithLineItems());
+
+            assertTrue(vm.deleteOrderAction().canExecute());
+        }
     }
 
     @Nested
@@ -168,6 +184,34 @@ class OrderEditorViewModelTest {
             );
 
             assertFalse(vm.saveAction().canExecute());
+        }
+
+        @Test
+        @DisplayName("canCopy is false")
+        void canCopyIsFalse() {
+            var service = mock(OrderEditorService.class);
+            when(service.fetch(any())).thenReturn(new OrderEditorData(Order.draft(), null));
+            var vm = new OrderEditorViewModel(
+                OrderEditorRequest.forNewOrder(),
+                service,
+                mock(OrderEditorHost.class)
+            );
+
+            assertFalse(vm.copyAction().canExecute());
+        }
+
+        @Test
+        @DisplayName("canDelete is false")
+        void canDeleteIsFalse() {
+            var service = mock(OrderEditorService.class);
+            when(service.fetch(any())).thenReturn(new OrderEditorData(Order.draft(), null));
+            var vm = new OrderEditorViewModel(
+                OrderEditorRequest.forNewOrder(),
+                service,
+                mock(OrderEditorHost.class)
+            );
+
+            assertFalse(vm.deleteOrderAction().canExecute());
         }
     }
 

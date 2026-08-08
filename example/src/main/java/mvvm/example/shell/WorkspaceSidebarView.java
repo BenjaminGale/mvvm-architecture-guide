@@ -1,32 +1,31 @@
-package mvvm.example.shell.main.sidebar;
+package mvvm.example.shell;
 
 import javafx.beans.InvalidationListener;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import mvvm.example.core.view.controls.Buttons;
 
-public class SidebarView extends BorderPane {
+public class WorkspaceSidebarView extends BorderPane {
 
     private final VBox navigationHost = navigationHost();
 
-    public SidebarView(SidebarViewModel viewModel) {
+    public WorkspaceSidebarView(ShellViewModel viewModel) {
         setRight(separator());
         setCenter(navigationHost);
         setPrefWidth(180);
 
-        setContent(viewModel.navigationItems());
+        setContent(viewModel);
 
-        viewModel
-            .navigationItems()
-            .addListener((InvalidationListener) _ -> setContent(viewModel.navigationItems()));
+        viewModel.workspaces().addListener((InvalidationListener) _ -> setContent(viewModel));
     }
 
-    private void setContent(ObservableList<SidebarItemViewModel> items) {
+    private void setContent(ShellViewModel viewModel) {
         navigationHost.getChildren().setAll(
-            items.stream().map(SidebarView::navigationButton).toList()
+            viewModel.workspaces().stream().map(WorkspaceSidebarView::navigationButton).toList()
         );
     }
 
@@ -46,8 +45,8 @@ public class SidebarView extends BorderPane {
         return separator;
     }
 
-    private static Button navigationButton(SidebarItemViewModel viewModel) {
-        var button = Buttons.button(viewModel.titleProperty(), viewModel.action());
+    private static Button navigationButton(WorkspaceViewModel workspace) {
+        var button = Buttons.button(workspace.titleProperty(), workspace.openAction());
         button.setMaxWidth(Double.MAX_VALUE);
         button.setAlignment(Pos.CENTER_LEFT);
         return button;

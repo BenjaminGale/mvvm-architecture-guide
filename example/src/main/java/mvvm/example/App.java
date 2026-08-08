@@ -25,10 +25,6 @@ public class App extends Application {
         var customers = shell.createCustomersModule();
         var stock = shell.createStockModule();
 
-        return shell.mainView(
-            orders.sidebarItem(),
-            customers.sidebarItem(),
-            stock.sidebarItem()
-        );
+        return shell.mainView(orders.workspace(), customers.workspace(), stock.workspace());
     }
 }

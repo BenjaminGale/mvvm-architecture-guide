@@ -10,7 +10,6 @@ import mvvm.example.core.config.adapters.InMemoryOrderRepository;
 import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.core.config.adapters.InMemoryProductRepository;
 import mvvm.example.stock.domain.ProductRepository;
-import mvvm.example.shell.ShellContext;
 
 public class AppModule {
 
@@ -33,7 +32,6 @@ public class AppModule {
                 new ViewLocator<>(),
                 new DialogManager(
                     stage,
-                    new ViewLocator<>())),
-            new ShellContext());
+                    new ViewLocator<>())));
     }
 }

@@ -1,5 +1,6 @@
 package mvvm.example.core.config;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
 import mvvm.example.core.view.ViewServices;
 import mvvm.example.customers.domain.Customer;
 import mvvm.example.customers.domain.CustomerRepository;
@@ -9,38 +10,48 @@ import mvvm.example.customers.editor.CustomerEditorDialog;
 import mvvm.example.customers.editor.CustomerEditorViewModel;
 import mvvm.example.customers.explorer.CustomersExplorerView;
 import mvvm.example.customers.explorer.CustomersExplorerViewModel;
-import mvvm.example.shell.ShellContext;
-import mvvm.example.shell.main.sidebar.SidebarItemViewModel;
+import mvvm.example.shell.TabContentViewModel;
+import mvvm.example.shell.ToolbarItem;
+import mvvm.example.shell.WorkspaceTabViewModel;
+import mvvm.example.shell.WorkspaceViewModel;
 
+import java.util.List;
 import java.util.UUID;
 
 public class CustomersModule {
 
+    private static final Object EXPLORER_KEY = new Object();
+
     private final CustomerRepository customerRepository;
     private final ViewServices view;
-    private final ShellContext shell;
+    private final WorkspaceViewModel workspace;
 
-    public CustomersModule(CustomerRepository customerRepository, ViewServices view, ShellContext shell) {
+    public CustomersModule(CustomerRepository customerRepository, ViewServices view) {
         this.customerRepository = customerRepository;
         this.view = view;
-        this.shell = shell;
 
         view.viewLocator().register(CustomersExplorerViewModel.class, CustomersExplorerView::new);
         view.dialogManager().register(CustomerEditorViewModel.class, CustomerEditorDialog::dialog);
+
+        this.workspace = new WorkspaceViewModel("Customers");
+        workspace.openTab(EXPLORER_KEY, this::customersExplorerTab);
     }
 
-    public SidebarItemViewModel sidebarItem() {
-        return new SidebarItemViewModel("Customers", this::showExplorer);
+    public WorkspaceViewModel workspace() {
+        return workspace;
     }
 
-    public void showExplorer() {
-        shell.show(this::customersExplorerViewModel);
-    }
-
-    public CustomersExplorerViewModel customersExplorerViewModel() {
-        return new CustomersExplorerViewModel(
+    private WorkspaceTabViewModel customersExplorerTab() {
+        var vm = new CustomersExplorerViewModel(
             customerRepository::findAll,
             request -> view.dialogManager().show(editor(request)));
+
+        workspace.withToolbarActions(List.of(new ToolbarItem.Sync("Add", vm.addItemAction())));
+
+        return WorkspaceTabViewModel.unclosable(
+            new ReadOnlyStringWrapper("Customers").getReadOnlyProperty(),
+            new TabContentViewModel(vm)
+        );
     }
 
     private CustomerEditorViewModel editor(CustomerEditorRequest request) {
