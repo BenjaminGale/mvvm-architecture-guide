@@ -8,9 +8,9 @@ import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.shell.ShellView;
 import mvvm.example.shell.ShellViewModel;
-import mvvm.example.shell.WorkspaceViewModel;
-import mvvm.example.shell.main.statusbar.StatusItemView;
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
+import mvvm.example.shell.workspace.WorkspaceViewModel;
+import mvvm.example.shell.statusbar.StatusItemView;
+import mvvm.example.shell.statusbar.StatusItemViewModel;
 
 import java.util.List;
 

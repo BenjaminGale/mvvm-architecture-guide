@@ -1,5 +1,6 @@
 package mvvm.example.shell;
 
+import mvvm.example.shell.workspace.WorkspaceViewModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

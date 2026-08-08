@@ -1,9 +1,10 @@
-package mvvm.example.shell;
+package mvvm.example.shell.tabs;
 
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;
-import mvvm.example.shell.main.statusbar.LabelType;
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
+import mvvm.example.shell.toolbar.ToolbarItem;
+import mvvm.example.shell.statusbar.LabelType;
+import mvvm.example.shell.statusbar.StatusItemViewModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

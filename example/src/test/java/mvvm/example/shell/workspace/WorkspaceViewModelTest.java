@@ -1,7 +1,10 @@
-package mvvm.example.shell;
+package mvvm.example.shell.workspace;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import mvvm.example.core.viewmodel.Action;
+import mvvm.example.shell.toolbar.ToolbarItem;
+import mvvm.example.shell.tabs.TabContentViewModel;
+import mvvm.example.shell.tabs.TabViewModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,12 +17,12 @@ import static org.mockito.Mockito.*;
 @DisplayName("Shell.WorkspaceViewModel")
 class WorkspaceViewModelTest {
 
-    private static WorkspaceTabViewModel closableTab(String title) {
-        return WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new TabContentViewModel(new Object()));
+    private static TabViewModel closableTab(String title) {
+        return TabViewModel.closable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new TabContentViewModel(new Object()));
     }
 
-    private static WorkspaceTabViewModel unclosableTab(String title) {
-        return WorkspaceTabViewModel.unclosable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new TabContentViewModel(new Object()));
+    private static TabViewModel unclosableTab(String title) {
+        return TabViewModel.unclosable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new TabContentViewModel(new Object()));
     }
 
     @Nested

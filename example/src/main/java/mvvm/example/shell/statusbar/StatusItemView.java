@@ -1,4 +1,4 @@
-package mvvm.example.shell.main.statusbar;
+package mvvm.example.shell.statusbar;
 
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.Label;

@@ -1,4 +1,4 @@
-package mvvm.example.shell;
+package mvvm.example.shell.workspace;
 
 import javafx.beans.InvalidationListener;
 import javafx.geometry.Insets;
@@ -9,6 +9,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import mvvm.example.shell.ShellViewModel;
 
 public class WorkspaceSidebarView extends BorderPane {
 

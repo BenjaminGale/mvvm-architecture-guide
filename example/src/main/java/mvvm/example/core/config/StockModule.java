@@ -2,9 +2,9 @@ package mvvm.example.core.config;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import mvvm.example.core.view.ViewServices;
-import mvvm.example.shell.TabContentViewModel;
-import mvvm.example.shell.WorkspaceTabViewModel;
-import mvvm.example.shell.WorkspaceViewModel;
+import mvvm.example.shell.tabs.TabContentViewModel;
+import mvvm.example.shell.tabs.TabViewModel;
+import mvvm.example.shell.workspace.WorkspaceViewModel;
 import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.stock.explorer.StockExplorerView;
 import mvvm.example.stock.explorer.StockExplorerViewModel;
@@ -31,10 +31,10 @@ public class StockModule {
         return workspace;
     }
 
-    private WorkspaceTabViewModel stockExplorerTab() {
+    private TabViewModel stockExplorerTab() {
         var vm = new StockExplorerViewModel(productRepository::findAll);
 
-        return WorkspaceTabViewModel.unclosable(
+        return TabViewModel.unclosable(
             new ReadOnlyStringWrapper("Stock").getReadOnlyProperty(),
             new TabContentViewModel(vm)
         );

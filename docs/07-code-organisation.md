@@ -116,20 +116,27 @@ customers/
     └── CustomerEditorView.java
 ```
 
-The shell package separates its screens into sub-packages:
+The shell has no natural per-screen split — unlike a feature area, it doesn't decompose into independently navigable screens. It decomposes into cohesive *concerns* instead: navigating between workspaces, rendering the tabs within one, rendering the toolbar for whichever is active, reporting status. Each concern gets its own sub-package; only genuine top-level orchestration (`ShellView`, `ShellViewModel` — the two types that assemble the concerns together) stays flat at the root:
 
 ```
 shell/
-├── ShellContext.java
-└── main/
-    ├── MainViewModel.java
-    ├── MainView.java
-    ├── sidebar/
-    │   ├── SidebarViewModel.java
-    │   └── SidebarView.java
-    └── statusbar/
-        ├── StatusBarViewModel.java
-        └── StatusBarView.java
+├── ShellView.java
+├── ShellViewModel.java
+├── workspace/
+│   ├── WorkspaceViewModel.java
+│   └── WorkspaceSidebarView.java
+├── tabs/
+│   ├── TabViewModel.java
+│   ├── TabContentViewModel.java
+│   └── TabView.java
+├── toolbar/
+│   ├── ToolbarItem.java
+│   └── ToolbarView.java
+└── statusbar/
+    ├── StatusBarView.java
+    ├── LabelType.java
+    ├── StatusItemViewModel.java
+    └── StatusItemView.java
 ```
 
 ### 7.3 Cross-cutting infrastructure

@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import mvvm.example.shell.workspace.WorkspaceViewModel;
 
 import java.util.List;
 

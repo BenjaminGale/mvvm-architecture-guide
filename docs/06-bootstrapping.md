@@ -96,7 +96,7 @@ public class OrdersModule {
 
     public WorkspaceViewModel workspace() { return workspace; }
 
-    private WorkspaceTabViewModel ordersExplorerTab() { ... }
+    private TabViewModel ordersExplorerTab() { ... }
 }
 ```
 

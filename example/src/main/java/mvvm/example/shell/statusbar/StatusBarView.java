@@ -1,4 +1,4 @@
-package mvvm.example.shell;
+package mvvm.example.shell.statusbar;
 
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
@@ -9,7 +9,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import mvvm.example.core.view.ViewLocator;
 import mvvm.example.core.view.controls.Spacer;
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
+import mvvm.example.shell.ShellViewModel;
+import mvvm.example.shell.tabs.TabViewModel;
+import mvvm.example.shell.workspace.WorkspaceViewModel;
 
 import java.util.List;
 
@@ -17,7 +19,7 @@ public class StatusBarView extends BorderPane {
 
     private final ViewLocator<Region> viewLocator;
     private final HBox content = content();
-    private final ChangeListener<WorkspaceTabViewModel> onSelectedTabChanged = (_, _, _) -> rebuild();
+    private final ChangeListener<TabViewModel> onSelectedTabChanged = (_, _, _) -> rebuild();
 
     private WorkspaceViewModel workspace;
 

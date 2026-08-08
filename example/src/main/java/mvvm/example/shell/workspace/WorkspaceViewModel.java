@@ -1,4 +1,4 @@
-package mvvm.example.shell;
+package mvvm.example.shell.workspace;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
@@ -9,6 +9,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.ObservableLists;
+import mvvm.example.shell.toolbar.ToolbarItem;
+import mvvm.example.shell.tabs.TabViewModel;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,9 +19,9 @@ import java.util.function.Supplier;
 public class WorkspaceViewModel {
 
     private final ReadOnlyStringWrapper title = new ReadOnlyStringWrapper(this, "title");
-    private final ObservableMap<Object, WorkspaceTabViewModel> tabsByKey = FXCollections.observableMap(new LinkedHashMap<>());
-    private final ObservableList<WorkspaceTabViewModel> tabs = ObservableLists.valuesOf(tabsByKey);
-    private final ObjectProperty<WorkspaceTabViewModel> selectedTab = new SimpleObjectProperty<>(this, "selectedTab");
+    private final ObservableMap<Object, TabViewModel> tabsByKey = FXCollections.observableMap(new LinkedHashMap<>());
+    private final ObservableList<TabViewModel> tabs = ObservableLists.valuesOf(tabsByKey);
+    private final ObjectProperty<TabViewModel> selectedTab = new SimpleObjectProperty<>(this, "selectedTab");
     private Action.Listener onOpen = () -> {};
     private final Action openAction = new Action(() -> onOpen.actionExecuted());
     private List<ToolbarItem> toolbarActions = List.of();
@@ -41,11 +43,11 @@ public class WorkspaceViewModel {
         return toolbarActions;
     }
 
-    public ObservableList<WorkspaceTabViewModel> tabs() {
+    public ObservableList<TabViewModel> tabs() {
         return tabs;
     }
 
-    public ObjectProperty<WorkspaceTabViewModel> selectedTabProperty() {
+    public ObjectProperty<TabViewModel> selectedTabProperty() {
         return selectedTab;
     }
 
@@ -57,7 +59,7 @@ public class WorkspaceViewModel {
         this.onOpen = listener;
     }
 
-    public void openTab(Object key, Supplier<WorkspaceTabViewModel> tabFactory) {
+    public void openTab(Object key, Supplier<TabViewModel> tabFactory) {
         var existing = tabsByKey.get(key);
         if (existing != null) {
             selectedTab.set(existing);
@@ -70,7 +72,7 @@ public class WorkspaceViewModel {
         selectedTab.set(tab);
     }
 
-    private void removeTab(Object key, WorkspaceTabViewModel tab) {
+    private void removeTab(Object key, TabViewModel tab) {
         if (!tabsByKey.containsKey(key)) {
             throw new IllegalStateException("Tab is not open in this workspace");
         }

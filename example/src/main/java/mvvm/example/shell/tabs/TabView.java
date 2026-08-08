@@ -1,4 +1,4 @@
-package mvvm.example.shell;
+package mvvm.example.shell.tabs;
 
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
@@ -6,23 +6,25 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Region;
 import mvvm.example.core.view.ViewLocator;
+import mvvm.example.shell.ShellViewModel;
+import mvvm.example.shell.workspace.WorkspaceViewModel;
 
-public class TabAreaView extends TabPane {
+public class TabView extends TabPane {
 
     private final ViewLocator<Region> viewLocator;
-    private final ListChangeListener<WorkspaceTabViewModel> onTabsChanged = this::applyTabsChange;
-    private final ChangeListener<WorkspaceTabViewModel> onSelectedTabChanged = (_, _, tab) -> selectTab(tab);
+    private final ListChangeListener<TabViewModel> onTabsChanged = this::applyTabsChange;
+    private final ChangeListener<TabViewModel> onSelectedTabChanged = (_, _, tab) -> selectTab(tab);
 
     private WorkspaceViewModel workspace;
 
-    public TabAreaView(ShellViewModel shell, ViewLocator<Region> viewLocator) {
+    public TabView(ShellViewModel shell, ViewLocator<Region> viewLocator) {
         this.viewLocator = viewLocator;
 
         setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 
         getSelectionModel().selectedItemProperty().addListener((_, _, tab) -> {
             if (workspace != null && tab != null) {
-                workspace.selectedTabProperty().set((WorkspaceTabViewModel) tab.getUserData());
+                workspace.selectedTabProperty().set((TabViewModel) tab.getUserData());
             }
         });
 
@@ -48,7 +50,7 @@ public class TabAreaView extends TabPane {
         selectTab(tabToSelect);
     }
 
-    private void applyTabsChange(ListChangeListener.Change<? extends WorkspaceTabViewModel> change) {
+    private void applyTabsChange(ListChangeListener.Change<? extends TabViewModel> change) {
         while (change.next()) {
             if (change.wasRemoved()) {
                 change.getRemoved().forEach(removed ->
@@ -61,14 +63,14 @@ public class TabAreaView extends TabPane {
         selectTab(workspace.selectedTabProperty().get());
     }
 
-    private void selectTab(WorkspaceTabViewModel tab) {
+    private void selectTab(TabViewModel tab) {
         getTabs().stream()
             .filter(javaFxTab -> javaFxTab.getUserData() == tab)
             .findFirst()
             .ifPresent(javaFxTab -> getSelectionModel().select(javaFxTab));
     }
 
-    private Tab toJavaFxTab(WorkspaceTabViewModel tab) {
+    private Tab toJavaFxTab(TabViewModel tab) {
         var javaFxTab = new Tab();
         javaFxTab.setUserData(tab);
         javaFxTab.textProperty().bind(tab.titleProperty());

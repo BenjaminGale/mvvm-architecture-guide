@@ -1,16 +1,19 @@
-package mvvm.example.shell;
+package mvvm.example.shell.toolbar;
 
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.Control;
 import javafx.scene.control.ToolBar;
 import mvvm.example.core.view.controls.Buttons;
+import mvvm.example.shell.ShellViewModel;
+import mvvm.example.shell.tabs.TabViewModel;
+import mvvm.example.shell.workspace.WorkspaceViewModel;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 public class ToolbarView extends ToolBar {
 
-    private final ChangeListener<WorkspaceTabViewModel> onSelectedTabChanged = (_, _, _) -> rebuild();
+    private final ChangeListener<TabViewModel> onSelectedTabChanged = (_, _, _) -> rebuild();
 
     private WorkspaceViewModel workspace;
 

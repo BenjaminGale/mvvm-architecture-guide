@@ -1,22 +1,22 @@
-package mvvm.example.shell;
+package mvvm.example.shell.tabs;
 
 import javafx.beans.property.ReadOnlyStringProperty;
 import mvvm.example.core.viewmodel.Action;
 
 import java.util.function.BooleanSupplier;
 
-public class WorkspaceTabViewModel {
+public class TabViewModel {
 
-    public static WorkspaceTabViewModel unclosable(ReadOnlyStringProperty title, TabContentViewModel content) {
-        return new WorkspaceTabViewModel(title, content, Action.disabled());
+    public static TabViewModel unclosable(ReadOnlyStringProperty title, TabContentViewModel content) {
+        return new TabViewModel(title, content, Action.disabled());
     }
 
-    public static WorkspaceTabViewModel closable(ReadOnlyStringProperty title, TabContentViewModel content) {
+    public static TabViewModel closable(ReadOnlyStringProperty title, TabContentViewModel content) {
         return closable(title, content, () -> true);
     }
 
-    public static WorkspaceTabViewModel closable(ReadOnlyStringProperty title, TabContentViewModel content, BooleanSupplier canClose) {
-        return new WorkspaceTabViewModel(title, content, canClose);
+    public static TabViewModel closable(ReadOnlyStringProperty title, TabContentViewModel content, BooleanSupplier canClose) {
+        return new TabViewModel(title, content, canClose);
     }
 
     private final ReadOnlyStringProperty title;
@@ -24,13 +24,13 @@ public class WorkspaceTabViewModel {
     private Action.Listener onClose = () -> {};
     private final Action closeAction;
 
-    private WorkspaceTabViewModel(ReadOnlyStringProperty title, TabContentViewModel content, Action closeAction) {
+    private TabViewModel(ReadOnlyStringProperty title, TabContentViewModel content, Action closeAction) {
         this.title = title;
         this.content = content;
         this.closeAction = closeAction;
     }
 
-    private WorkspaceTabViewModel(ReadOnlyStringProperty title, TabContentViewModel content, BooleanSupplier canClose) {
+    private TabViewModel(ReadOnlyStringProperty title, TabContentViewModel content, BooleanSupplier canClose) {
         this.title = title;
         this.content = content;
         this.closeAction = new Action(() -> {

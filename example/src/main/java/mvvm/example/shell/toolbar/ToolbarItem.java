@@ -1,4 +1,4 @@
-package mvvm.example.shell;
+package mvvm.example.shell.toolbar;
 
 import mvvm.example.core.viewmodel.Action;
 import mvvm.example.core.viewmodel.AsyncAction;

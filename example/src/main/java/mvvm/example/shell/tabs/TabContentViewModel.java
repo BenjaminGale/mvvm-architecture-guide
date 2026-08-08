@@ -1,6 +1,7 @@
-package mvvm.example.shell;
+package mvvm.example.shell.tabs;
 
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
+import mvvm.example.shell.toolbar.ToolbarItem;
+import mvvm.example.shell.statusbar.StatusItemViewModel;
 
 import java.util.List;
 

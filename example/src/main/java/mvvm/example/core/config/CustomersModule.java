@@ -10,10 +10,10 @@ import mvvm.example.customers.editor.CustomerEditorDialog;
 import mvvm.example.customers.editor.CustomerEditorViewModel;
 import mvvm.example.customers.explorer.CustomersExplorerView;
 import mvvm.example.customers.explorer.CustomersExplorerViewModel;
-import mvvm.example.shell.TabContentViewModel;
-import mvvm.example.shell.ToolbarItem;
-import mvvm.example.shell.WorkspaceTabViewModel;
-import mvvm.example.shell.WorkspaceViewModel;
+import mvvm.example.shell.tabs.TabContentViewModel;
+import mvvm.example.shell.toolbar.ToolbarItem;
+import mvvm.example.shell.tabs.TabViewModel;
+import mvvm.example.shell.workspace.WorkspaceViewModel;
 
 import java.util.List;
 import java.util.UUID;
@@ -41,14 +41,14 @@ public class CustomersModule {
         return workspace;
     }
 
-    private WorkspaceTabViewModel customersExplorerTab() {
+    private TabViewModel customersExplorerTab() {
         var vm = new CustomersExplorerViewModel(
             customerRepository::findAll,
             request -> view.dialogManager().show(editor(request)));
 
         workspace.withToolbarActions(List.of(new ToolbarItem.Sync("Add", vm.addItemAction())));
 
-        return WorkspaceTabViewModel.unclosable(
+        return TabViewModel.unclosable(
             new ReadOnlyStringWrapper("Customers").getReadOnlyProperty(),
             new TabContentViewModel(vm)
         );

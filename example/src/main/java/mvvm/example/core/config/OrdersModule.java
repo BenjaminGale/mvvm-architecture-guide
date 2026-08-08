@@ -32,12 +32,12 @@ import mvvm.example.orders.domain.OrderRepository;
 import mvvm.example.stock.domain.ProductRepository;
 import mvvm.example.orders.explorer.OrdersExplorerView;
 import mvvm.example.orders.explorer.OrdersExplorerViewModel;
-import mvvm.example.shell.TabContentViewModel;
-import mvvm.example.shell.ToolbarItem;
-import mvvm.example.shell.WorkspaceTabViewModel;
-import mvvm.example.shell.WorkspaceViewModel;
-import mvvm.example.shell.main.statusbar.LabelType;
-import mvvm.example.shell.main.statusbar.StatusItemViewModel;
+import mvvm.example.shell.tabs.TabContentViewModel;
+import mvvm.example.shell.toolbar.ToolbarItem;
+import mvvm.example.shell.tabs.TabViewModel;
+import mvvm.example.shell.workspace.WorkspaceViewModel;
+import mvvm.example.shell.statusbar.LabelType;
+import mvvm.example.shell.statusbar.StatusItemViewModel;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -77,7 +77,7 @@ public class OrdersModule {
         return workspace;
     }
 
-    private WorkspaceTabViewModel ordersExplorerTab() {
+    private TabViewModel ordersExplorerTab() {
         explorerViewModel = new OrdersExplorerViewModel(
             new GetOrderSummariesQuery(orderRepository, customerRepository)::execute,
             this::showOrderDetails
@@ -85,7 +85,7 @@ public class OrdersModule {
 
         workspace.withToolbarActions(List.of(new ToolbarItem.Sync("Add", explorerViewModel.addItemAction())));
 
-        return WorkspaceTabViewModel.unclosable(
+        return TabViewModel.unclosable(
             new ReadOnlyStringWrapper("Orders").getReadOnlyProperty(),
             new TabContentViewModel(explorerViewModel).withStatusItems(List.of(
                 new StatusItemViewModel(explorerViewModel.ordersCountProperty(), LabelType.All_ORDERS),
@@ -102,14 +102,14 @@ public class OrdersModule {
         return request.orderId() != null ? request.orderId() : new Object();
     }
 
-    private WorkspaceTabViewModel orderEditorTab(OrderEditorRequest request) {
+    private TabViewModel orderEditorTab(OrderEditorRequest request) {
         var closeRequested = new Runnable[] { () -> {} };
         var editor = orderEditorViewModel(request, () -> {
             refreshExplorer();
             closeRequested[0].run();
         });
 
-        var tab = WorkspaceTabViewModel.closable(
+        var tab = TabViewModel.closable(
             tabTitle(editor),
             new TabContentViewModel(editor).withToolbarActions(List.of(
                 new ToolbarItem.Sync("Copy", editor.copyAction()),
