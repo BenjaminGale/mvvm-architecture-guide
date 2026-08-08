@@ -12,6 +12,46 @@ cd example && ./gradlew run
 
 ---
 
+## Application Shell
+
+The application window is built from chrome shared across every feature: a **sidebar**, a **toolbar**, a tabbed content area, and a **status bar**.
+
+```
+┌────────────┬───────────────────────────────────────────┐
+│ Sidebar    │ Toolbar                                   │
+│            ├───────────────────────────────────────────│
+│ Orders     │ Tabs: [Explorer] [Editor]                 │
+│ Customers  │┌─────────────────────────────────────────┐│
+│ Stock      ││ selected tab's content                  ││
+│            ││ (an explorer or an editor)              ││
+│            ││                                         ││
+│            │└─────────────────────────────────────────┘│
+├────────────┴───────────────────────────────────────────┤
+│ Status bar                                             │
+└────────────────────────────────────────────────────────┘
+```
+
+**Sidebar** — A fixed navigation panel on the left with one entry per workspace: Orders, Customers, Stock. Selecting an entry switches the active workspace; exactly one is selected at a time.
+
+**Workspaces** — A workspace is one of the app's top-level domain areas. Each owns its own tabs independently of the others, so switching away and back leaves everything exactly as it was. A workspace opens with its explorer tab already showing; further tabs are opened by drilling into individual records.
+
+**Tabs** — Each workspace has its own tabbed content area.
+- *Explorer tabs* are unclosable and open automatically as soon as the workspace exists — one per workspace.
+- *Editor tabs* are closable and open on demand, when a record is created or selected from its explorer.
+- Opening a record that's already open re-selects its existing tab instead of opening a duplicate.
+
+**Toolbar** — A single toolbar above the tab content, rebuilt for whichever tab is currently selected. It combines actions scoped to the whole workspace (e.g. "Add" on an explorer) with actions scoped to the selected tab (e.g. "Save", "Copy", "Delete" on an order editor), so what appears depends on both which workspace and which tab is active.
+
+**Status bar** — A row along the bottom of the window showing information contextual to the selected tab — for example, total and overdue order counts on the Orders Explorer. It updates as the selected tab changes, and is empty for tabs that don't publish anything.
+
+**Explorers and editors** — Every workspace follows the same pattern:
+- An **explorer** is the entry point: a table listing all records of that type, opened as the workspace's initial, unclosable tab.
+- An **editor** opens when a record is created or selected. Orders open their editor as a closable tab within the workspace; Customers and Stock open theirs as a dialog.
+
+The Features section below describes each workspace's explorer and editor in detail.
+
+---
+
 ## Domain
 
 ### Customer
@@ -149,6 +189,23 @@ An allocation records that some quantity of a line item's ordered units has been
 ---
 
 ## Features
+
+### Shell
+
+The chrome shared across every workspace — see [Application Shell](#application-shell) above for how the pieces fit together.
+
+- Navigate between workspaces (Orders, Customers, Stock) via the sidebar
+- Switch tabs within the active workspace; open tabs persist when switching away to another workspace and back
+- Close an editor tab
+- Reuse an already-open editor tab instead of opening a duplicate when the same record is selected again
+- Run the toolbar action for the selected tab
+- View the status bar content for the selected tab
+- Confirm before closing a tab with unsaved changes **[planned]** — `TabViewModel.closable` already accepts a `canClose` veto hook, but no editor supplies one yet, so closing a tab with unsaved changes still discards them silently
+- Open a tab in one workspace from another (e.g. an order editor opening a customer detail tab) **[planned]**
+- Visual indication of how many editable tabs are open in a workspace **[planned]**
+- Visual indication that a workspace has unsaved edits **[planned]**
+
+---
 
 ### Orders Explorer
 
