@@ -41,10 +41,11 @@ public class TabAreaView extends TabPane {
 
         if (workspace == null) return;
 
+        var tabToSelect = workspace.selectedTabProperty().get();
         getTabs().setAll(workspace.tabs().stream().map(this::toJavaFxTab).toList());
         workspace.tabs().addListener(onTabsChanged);
         workspace.selectedTabProperty().addListener(onSelectedTabChanged);
-        selectTab(workspace.selectedTabProperty().get());
+        selectTab(tabToSelect);
     }
 
     private void applyTabsChange(ListChangeListener.Change<? extends WorkspaceTabViewModel> change) {
