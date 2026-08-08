@@ -7,7 +7,7 @@ import java.util.function.BooleanSupplier;
 
 public class WorkspaceTabViewModel {
 
-    public static WorkspaceTabViewModel pinned(ReadOnlyStringProperty title, Object content) {
+    public static WorkspaceTabViewModel unclosable(ReadOnlyStringProperty title, Object content) {
         return new WorkspaceTabViewModel(title, content, Action.disabled());
     }
 

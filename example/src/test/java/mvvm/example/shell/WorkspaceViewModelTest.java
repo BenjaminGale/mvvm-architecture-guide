@@ -16,8 +16,8 @@ class WorkspaceViewModelTest {
         return WorkspaceTabViewModel.closable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new Object());
     }
 
-    private static WorkspaceTabViewModel pinnedTab(String title) {
-        return WorkspaceTabViewModel.pinned(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new Object());
+    private static WorkspaceTabViewModel unclosableTab(String title) {
+        return WorkspaceTabViewModel.unclosable(new ReadOnlyStringWrapper(title).getReadOnlyProperty(), new Object());
     }
 
     @Nested
@@ -195,10 +195,10 @@ class WorkspaceViewModelTest {
         }
 
         @Test
-        @DisplayName("a pinned tab's close action cannot execute")
-        void pinnedTabNotClosable() {
+        @DisplayName("an unclosable tab's close action cannot execute")
+        void unclosableTabNotClosable() {
             var vm = new WorkspaceViewModel("Orders");
-            var explorer = pinnedTab("Orders");
+            var explorer = unclosableTab("Orders");
             vm.openTab("explorer", () -> explorer);
 
             assertThrows(IllegalStateException.class, () -> explorer.closeAction().execute());

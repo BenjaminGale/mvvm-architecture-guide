@@ -45,13 +45,13 @@ class WorkspaceTabViewModelTest {
     }
 
     @Nested
-    @DisplayName("when created as pinned")
-    class WhenPinned {
+    @DisplayName("when created as unclosable")
+    class WhenUnclosable {
 
         @Test
         @DisplayName("its close action cannot execute")
         void closeActionCannotExecute() {
-            var tab = WorkspaceTabViewModel.pinned(new ReadOnlyStringWrapper("Orders").getReadOnlyProperty(), new Object());
+            var tab = WorkspaceTabViewModel.unclosable(new ReadOnlyStringWrapper("Orders").getReadOnlyProperty(), new Object());
 
             assertFalse(tab.closeAction().canExecute());
         }
