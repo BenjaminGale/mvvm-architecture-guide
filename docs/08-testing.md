@@ -120,13 +120,13 @@ Tests verify that a consuming ViewModel's property reflects context changes, and
 
 ```java
 @Test
-void sidebarPendingCount_updatesWhenContextChanges() {
+void summaryPendingCount_updatesWhenContextChanges() {
     var context = new OrderContext();
-    var sidebarVm = new SidebarViewModel(context, () -> {}, () -> {}, () -> {});
+    var summaryVm = new SummaryViewModel(context, () -> {}, () -> {}, () -> {});
 
     context.setPendingCount(5);
 
-    assertEquals(5, sidebarVm.pendingOrderCountProperty().get());
+    assertEquals(5, summaryVm.pendingOrderCountProperty().get());
 }
 ```
 
