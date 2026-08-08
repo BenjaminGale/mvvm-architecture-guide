@@ -4,6 +4,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 
 import java.util.concurrent.CompletableFuture;
@@ -12,6 +13,10 @@ import java.util.concurrent.Executor;
 import static java.util.Objects.requireNonNull;
 
 public class AsyncAction {
+
+    public static AsyncAction disabled() {
+        return new AsyncAction(() -> CompletableFuture.completedFuture(() -> {}), new SimpleBooleanProperty(false));
+    }
 
     private final ReadOnlyBooleanWrapper canExecuteProperty =
         new ReadOnlyBooleanWrapper(this, "canExecute", true);

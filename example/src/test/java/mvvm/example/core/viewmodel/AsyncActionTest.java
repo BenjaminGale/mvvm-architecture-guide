@@ -133,4 +133,25 @@ class AsyncActionTest {
             assertFalse(action.canExecute());
         }
     }
+
+    @Nested
+    @DisplayName("when a disabled action is created")
+    class WithDisabledFactory {
+
+        @Test
+        @DisplayName("canExecute() returns false")
+        void canExecuteIsFalse() {
+            var action = AsyncAction.disabled();
+
+            assertFalse(action.canExecute());
+        }
+
+        @Test
+        @DisplayName("throws when executeAsync() is called")
+        void throwsWhenExecuted() {
+            var action = AsyncAction.disabled();
+
+            assertThrows(IllegalStateException.class, () -> action.executeAsync(Runnable::run));
+        }
+    }
 }

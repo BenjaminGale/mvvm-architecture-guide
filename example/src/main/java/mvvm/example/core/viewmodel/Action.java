@@ -3,10 +3,15 @@ package mvvm.example.core.viewmodel;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 
 import static java.util.Objects.requireNonNull;
 
 public class Action {
+
+    public static Action disabled() {
+        return new Action(() -> {}, new SimpleBooleanProperty(false));
+    }
 
     private final ReadOnlyBooleanWrapper canExecute = new ReadOnlyBooleanWrapper(this, "canExecute", true);
     private final Listener listener;
