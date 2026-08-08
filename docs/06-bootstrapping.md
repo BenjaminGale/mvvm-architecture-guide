@@ -13,7 +13,7 @@ This section covers the composition root — the single place in the codebase wh
 
 `App` is the single composition root. It is the only place in the codebase where dependencies are constructed and wired across layer boundaries. Reading it top to bottom gives a complete picture of every screen and every possible navigation transition.
 
-> Here we show how to wire up the dependencies manually but this can easily be done with a dependency injection framework if you wish.
+> Dependencies are wired by hand here rather than through a DI framework — deliberately: every object's dependencies are visible at its construction site, and the complete dependency graph can be read top-to-bottom starting from `App`, with no annotations or runtime scanning doing it invisibly. This can be replaced with a DI framework without changing anything below the composition root.
 
 `App.start` delegates immediately to a `bootstrap` method that creates modules in dependency order and returns the root view:
 
@@ -30,138 +30,99 @@ public class App extends Application {
     }
 
     private Parent bootstrap(Stage stage) {
-        var shell = new ShellModule(stage);
-        var orders = new OrdersModule(shell.appContext(), shell.workspaceContext());
-        var customers = new CustomersModule(shell.appContext(), shell.workspaceContext());
+        var app = new AppModule();
+        var shell = app.createShellModule(stage);
 
-        var navigation = shell.navigation(orders, customers);
+        var orders = shell.createOrdersModule();
+        var customers = shell.createCustomersModule();
+        var stock = shell.createStockModule();
 
-        shell.workspaceContext().show(orders.ordersExplorerViewModel());
-
-        return shell.mainView(orders.orderContext(), navigation);
+        return shell.mainView(orders.workspace(), customers.workspace(), stock.workspace());
     }
 }
 ```
 
 ### 6.2 ShellModule
 
-`ShellModule` owns the application's navigation infrastructure. Its constructor takes the JavaFX `Window` (needed to anchor dialogs) and creates two shared objects that every domain module receives:
-
-- **`ViewServices`** — bundles a `ViewLocator` for workspace views and a `DialogManager` for dialog views. Every module registers its own ViewModel-to-View mappings here at construction time.
-- **`WorkspaceContext`** — holds the currently displayed workspace ViewModel as an observable property. Domain modules call `workspaceContext.show(viewModel)` to navigate between screens.
+`ShellModule` owns the application's navigation infrastructure. Its constructor takes the shared `ViewServices` — bundling a `ViewLocator` for workspace views and a `DialogManager` for dialog views — and registers the shell's own ViewModel-to-View mappings:
 
 ```java
 public class ShellModule {
 
-    private final ViewServices appContext;
-    private final WorkspaceContext workspaceContext;
+    private final ViewServices view;
+    ...
 
-    public ShellModule(Window window) {
-        this.appContext = new ViewServices(
-            new ViewLocator<>(),
-            new DialogManager(window, new ViewLocator<>())
-        );
+    public ShellModule(..., ViewServices view) {
+        this.view = view;
 
-        this.workspaceContext = new WorkspaceContext();
-
-        appContext.viewLocator().register(MainViewModel.class,
-            vm -> new MainView(vm, appContext.viewLocator()));
+        view.viewLocator().register(ShellViewModel.class, vm -> new ShellView(vm, view.viewLocator()));
+        view.viewLocator().register(StatusItemViewModel.class, StatusItemView::new);
     }
 
-    public ViewServices appContext() { return appContext; }
-    public WorkspaceContext workspaceContext() { return workspaceContext; }
-    ...
+    public OrdersModule createOrdersModule() {
+        return new OrdersModule(..., view, ...);
+    }
+
+    public CustomersModule createCustomersModule() {
+        return new CustomersModule(..., view);
+    }
+
+    public Parent mainView(WorkspaceViewModel... workspaces) {
+        return view.viewLocator().locate(new ShellViewModel(List.of(workspaces)));
+    }
 }
 ```
 
-`ShellModule.navigation` wires the sidebar callbacks. Each callback calls `workspaceContext.show` with a freshly constructed ViewModel, so navigating to the same screen twice yields independent instances:
-
-```java
-public Navigation navigation(OrdersModule orders, CustomersModule customers) {
-    return new Navigation(
-        () -> workspaceContext.show(orders.ordersExplorerViewModel()),
-        () -> workspaceContext.show(customers.customersExplorerViewModel()),
-    );
-}
-
-public record Navigation(
-    Runnable navigateToOrders,
-    Runnable navigateToCustomers
-) {}
-```
-
-`ShellModule.mainView` constructs `MainViewModel` — which embeds `SidebarViewModel` — and locates the corresponding view:
-
-```java
-public Parent mainView(OrderContext orderContext, Navigation navigation) {
-    return appContext.viewLocator().locate(new MainViewModel(
-        new SidebarViewModel(
-            orderContext,
-            navigation.navigateToOrders,
-            navigation.navigateToCustomers
-        ),
-        workspaceContext
-    ));
-}
-```
+Unlike a single shared navigation object, domain modules don't receive anything from `ShellModule` to navigate with — each builds its own `WorkspaceViewModel` internally (see 6.3) and hands it back through a `workspace()` accessor. `ShellModule.mainView` simply collects whatever workspaces it's given and constructs the `ShellViewModel` from them.
 
 ### 6.3 Domain modules
 
-As an application grows, `App` accumulates more factory methods. Modules are the natural way to organise them. Each module is self-contained: it creates its own services and repositories, registers its own ViewModel-to-View mappings with the shared `ViewServices`, and exposes factory methods for the screens in its domain.
+As an application grows, `App` accumulates more factory methods. Modules are the natural way to organise them. Each module is self-contained: it creates its own services and repositories, registers its own ViewModel-to-View mappings with the shared `ViewServices`, builds its own `WorkspaceViewModel`, and exposes it for `App` to collect.
 
 ```java
 public class OrdersModule {
 
-    private final WorkspaceContext workspaces;
-    private final OrderRepository orderRepository;
-    private final OrderContext orderContext;
+    private final WorkspaceViewModel workspace;
+    ...
 
-    public OrdersModule(ViewServices appContext, WorkspaceContext workspaces) {
-        this.workspaces = workspaces;
-        this.orderRepository = new InMemoryOrderRepository();
-        this.orderContext = new OrderContext();
+    public OrdersModule(..., ViewServices view, ...) {
+        view.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
+        view.viewLocator().register(OrderEditorViewModel.class, vm -> new OrderEditorView(vm, view.viewLocator()));
+        ...
 
-        appContext.viewLocator().register(OrdersExplorerViewModel.class, OrdersExplorerView::new);
-        appContext.viewLocator().register(OrderEditorViewModel.class, OrderEditorView::new);
-        appContext.dialogManager().register(EditItemViewModel.class, EditItemView::dialog);
+        this.workspace = new WorkspaceViewModel("Orders");
+        workspace.openTab(EXPLORER_KEY, this::ordersExplorerTab);
     }
 
-    public OrderContext orderContext() { return orderContext; }
+    public WorkspaceViewModel workspace() { return workspace; }
 
-    public OrdersExplorerViewModel ordersExplorerViewModel() { ... }
-
-    private OrderEditorViewModel orderEditorViewModel(Order order) { ... }
+    private WorkspaceTabViewModel ordersExplorerTab() { ... }
 }
 ```
 
-The constructor does three things: creates the module's own infrastructure, registers its views, and stores any dependencies needed by the factory methods. Public factory methods are the entry points exposed to `App`; private ones handle internal navigation within the domain.
+The constructor does the same three things it always did: creates the module's own infrastructure, registers its views, and stores any dependencies needed by its factory methods — with one addition since the shell redesign: it builds its own `WorkspaceViewModel` rather than receiving one from outside. Opening an item for editing works the same way regardless of domain, via `workspace.openTab(key, factory)`.
 
 > `InMemoryOrderRepository` stands in for a real persistence mechanism — a database, a remote API — so the examples stay self-contained and runnable. Swapping it for a real implementation doesn't change anything above the repository interface.
 
-The sample application is split into four modules:
-
-- **`ShellModule`** — navigation infrastructure (`ViewServices`, `WorkspaceContext`), the main window layout, and the sidebar. This is created first and passes its shared objects to the domain modules.
-- **`OrdersModule`** — order explorer, order editor, and the line item edit dialog. Owns `OrderRepository`, `CopyOrderService`, and `OrderContext`.
-- **`CustomersModule`** — customer explorer and customer detail. Owns `CustomerService`.
+Each domain area gets its own module, built the same way — its own repositories and services, its own view registrations, its own `WorkspaceViewModel`. `App` constructs one module per domain area and collects what each returns; adding a new domain area means writing a new module, not modifying existing ones.
 
 ### 6.4 Wiring it together
 
-`App.bootstrap` creates modules in dependency order, wires navigation, sets the initial screen, and returns the root view:
+`App.bootstrap` creates modules in dependency order and returns the root view:
 
 ```java
 private Parent bootstrap(Stage stage) {
-    var shell = new ShellModule(stage);
-    var orders = new OrdersModule(shell.appContext(), shell.workspaceContext());
-    var customers = new CustomersModule(shell.appContext(), shell.workspaceContext());
+    var app = new AppModule();
+    var shell = app.createShellModule(stage);
 
-    var navigation = shell.navigation(orders, customers);
+    var orders = shell.createOrdersModule();
+    var customers = shell.createCustomersModule();
+    var stock = shell.createStockModule();
 
-    shell.workspaceContext().show(orders.ordersExplorerViewModel());
-
-    return shell.mainView(orders.orderContext(), navigation);
+    return shell.mainView(orders.workspace(), customers.workspace(), stock.workspace());
 }
 ```
 
-Each module is fully self-contained: `CustomersModule` has no knowledge of `OrderService` or `OrderContext`; `OrdersModule` has no knowledge of `CustomerService`. Adding a new domain area means writing a new Module — `App` itself requires only one new line to create it.
+Each module is fully self-contained: `CustomersModule` has no knowledge of `OrderRepository`; `OrdersModule` has no knowledge of `ProductRepository`. Adding a new domain area means writing a new module — `App` itself requires only a few new lines to create it and collect its workspace.
 
-Each factory method produces a fresh ViewModel instance. No state persists between visits to a screen unless it is held in a context object or service.
+Unlike a single-screen navigation model, a workspace's state now persists for the lifetime of the app once its module is constructed — open tabs survive switching away and back, since the `WorkspaceViewModel` itself isn't rebuilt on each visit.
